@@ -144,43 +144,43 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener{
 
         //mask - input system, collider,
         //00001100
-        entity[1] = 12;
+        entity[EntityIndex.SYSTEM_MASK.getIndex()] = 12;
 
         //pos
-        entity[2] = 500;
-        entity[3] = 650;
+        entity[EntityIndex.POSITION_X.getIndex()] = 500;
+        entity[EntityIndex.POSITION_Y.getIndex()] = 650;
 
         //extent
-        entity[4] = 20;
-        entity[5] = 40;
+        entity[EntityIndex.EXTENT_X.getIndex()] = 20;
+        entity[EntityIndex.EXTENT_Y.getIndex()] = 40;
 
         //color
-        entity[6] = 218/255.0f;
-        entity[7] = 94/255.0f;
-        entity[8] = 92/255.0f;
-        entity[9] = 1.0f;
+        entity[EntityIndex.COLOR_R.getIndex()] = 218/255.0f;
+        entity[EntityIndex.COLOR_G.getIndex()] = 94/255.0f;
+        entity[EntityIndex.COLOR_B.getIndex()] = 92/255.0f;
+        entity[EntityIndex.COLOR_A.getIndex()] = 1.0f;
 
         //aabb box center
-        entity[10] = 0;
-        entity[11] = 0;
+        entity[EntityIndex.AABB_CENTER_X.getIndex()] = 0;
+        entity[EntityIndex.AABB_CENTER_Y.getIndex()] = 0;
 
         //aabb box extent
-        entity[12] = entity[4];
-        entity[13] = entity[5];
+        entity[EntityIndex.AABB_EXTENT_X.getIndex()] = entity[EntityIndex.EXTENT_X.getIndex()];
+        entity[EntityIndex.AABB_EXTENT_Y.getIndex()] = entity[EntityIndex.EXTENT_Y.getIndex()];
 
         //aabb dynamic vs static
         //player -> dynamic -> 1
-        entity[14] = 1.0f;
+        entity[EntityIndex.COLLISION_TYPE.getIndex()] = 1.0f;
 
         //velocity
-        entity[15] = 0.0f;
-        entity[16] = 0.0f;
+        entity[EntityIndex.VELOCITY_X.getIndex()] = 0.0f;
+        entity[EntityIndex.VELOCITY_Y.getIndex()] = 0.0f;
 
         //gravity
-        entity[17] = 1.0f;
+        entity[EntityIndex.GRAVITATION_INFLUENCE.getIndex()] = 1.0f;
 
         //drag
-        entity[18] = 0.975f;
+        entity[EntityIndex.DRAG.getIndex()] = 0.975f;
 
 
         return entity;
