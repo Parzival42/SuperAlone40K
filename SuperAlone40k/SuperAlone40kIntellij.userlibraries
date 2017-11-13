@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<eclipse-userlibraries>
+  <library name="lwjgl-glfw">
+    <archive path="C:/Users/Andy/Documents/acgr_project/libs/lwjgl-glfw.jar" />
+  </library>
+</eclipse-userlibraries>
+
