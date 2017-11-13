@@ -1,14 +1,20 @@
 package superAlone40k.ecs;
 
+import superAlone40k.util.Ray;
+import superAlone40k.util.Vector2;
 import superAlone40k.window.WindowWithFlattenedECS;
 
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
+import java.awt.geom.Path2D;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeSet;
 
 
 
 public class FlattenedEngine {
-
     private int runningID = 0;
 
     private ArrayList<float[]> entities = new ArrayList<>();
@@ -17,16 +23,16 @@ public class FlattenedEngine {
     private ArrayList<float[]> entitiesToAdd = new ArrayList<>();
     private ArrayList<float[]> entitiesToDelete = new ArrayList<>();
 
-    private int[] systemBitmasks = new int[]{0b1, 0b10, 0b100, 0b1000, 0b10000};
-    private SystemMethod[] systemMethods = new SystemMethod[]{FlattenedEngine::simpleHorizontalMovement,  FlattenedEngine::simpleVerticalMovement, FlattenedEngine::inputProcessing, FlattenedEngine::colliderSorting, FlattenedEngine::movementSystem};
+    private int[] systemBitmasks = new int[] {0b1, 0b10, 0b100, 0b1000, 0b10000, SystemBitmask.LIGHT_SYSTEM.getSystemMask()};
+    private SystemMethod[] systemMethods = new SystemMethod[]{FlattenedEngine::simpleHorizontalMovement,  FlattenedEngine::simpleVerticalMovement, FlattenedEngine::inputProcessing, FlattenedEngine::colliderSorting, FlattenedEngine::movementSystem, FlattenedEngine::lightingSystem};
 
-
+    private final TreeSet<Ray> angleSortedRays = new TreeSet<>();
+    
     private boolean updating;
 
     private static double totalTime = 0.0d;
 
     private double currentTimeScale = 1.0f;
-
 
     public FlattenedEngine() {
         systemViews = new ArrayList[systemMethods.length];
@@ -45,6 +51,14 @@ public class FlattenedEngine {
         updateEntities();
 
         updating = false;
+    }
+    
+    public void render(Graphics2D graphics) {
+    	final List<float[]> lights = systemViews[5];
+    	
+    	for(float[] lightEntity : lights) {
+    		calculateShadows(lightEntity, graphics);
+    	}
     }
 
     private void updateEntities(){
@@ -65,7 +79,6 @@ public class FlattenedEngine {
         //general update
         totalTime += deltaTime;
 
-
         //individual entity iterating approach
         for(int i = 0; i < systemViews.length; i++){
             for(int j = 0; j < systemViews[i].size(); j++){
@@ -76,10 +89,9 @@ public class FlattenedEngine {
         performCollisionDetection();
     }
 
-    public void addEntity(float[] entity){
+	public void addEntity(float[] entity){
         assert entity.length > 1;
 
-        entity[EntityIndex.ENTITY_TYPE_ID.getIndex()] = runningID++;
         if(updating){
             entitiesToAdd.add(entity);
         }else{
@@ -94,9 +106,9 @@ public class FlattenedEngine {
 
     //adds an entity to the proper views
     private void addEntityToViews(float[] entity){
-        int entityMask = (int) entity[1];
+        int entityMask = (int) entity[EntityIndex.SYSTEM_MASK.getIndex()];
         for(int i = 0; i < systemViews.length; i++){
-            if((entityMask & systemBitmasks[i]) == systemBitmasks[i]){
+            if((entityMask & systemBitmasks[i]) == systemBitmasks[i]) {
                 systemViews[i].add(entity);
             }
         }
@@ -132,7 +144,97 @@ public class FlattenedEngine {
 
     // ---- ENTITY SYSTEM METHODS
 
+    private Ray[] getCornerRays(Vector2 lightPosition, float[] entity) {
+    	// Box ray collision
+    	if((int) entity[EntityIndex.ENTITY_TYPE_ID.getIndex()] == EntityType.BOX_SHADOW.getEntityType()) {
+    		Vector2 min = new Vector2(
+    				entity[EntityIndex.POSITION_X.getIndex()] - entity[EntityIndex.EXTENT_X.getIndex()],
+    				entity[EntityIndex.POSITION_Y.getIndex()] - entity[EntityIndex.EXTENT_Y.getIndex()]);
+    		final float width = entity[EntityIndex.EXTENT_X.getIndex()] * 2;
+    		final float height = entity[EntityIndex.EXTENT_Y.getIndex()] * 2;
 
+    		final Vector2 toLeftTop = new Vector2(min.x, min.y).sub(lightPosition);
+    		final Ray leftTop = new Ray(lightPosition, toLeftTop);
+
+    		final Vector2 toRightTop = new Vector2(min.x + width, min.y).sub(lightPosition);
+    		final Ray rightTop = new Ray(lightPosition, toRightTop);
+
+    		final Vector2 toLeftBottom = new Vector2(min.x, min.y + height).sub(lightPosition);
+    		final Ray leftBottom = new Ray(lightPosition, toLeftBottom);
+
+    		final Vector2 toRightBottom = new Vector2(min.x + width, min.y + height).sub(lightPosition);
+    		final Ray rightBottom = new Ray(lightPosition, toRightBottom);
+
+    		return new Ray[] { leftTop, rightTop, leftBottom, rightBottom };
+    	} else if((int) entity[EntityIndex.ENTITY_TYPE_ID.getIndex()] == EntityType.SCREEN_BORDER.getEntityType()) {
+    		final Ray borderRay = new Ray(
+    				new Vector2(entity[EntityIndex.BORDER_ORIGIN_X.getIndex()], entity[EntityIndex.BORDER_ORIGIN_Y.getIndex()]),
+    				new Vector2(entity[EntityIndex.BORDER_DIR_X.getIndex()], entity[EntityIndex.BORDER_DIR_Y.getIndex()]));
+    		
+    		final Vector2 toCornerPosition = new Vector2(borderRay.origin.x, borderRay.origin.y).sub(lightPosition);
+    		return new Ray[] { new Ray(lightPosition, toCornerPosition) };
+    	}
+    	return null;
+    }
+    
+    private void intersect(Ray ray, float[] entity) {
+    	// Box ray collision
+    	if(entity[EntityIndex.ENTITY_TYPE_ID.getIndex()] == EntityType.BOX_SHADOW.getEntityType()) {
+    		Vector2 min = new Vector2(
+    				entity[EntityIndex.POSITION_X.getIndex()] - entity[EntityIndex.EXTENT_X.getIndex()],
+    				entity[EntityIndex.POSITION_Y.getIndex()] - entity[EntityIndex.EXTENT_Y.getIndex()]);
+    		Vector2 max = new Vector2(
+    				entity[EntityIndex.POSITION_X.getIndex()] + entity[EntityIndex.EXTENT_X.getIndex()],
+    				entity[EntityIndex.POSITION_Y.getIndex()] + entity[EntityIndex.EXTENT_Y.getIndex()]);
+    		
+    		double swap;
+    		
+    		double txMin = (min.x - ray.origin.x) / ray.direction.x;
+    		double txMax = (max.x - ray.origin.x) / ray.direction.x;
+    		
+    		if(txMin > txMax) {
+    			swap = txMin;
+    			txMin = txMax;
+    			txMax = swap;
+    		}
+    		
+    		double tyMin = (min.y - ray.origin.y) / ray.direction.y;
+    		double tyMax = (max.y - ray.origin.y) / ray.direction.y;
+    		
+    		if(tyMin > tyMax) {
+    			swap = tyMin;
+    			tyMin = tyMax;
+    			tyMax = swap;
+    		}
+    		
+    		if(txMin > tyMax || tyMin > txMax) {
+    			return;
+    		}
+    		
+    		final double tMin = (txMin > tyMin) ? txMin : tyMin;	// Choose max
+    		final double tMax = (txMax < tyMax) ? txMax : tyMax;	// Choose min
+    		
+    		final double closestDistance = (tMin < tMax) ? tMin : tMax;
+    		if(closestDistance < 0) {
+    			return;
+    		}
+    		final Vector2 hitPoint = ray.origin.copy().add(ray.direction.copy().scale(closestDistance));
+    		ray.updateHitInformation(hitPoint);
+    	} else if(entity[EntityIndex.ENTITY_TYPE_ID.getIndex()] == EntityType.SCREEN_BORDER.getEntityType()) {
+    		final Ray borderRay = new Ray(
+    				new Vector2(entity[EntityIndex.BORDER_ORIGIN_X.getIndex()], entity[EntityIndex.BORDER_ORIGIN_Y.getIndex()]),
+    				new Vector2(entity[EntityIndex.BORDER_DIR_X.getIndex()], entity[EntityIndex.BORDER_DIR_Y.getIndex()]));
+    		
+    		final Vector2 hitPoint = ray.collideWith(borderRay, true);
+    		
+    		if(hitPoint != null) {
+    			ray.updateHitInformation(hitPoint);
+    		}
+    	}
+    }
+
+    
+    
     private void simpleHorizontalMovement(float[] entity, double deltaTime){
         entity[EntityIndex.POSITION_X.getIndex()] = (float) (entity[2] + Math.sin((totalTime+entity[0])*3) * deltaTime * currentTimeScale * 100);
     }
@@ -140,7 +242,6 @@ public class FlattenedEngine {
     private void simpleVerticalMovement(float[] entity, double deltaTime){
         entity[EntityIndex.POSITION_Y.getIndex()] = (float) (entity[3] + Math.sin((totalTime+entity[0])*3) * deltaTime * currentTimeScale * 100);
     }
-
 
     //inputProcessing system variables
     private float movementSpeed = 700.0f;
@@ -209,7 +310,61 @@ public class FlattenedEngine {
         staticColliders.clear();
         dynamicColliders.clear();
     }
+    
+    private void calculateShadows(float[] lightEntity, Graphics2D graphics) {
+    	final Vector2 lightPosition = new Vector2(lightEntity[EntityIndex.POSITION_X.getIndex()], lightEntity[EntityIndex.POSITION_Y.getIndex()]);
+    	final Path2D.Double path = new Path2D.Double();
+    	addRaysOfEntities(lightPosition);
+    	
+    	// Check all possible intersections of the given rays
+    	for(float[] entity : entities) {
+    		for(Ray sortedRay : angleSortedRays) {
+    			intersect(sortedRay, entity);
+    		}
+    	}
 
+    	// Draw polygon with the hit infos of the rays
+    	// TODO: first() -> Validate if there was a hit
+    	path.moveTo(angleSortedRays.first().hitPoint.x, angleSortedRays.first().hitPoint.y);
+    	for(Ray sortedRay : angleSortedRays) {
+    		if(sortedRay.isValidHit()) {
+    			path.lineTo(sortedRay.hitPoint.x, sortedRay.hitPoint.y);
+    			
+    			// Debug draw
+//				graphics.setColor(Color.RED);
+//				graphics.drawLine((int) sortedRay.origin.x, (int) sortedRay.origin.y, (int) sortedRay.hitPoint.x, (int) sortedRay.hitPoint.y);
+//				graphics.fillOval((int) sortedRay.hitPoint.x - 12, (int) sortedRay.hitPoint.y - 12, 24, 24);
+    		}
+    	}
+    	
+    	graphics.setColor(new Color(49, 65, 88));
+		path.closePath();
+		graphics.fill(path);
+		angleSortedRays.clear();
+	}
+
+    private void addRaysOfEntities(Vector2 lightPosition) {
+		// Rays to entity corners
+		for(float[] entity : entities) {
+			final Ray[] cornerRays = getCornerRays(lightPosition, entity);
+			if(cornerRays != null) {
+				for(Ray r : cornerRays) {
+					addOffsetRays(r);
+				}
+			}
+		}
+	}
+	
+	private void addOffsetRays(Ray originalRay) {
+		final Vector2 originalDirection = originalRay.direction.copy();
+		final Ray leftOffset = new Ray(originalRay.origin, originalDirection.copy().rotateBy(-0.000001));
+		final Ray rightOffset = new Ray(originalRay.origin, originalDirection.copy().rotateBy(0.000001));
+		
+		angleSortedRays.add(leftOffset);
+		angleSortedRays.add(originalRay);
+		angleSortedRays.add(rightOffset);
+	}
+    
     private void collisionCheckAABB(float[] entity1, float[] entity2) {
     	float xOverlap = 
     			Math.abs(
@@ -229,18 +384,20 @@ public class FlattenedEngine {
                 int entity1Mask = (int) entity1[EntityIndex.SYSTEM_MASK.getIndex()];
                 int entity2Mask = (int) entity2[EntityIndex.SYSTEM_MASK.getIndex()];
 
+                int entity1Type = (int) entity1[EntityIndex.ENTITY_TYPE_ID.getIndex()];
+                int entity2Type = (int) entity2[EntityIndex.ENTITY_TYPE_ID.getIndex()];
 
-                if(entity1Mask == 56 && entity2Mask == 56){
+                if(entity1Type == EntityType.RAIN_DROP_SPLATTER.getEntityType() && entity2Type == EntityType.RAIN_DROP_SPLATTER.getEntityType()){
                     return;
                 }
 
                 //if raindrop and other entity
-                if(entity1Mask == 56 && entity2Mask != 56){
+                if(entity1Type == EntityType.RAIN_DROP_SPLATTER.getEntityType() && entity2Type != EntityType.RAIN_DROP_SPLATTER.getEntityType()){
                     removeEntity(entity1);
                     return;
                 }
 
-                if(entity2Mask == 56 && entity1Mask != 56){
+                if(entity2Type == EntityType.RAIN_DROP_SPLATTER.getEntityType() && entity1Type != EntityType.RAIN_DROP_SPLATTER.getEntityType()){
                     removeEntity(entity2);
                     return;
                 }
@@ -275,8 +432,6 @@ public class FlattenedEngine {
                     return;
                 }
 
-
-
                 float[] toDelete = entity1[14] > 0.5f ? entity1 : entity2;
                 removeEntity(toDelete);
             }
@@ -309,5 +464,5 @@ public class FlattenedEngine {
         entity[16] *= entity[18];
     }
 
-
+    private void lightingSystem(float[] entity, double deltaTime) { /*Dummy system*/ }
 }

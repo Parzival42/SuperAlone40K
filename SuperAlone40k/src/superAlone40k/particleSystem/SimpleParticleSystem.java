@@ -2,6 +2,7 @@ package superAlone40k.particleSystem;
 
 import superAlone40k.ecs.EntityIndex;
 import superAlone40k.ecs.FlattenedEngine;
+import superAlone40k.ecs.SystemBitmask;
 
 import java.util.Random;
 
@@ -15,7 +16,7 @@ public class SimpleParticleSystem {
     private int positionY;
 
     //emit settings
-    private float emitRate = 1.0f/10.0f;
+    private float emitRate = 1.0f / 10.0f;
     private float emitTime = 1.0f;
     private float emitForce = 500.0f;
 
@@ -30,7 +31,7 @@ public class SimpleParticleSystem {
     }
 
     public void emit(int emitRate, int emitTime){
-        this.emitRate = 1.0f/emitRate;
+        this.emitRate = 1.0f / emitRate;
         this.emitTime = emitTime;
     }
 
@@ -56,24 +57,24 @@ public class SimpleParticleSystem {
     }
 
     private void emitParticle(){
-        float[] entity = new float[19];
+        float[] entity = new float[EntityIndex.values().length];
 
-        //mask - , collider, movement
+        //mask -, collider, movement, input
         //00011100
-        entity[EntityIndex.SYSTEM_MASK.getIndex()] = 56;
+        entity[EntityIndex.SYSTEM_MASK.getIndex()] = SystemBitmask.MOVEMENT_SYSTEM.getSystemMask() | SystemBitmask.COLLIDER_SORTING.getSystemMask();
 
         //pos
         entity[EntityIndex.POSITION_X.getIndex()] = positionX;
-        entity[EntityIndex.POSITION_Y.getIndex()] = positionY-10;
+        entity[EntityIndex.POSITION_Y.getIndex()] = positionY - 10;
 
         //extent
         entity[EntityIndex.EXTENT_X.getIndex()] = 2;
         entity[EntityIndex.EXTENT_Y.getIndex()] = 2;
 
         //color
-        entity[EntityIndex.COLOR_R.getIndex()] = 89/255.0f;
-        entity[EntityIndex.COLOR_G.getIndex()] = 106/255.0f;
-        entity[EntityIndex.COLOR_B.getIndex()] = 128/255.0f;
+        entity[EntityIndex.COLOR_R.getIndex()] = 89 / 255.0f;
+        entity[EntityIndex.COLOR_G.getIndex()] = 106 / 255.0f;
+        entity[EntityIndex.COLOR_B.getIndex()] = 128 / 255.0f;
         entity[EntityIndex.COLOR_A.getIndex()] = 0.09f + random.nextFloat() * 0.09f;
 
         //aabb box center
@@ -89,7 +90,7 @@ public class SimpleParticleSystem {
         entity[EntityIndex.COLLISION_TYPE.getIndex()] = 1.0f;
 
         //velocity
-        entity[EntityIndex.VELOCITY_X.getIndex()] = random.nextFloat() * emitForce - emitForce/2;
+        entity[EntityIndex.VELOCITY_X.getIndex()] = random.nextFloat() * emitForce - emitForce / 2;
         entity[EntityIndex.VELOCITY_Y.getIndex()] = random.nextFloat() * -emitForce;
 
         //gravitation influence

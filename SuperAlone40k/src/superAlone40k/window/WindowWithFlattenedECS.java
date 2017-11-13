@@ -1,9 +1,12 @@
 package superAlone40k.window;
 
 import superAlone40k.ecs.EntityIndex;
+import superAlone40k.ecs.EntityType;
 import superAlone40k.ecs.FlattenedEngine;
+import superAlone40k.ecs.SystemBitmask;
 import superAlone40k.particleSystem.*;
 import superAlone40k.renderer.Renderer;
+import superAlone40k.util.Vector2;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,7 +16,7 @@ import java.awt.image.BufferStrategy;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class WindowWithFlattenedECS extends JFrame implements KeyListener{
+public class WindowWithFlattenedECS extends JFrame implements KeyListener {
 
     //game loop
     private boolean running = true;
@@ -87,17 +90,31 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener{
         createSampleBulletEntities();
         player = createPlayerEntity();
         engine.addEntity(player);
+        
+		// Left top to Bottom left
+        engine.addEntity(createScreenBorder(new Vector2(0, 0), new Vector2(0, 1)));
+        
+        // Bottom left to Bottom right
+        engine.addEntity(createScreenBorder(new Vector2(0, height), new Vector2(1, 0)));
+        
+        // Bottom right to Top right
+        engine.addEntity(createScreenBorder(new Vector2(width, height), new Vector2(0, -1)));
+        
+        // Top right to Top left
+        engine.addEntity(createScreenBorder(new Vector2(width, 0), new Vector2(-1, 0)));
+        
+        engine.addEntity(createLight());
     }
 
     private void createSampleBulletEntities() {
         Random random = new Random();
 
         for(int i = 0; i < 20; i++){
-            float[] entity = new float[19];
+            float[] entity = new float[EntityIndex.values().length];
 
             //mask - input system, collider,
             //00001100
-            entity[EntityIndex.SYSTEM_MASK.getIndex()] = 120;
+            entity[EntityIndex.SYSTEM_MASK.getIndex()] = 0;
 
             //pos
             entity[EntityIndex.POSITION_X.getIndex()] = 1500 + i*200;
@@ -138,13 +155,39 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener{
         }
     }
 
-
+    private float[] createLight() {
+    	float[] light = new float[EntityIndex.values().length];
+    	
+    	light[EntityIndex.SYSTEM_MASK.getIndex()] = SystemBitmask.LIGHT_SYSTEM.getSystemMask();
+    	
+    	// Light Position
+    	light[EntityIndex.POSITION_X.getIndex()] = -100;
+    	light[EntityIndex.POSITION_Y.getIndex()] = 100;
+    	return light;
+    }
+    
+    private float[] createScreenBorder(Vector2 origin, Vector2 direction) {
+    	float[] border = new float[EntityIndex.values().length];
+    	
+    	border[EntityIndex.ENTITY_TYPE_ID.getIndex()] = EntityType.SCREEN_BORDER.getEntityType();
+    	
+    	border[EntityIndex.BORDER_ORIGIN_X.getIndex()] = (float) origin.x;
+    	border[EntityIndex.BORDER_ORIGIN_Y.getIndex()] = (float) origin.y;
+    	border[EntityIndex.BORDER_DIR_X.getIndex()] = (float) direction.x;
+    	border[EntityIndex.BORDER_DIR_Y.getIndex()] = (float) direction.y;
+    	
+    	return border;
+    }
+    
     private float[] createPlayerEntity(){
-        float[] entity = new float[19];
+        float[] entity = new float[EntityIndex.values().length];
 
+        entity[EntityIndex.ENTITY_TYPE_ID.getIndex()] = EntityType.BOX_SHADOW.getEntityType();
+        
         //mask - input system, collider,
         //00001100
-        entity[EntityIndex.SYSTEM_MASK.getIndex()] = 12;
+//        entity[EntityIndex.SYSTEM_MASK.getIndex()] = 12;
+        entity[EntityIndex.SYSTEM_MASK.getIndex()] = SystemBitmask.INPUT.getSystemMask() | SystemBitmask.COLLIDER_SORTING.getSystemMask();
 
         //pos
         entity[EntityIndex.POSITION_X.getIndex()] = 500;
@@ -187,8 +230,9 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener{
     }
 
     private void createSampleFloorEntities() {
+        float[] entity = new float[EntityIndex.values().length];
 
-        float[] entity = new float[15];
+        entity[EntityIndex.ENTITY_TYPE_ID.getIndex()] = EntityType.BOX_SHADOW.getEntityType();
 
         //mask - static collider
         //00001000
@@ -208,7 +252,6 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener{
         entity[EntityIndex.COLOR_B.getIndex()] = 44/255.0f;
         entity[EntityIndex.COLOR_A.getIndex()] = 1.0f;
 
-
         //aabb box center
         entity[EntityIndex.AABB_CENTER_X.getIndex()] = 0;
         entity[EntityIndex.AABB_CENTER_Y.getIndex()] = 0;
@@ -221,18 +264,20 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener{
         //platform -> static -> 0
         entity[EntityIndex.COLLISION_TYPE.getIndex()] = 0.0f;
 
-        engine.addEntity(entity);
+      engine.addEntity(entity);
 
 
-        for(int j = 0; j < 3; j++){
-            float[] entityPlatform = new float[15];
+        for(int j = 0; j < 3; j++) {
+            float[] entityPlatform = new float[EntityIndex.values().length];
 
+            entityPlatform[EntityIndex.ENTITY_TYPE_ID.getIndex()] = EntityType.BOX_SHADOW.getEntityType();
+            
             //mask - static collider
             //00001000
             entityPlatform[EntityIndex.SYSTEM_MASK.getIndex()] = 8;
 
             //pos
-            entityPlatform[EntityIndex.POSITION_X.getIndex()] = (75.0f) + j*450.0f;
+            entityPlatform[EntityIndex.POSITION_X.getIndex()] = (175.0f) + j * 450.0f;
             entityPlatform[EntityIndex.POSITION_Y.getIndex()] = canvas.getHeight() - 305.0f;
 
             //extent
@@ -259,9 +304,6 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener{
 
             engine.addEntity(entityPlatform);
         }
-
-
-
     }
 
     private void setUpTestEntities(){
@@ -309,8 +351,9 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener{
 
         double deltaTime;
 
-        simpleParticleSystem.emit(50,5);
-        rainParticleSystem.emit(100);
+        // TODO: Currently wrong bitmask and/or wrong entity id's
+//        simpleParticleSystem.emit(50, 5);
+//        rainParticleSystem.emit(100);
 
         while (running) {
             preUpdateTime = System.nanoTime();
@@ -340,7 +383,6 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener{
     }
 
     private void update(double deltaTime){
-
         //FPS
         frames++;
         elapsedTime += deltaTime;
@@ -350,33 +392,32 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener{
         engine.update(deltaTime, timeScale);
 
 
-        if(elapsedTime>=1.0f){
-            System.out.println("FPS: "+frames);
+        if(elapsedTime >= 1.0f){
+//            System.out.println("FPS: "+frames);
             elapsedTime = 0.0f;
             frames = 0;
 
-            System.out.println("Engine update time in nanoseconds: "+ (System.nanoTime()-preUpdateTime));
+//            System.out.println("Engine update time in nanoseconds: "+ (System.nanoTime()-preUpdateTime));
         }
-
-        System.out.println("Entities: "+engine.getEntities().size());
+//      System.out.println("Entities: "+engine.getEntities().size());
     }
 
     private void render(){
         Graphics2D g = beginRenderUpdate();
-
             //render background
             renderer.renderBackground(g);
 
+            engine.render(g);
+            
             //render entities
             ArrayList<float[]> entities = engine.getEntities();
             for(int i = 0; i < entities.size(); i++){
                 renderer.renderEntity(g, entities.get(i));
             }
 
-            renderer.renderTestLight(g);
+//            renderer.renderTestLight(g);
 
             //renderer.renderVignette(g);
-
         endRenderUpdate(g);
     }
 

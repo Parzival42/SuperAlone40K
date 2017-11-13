@@ -2,6 +2,7 @@ package superAlone40k.particleSystem;
 
 import superAlone40k.ecs.EntityIndex;
 import superAlone40k.ecs.FlattenedEngine;
+import superAlone40k.ecs.SystemBitmask;
 
 import java.util.Random;
 
@@ -66,9 +67,7 @@ public class RainParticleSystem {
     private void emitParticle(){
         float[] entity = new float[19];
 
-        //mask - , collider, movement
-        //00011000
-        entity[EntityIndex.SYSTEM_MASK.getIndex()] = 24;
+        entity[EntityIndex.SYSTEM_MASK.getIndex()] = SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.MOVEMENT_SYSTEM.getSystemMask();
 
         //pos
         entity[EntityIndex.POSITION_X.getIndex()] = range*random.nextFloat()+ rangeBegin;
@@ -106,10 +105,4 @@ public class RainParticleSystem {
 
         engine.addEntity(entity);
     }
-
-
-
-
-
-
 }

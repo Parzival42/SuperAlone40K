@@ -19,7 +19,14 @@ public enum EntityIndex {
 	VELOCITY_X(15),
 	VELOCITY_Y(16),
 	GRAVITATION_INFLUENCE(17),
-	DRAG(18);
+	DRAG(18),
+	
+	// Border rays for screen shadow collision
+	BORDER_ORIGIN_X(19),
+	BORDER_ORIGIN_Y(20),
+	BORDER_DIR_X(21),
+	BORDER_DIR_Y(22);
+	
 	
 	private final int index;
 	EntityIndex(final int index) {
