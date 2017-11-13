@@ -104,35 +104,35 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener{
             entity[EntityIndex.POSITION_Y.getIndex()] = random.nextFloat() * 720;
 
             //extent
-            entity[4] = 15;
-            entity[5] = 5;
+            entity[EntityIndex.EXTENT_X.getIndex()] = 15;
+            entity[EntityIndex.EXTENT_Y.getIndex()] = 5;
 
             //color
-            entity[6] = 1.0f;
-            entity[7] = 1.0f;
-            entity[8] = 1.0f;
-            entity[9] = 1.0f;
+            entity[EntityIndex.COLOR_R.getIndex()] = 1.0f;
+            entity[EntityIndex.COLOR_G.getIndex()] = 1.0f;
+            entity[EntityIndex.COLOR_B.getIndex()] = 1.0f;
+            entity[EntityIndex.COLOR_A.getIndex()] = 1.0f;
 
             //aabb box center
-            entity[10] = 0;
-            entity[11] = 0;
+            entity[EntityIndex.AABB_CENTER_X.getIndex()] = 0;
+            entity[EntityIndex.AABB_CENTER_Y.getIndex()] = 0;
 
             //aabb box extent
-            entity[12] = entity[4];
-            entity[13] = entity[5]-5;
+            entity[EntityIndex.AABB_EXTENT_X.getIndex()] = entity[4];
+            entity[EntityIndex.AABB_EXTENT_Y.getIndex()] = entity[5]-5;
 
             //aabb dynamic vs static
             //player -> dynamic -> 1
-            entity[14] = 1.0f;
+            entity[EntityIndex.COLLISION_TYPE.getIndex()] = 1.0f;
 
             //velocity
-            entity[15] = -500.0f;
-            entity[16] = 0.0f;
+            entity[EntityIndex.VELOCITY_X.getIndex()] = -500.0f;
+            entity[EntityIndex.VELOCITY_Y.getIndex()] = 0.0f;
 
-            entity[17] = 0.0f;
+            entity[EntityIndex.GRAVITATION_INFLUENCE.getIndex()] = 0.0f;
 
             //drag
-            entity[18] = 1.0f;
+            entity[EntityIndex.DRAG.getIndex()] = 1.0f;
 
             engine.addEntity(entity);
         }
