@@ -1,5 +1,6 @@
 package superAlone40k.particleSystem;
 
+import superAlone40k.ecs.EntityIndex;
 import superAlone40k.ecs.FlattenedEngine;
 
 import java.util.Random;
@@ -59,39 +60,43 @@ public class SimpleParticleSystem {
 
         //mask - , collider, movement
         //00011100
-        entity[1] = 56;
+        entity[EntityIndex.SYSTEM_MASK.getIndex()] = 56;
 
         //pos
-        entity[2] = positionX;
-        entity[3] = positionY-10;
+        entity[EntityIndex.POSITION_X.getIndex()] = positionX;
+        entity[EntityIndex.POSITION_Y.getIndex()] = positionY-10;
 
         //extent
-        entity[4] = 2;
-        entity[5] = 2;
+        entity[EntityIndex.EXTENT_X.getIndex()] = 2;
+        entity[EntityIndex.EXTENT_Y.getIndex()] = 2;
 
         //color
-        entity[6] = 89/255.0f;
-        entity[7] = 106/255.0f;
-        entity[8] = 128/255.0f;
-        entity[9] = 0.09f + random.nextFloat() * 0.09f;
+        entity[EntityIndex.COLOR_R.getIndex()] = 89/255.0f;
+        entity[EntityIndex.COLOR_G.getIndex()] = 106/255.0f;
+        entity[EntityIndex.COLOR_B.getIndex()] = 128/255.0f;
+        entity[EntityIndex.COLOR_A.getIndex()] = 0.09f + random.nextFloat() * 0.09f;
 
         //aabb box center
-        entity[10] = 0;
-        entity[11] = 0;
+        entity[EntityIndex.AABB_CENTER_X.getIndex()] = 0;
+        entity[EntityIndex.AABB_CENTER_Y.getIndex()] = 0;
 
         //aabb box extent
-        entity[12] = entity[4];
-        entity[13] = entity[5];
+        entity[EntityIndex.AABB_EXTENT_X.getIndex()] = entity[4];
+        entity[EntityIndex.AABB_EXTENT_Y.getIndex()] = entity[5];
 
         //aabb dynamic vs static
         //player -> dynamic -> 1
-        entity[14] = 1.0f;
+        entity[EntityIndex.COLLISION_TYPE.getIndex()] = 1.0f;
 
         //velocity
-        entity[15] = random.nextFloat() * emitForce - emitForce/2;
-        entity[16] = random.nextFloat() * -emitForce;
-        entity[17] = 1.0f;
-        entity[18] = 0.975f;
+        entity[EntityIndex.VELOCITY_X.getIndex()] = random.nextFloat() * emitForce - emitForce/2;
+        entity[EntityIndex.VELOCITY_Y.getIndex()] = random.nextFloat() * -emitForce;
+
+        //gravitation influence
+        entity[EntityIndex.GRAVITATION_INFLUENCE.getIndex()] = 1.0f;
+
+        //drag
+        entity[EntityIndex.DRAG.getIndex()] = 0.975f;
 
         engine.addEntity(entity);
     }
