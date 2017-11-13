@@ -1,5 +1,6 @@
 package superAlone40k.window;
 
+import superAlone40k.ecs.EntityIndex;
 import superAlone40k.ecs.FlattenedEngine;
 import superAlone40k.particleSystem.*;
 import superAlone40k.renderer.Renderer;
@@ -96,11 +97,11 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener{
 
             //mask - input system, collider,
             //00001100
-            entity[1] = 120;
+            entity[EntityIndex.SYSTEM_MASK.getIndex()] = 120;
 
             //pos
-            entity[2] = 1500 + i*200;
-            entity[3] = random.nextFloat() * 720;
+            entity[EntityIndex.POSITION_X.getIndex()] = 1500 + i*200;
+            entity[EntityIndex.POSITION_Y.getIndex()] = random.nextFloat() * 720;
 
             //extent
             entity[4] = 15;
@@ -128,17 +129,13 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener{
             entity[15] = -500.0f;
             entity[16] = 0.0f;
 
-
             entity[17] = 0.0f;
 
             //drag
             entity[18] = 1.0f;
 
             engine.addEntity(entity);
-
         }
-
-
     }
 
 
