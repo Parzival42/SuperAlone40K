@@ -79,7 +79,7 @@ public class FlattenedEngine {
     public void addEntity(float[] entity){
         assert entity.length > 1;
 
-        entity[0] = runningID++;
+        entity[EntityIndex.ENTITY_TYPE_ID.getIndex()] = runningID++;
         if(updating){
             entitiesToAdd.add(entity);
         }else{
@@ -134,11 +134,11 @@ public class FlattenedEngine {
 
 
     private void simpleHorizontalMovement(float[] entity, double deltaTime){
-        entity[2] = (float) (entity[2] + Math.sin((totalTime+entity[0])*3) * deltaTime * currentTimeScale * 100);
+        entity[EntityIndex.POSITION_X.getIndex()] = (float) (entity[2] + Math.sin((totalTime+entity[0])*3) * deltaTime * currentTimeScale * 100);
     }
 
     private void simpleVerticalMovement(float[] entity, double deltaTime){
-        entity[3] = (float) (entity[3] + Math.sin((totalTime+entity[0])*3) * deltaTime * currentTimeScale * 100);
+        entity[EntityIndex.POSITION_Y.getIndex()] = (float) (entity[3] + Math.sin((totalTime+entity[0])*3) * deltaTime * currentTimeScale * 100);
     }
 
 
@@ -151,32 +151,32 @@ public class FlattenedEngine {
 
     private void inputProcessing(float[] entity, double deltaTime){
         if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_A)){
-            entity[15] -= movementSpeed*deltaTime;
-            entity[15] = entity[15] < -maxMovementSpeed ? -maxMovementSpeed : entity[15];
+            entity[EntityIndex.VELOCITY_X.getIndex()] -= movementSpeed*deltaTime;
+            entity[EntityIndex.VELOCITY_X.getIndex()] = entity[EntityIndex.VELOCITY_X.getIndex()] < -maxMovementSpeed ? -maxMovementSpeed : entity[15];
         }
 
         if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_D)){
-            entity[15] += movementSpeed*deltaTime;
-            entity[15] = entity[15] > maxMovementSpeed ? maxMovementSpeed : entity[15];
+            entity[EntityIndex.VELOCITY_X.getIndex()] += movementSpeed*deltaTime;
+            entity[EntityIndex.VELOCITY_X.getIndex()] = entity[EntityIndex.VELOCITY_X.getIndex()] > maxMovementSpeed ? maxMovementSpeed : entity[15];
         }
 
         if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_SPACE)){
-            entity[16] -= jumpStrength*deltaTime;
-            entity[16] = entity[16] > maxJumpStrength ? maxJumpStrength : entity[16];
+            entity[EntityIndex.VELOCITY_Y.getIndex()] -= jumpStrength*deltaTime;
+            entity[EntityIndex.VELOCITY_Y.getIndex()] = entity[EntityIndex.VELOCITY_Y.getIndex()] > maxJumpStrength ? maxJumpStrength : entity[16];
         }
 
-        entity[16] += playerGravity * deltaTime;
+        entity[EntityIndex.VELOCITY_Y.getIndex()] += playerGravity * deltaTime;
 
-        entity[2] += entity[15] * deltaTime;
-        entity[3] += (entity[16] /*+ gravity*/) * deltaTime;
+        entity[EntityIndex.POSITION_X.getIndex()] += entity[EntityIndex.VELOCITY_X.getIndex()] * deltaTime;
+        entity[EntityIndex.POSITION_Y.getIndex()] += (entity[EntityIndex.VELOCITY_Y.getIndex()] /*+ gravity*/) * deltaTime;
 
-        float timeScale = Math.abs(entity[15]/maxMovementSpeed);
+        float timeScale = Math.abs(entity[EntityIndex.VELOCITY_X.getIndex()] / maxMovementSpeed);
         WindowWithFlattenedECS.setTimeScale(timeScale < 0.25f ? 0.25f : timeScale);
 
         //System.out.println("speed: "+entity[15]);
 
-        entity[15] *= entity[18];
-        entity[16] *= entity[18];
+        entity[EntityIndex.VELOCITY_X.getIndex()] *= entity[EntityIndex.DRAG.getIndex()];
+        entity[EntityIndex.VELOCITY_Y.getIndex()] *= entity[EntityIndex.DRAG.getIndex()];
     }
 
     //collision detection variables
@@ -184,7 +184,7 @@ public class FlattenedEngine {
     private ArrayList<float[]> dynamicColliders = new ArrayList<>();
 
     private void colliderSorting(float[] entity, double deltaTime){
-        if(entity[14]>0.5f){
+        if(entity[EntityIndex.COLLISION_TYPE.getIndex()] > 0.5f){
             dynamicColliders.add(entity);
         }else{
             staticColliders.add(entity);
@@ -211,14 +211,23 @@ public class FlattenedEngine {
     }
 
     private void collisionCheckAABB(float[] entity1, float[] entity2) {
-        float xOverlap = Math.abs((entity1[2]+entity1[10]) - (entity2[2]+entity2[10])) - (entity1[12] + entity2[12]);
-        if ((xOverlap)<0) {
-            float yOverlap = Math.abs((entity1[3]+entity1[11]) - (entity2[3]+entity2[11])) - (entity1[13] + entity2[13]);
+    	float xOverlap = 
+    			Math.abs(
+    					(entity1[EntityIndex.POSITION_X.getIndex()] + entity1[EntityIndex.AABB_CENTER_X.getIndex()]) -
+    					(entity2[EntityIndex.POSITION_X.getIndex()] + entity2[EntityIndex.AABB_CENTER_X.getIndex()])) -
+    					(entity1[EntityIndex.AABB_EXTENT_X.getIndex()] + entity2[EntityIndex.AABB_EXTENT_X.getIndex()]);
+    	
+    	if ((xOverlap) < 0) {
+    		float yOverlap = Math.abs(
+    				(entity1[EntityIndex.POSITION_Y.getIndex()] + entity1[EntityIndex.AABB_CENTER_Y.getIndex()]) -
+    				(entity2[EntityIndex.POSITION_Y.getIndex()] + entity2[EntityIndex.AABB_CENTER_Y.getIndex()])) -
+    				(entity1[EntityIndex.AABB_EXTENT_Y.getIndex()] + entity2[EntityIndex.AABB_EXTENT_Y.getIndex()]);
+    		
             if ((yOverlap) < 0) {
 
                 //if one of the entities is a raindrop
-                int entity1Mask = (int) entity1[1];
-                int entity2Mask = (int) entity2[1];
+                int entity1Mask = (int) entity1[EntityIndex.SYSTEM_MASK.getIndex()];
+                int entity2Mask = (int) entity2[EntityIndex.SYSTEM_MASK.getIndex()];
 
 
                 if(entity1Mask == 56 && entity2Mask == 56){
