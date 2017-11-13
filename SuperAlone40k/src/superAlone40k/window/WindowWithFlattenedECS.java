@@ -192,35 +192,34 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener{
 
         //mask - static collider
         //00001000
-        entity[1] = 8;
+        entity[EntityIndex.SYSTEM_MASK.getIndex()] = 8;
 
         //pos
-        entity[2] = 0.0f;
-        entity[3] = canvas.getHeight() - 15.0f;
+        entity[EntityIndex.POSITION_X.getIndex()] = 0.0f;
+        entity[EntityIndex.POSITION_Y.getIndex()] = canvas.getHeight() - 15.0f;
 
         //extent
-        entity[4] = 1500.0f;
-        entity[5] = 15.0f;
+        entity[EntityIndex.EXTENT_X.getIndex()] = 1500.0f;
+        entity[EntityIndex.EXTENT_Y.getIndex()] = 15.0f;
 
         //color
-        entity[6] = 24/255.0f;
-        entity[7] = 32/255.0f;
-        entity[8] = 44/255.0f;
-        entity[9] = 1.0f;
+        entity[EntityIndex.COLOR_R.getIndex()] = 24/255.0f;
+        entity[EntityIndex.COLOR_G.getIndex()] = 32/255.0f;
+        entity[EntityIndex.COLOR_B.getIndex()] = 44/255.0f;
+        entity[EntityIndex.COLOR_A.getIndex()] = 1.0f;
 
 
         //aabb box center
-        entity[10] = 0;
-        entity[11] = 0;
+        entity[EntityIndex.AABB_CENTER_X.getIndex()] = 0;
+        entity[EntityIndex.AABB_CENTER_Y.getIndex()] = 0;
 
         //aabb box extent
-        entity[12] = entity[4];
-        entity[13] = entity[5];
+        entity[EntityIndex.AABB_EXTENT_X.getIndex()] = entity[EntityIndex.EXTENT_X.getIndex()];
+        entity[EntityIndex.AABB_EXTENT_Y.getIndex()] = entity[EntityIndex.EXTENT_Y.getIndex()];
 
         //aabb dynamic vs static
         //platform -> static -> 0
-        entity[14] = 0.0f;
-
+        entity[EntityIndex.COLLISION_TYPE.getIndex()] = 0.0f;
 
         engine.addEntity(entity);
 
@@ -230,33 +229,33 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener{
 
             //mask - static collider
             //00001000
-            entityPlatform[1] = 8;
+            entityPlatform[EntityIndex.SYSTEM_MASK.getIndex()] = 8;
 
             //pos
-            entityPlatform[2] = (75.0f) + j*450.0f;
-            entityPlatform[3] = canvas.getHeight() - 305.0f;
+            entityPlatform[EntityIndex.POSITION_X.getIndex()] = (75.0f) + j*450.0f;
+            entityPlatform[EntityIndex.POSITION_Y.getIndex()] = canvas.getHeight() - 305.0f;
 
             //extent
-            entityPlatform[4] = 100.0f;
-            entityPlatform[5] = 10.0f;
+            entityPlatform[EntityIndex.EXTENT_X.getIndex()] = 100.0f;
+            entityPlatform[EntityIndex.EXTENT_Y.getIndex()] = 10.0f;
 
             //color
-            entityPlatform[6] = 24/255.0f;
-            entityPlatform[7] = 32/255.0f;
-            entityPlatform[8] = 44/255.0f;
-            entityPlatform[9] = 1.0f;
+            entityPlatform[EntityIndex.COLOR_R.getIndex()] = 24/255.0f;
+            entityPlatform[EntityIndex.COLOR_G.getIndex()] = 32/255.0f;
+            entityPlatform[EntityIndex.COLOR_B.getIndex()] = 44/255.0f;
+            entityPlatform[EntityIndex.COLOR_A.getIndex()] = 1.0f;
 
             //aabb box center
-            entityPlatform[10] = 0;
-            entityPlatform[11] = 0;
+            entityPlatform[EntityIndex.AABB_CENTER_X.getIndex()] = 0;
+            entityPlatform[EntityIndex.AABB_CENTER_Y.getIndex()] = 0;
 
             //aabb box extent
-            entityPlatform[12] = entityPlatform[4];
-            entityPlatform[13] = entityPlatform[5];
+            entityPlatform[EntityIndex.AABB_EXTENT_X.getIndex()] = entityPlatform[EntityIndex.EXTENT_X.getIndex()];
+            entityPlatform[EntityIndex.AABB_EXTENT_Y.getIndex()] = entityPlatform[EntityIndex.EXTENT_Y.getIndex()];
 
             //aabb dynamic vs static
             //platform -> static -> 0
-            entityPlatform[14] = 0.0f;
+            entityPlatform[EntityIndex.COLLISION_TYPE.getIndex()] = 0.0f;
 
             engine.addEntity(entityPlatform);
         }
@@ -271,22 +270,21 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener{
 
             //mask
             //00000011
-            entity[1] = 3;
+            entity[EntityIndex.SYSTEM_MASK.getIndex()] = 3;
 
             //pos
-            entity[2] = 1000.0f;
-            entity[3] = i*40.0f;
+            entity[EntityIndex.POSITION_X.getIndex()] = 1000.0f;
+            entity[EntityIndex.POSITION_Y.getIndex()] = i*40.0f;
 
             //extent
-            entity[4] = 5.0f;
-            entity[5] = 5.0f;
+            entity[EntityIndex.EXTENT_X.getIndex()] = 5.0f;
+            entity[EntityIndex.EXTENT_Y.getIndex()] = 5.0f;
 
             //color
-            entity[6] = 0.5f;
-            entity[7] = 0.8f;
-            entity[8] = 1.0f;
-            entity[9] = 1.0f;
-
+            entity[EntityIndex.COLOR_R.getIndex()] = 0.5f;
+            entity[EntityIndex.COLOR_G.getIndex()] = 0.8f;
+            entity[EntityIndex.COLOR_B.getIndex()] = 1.0f;
+            entity[EntityIndex.COLOR_A.getIndex()] = 1.0f;
 
             engine.addEntity(entity);
         }
