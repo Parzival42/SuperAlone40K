@@ -12,8 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 
-
-
 public class FlattenedEngine {
     private int runningID = 0;
 
@@ -23,7 +21,7 @@ public class FlattenedEngine {
     private ArrayList<float[]> entitiesToAdd = new ArrayList<>();
     private ArrayList<float[]> entitiesToDelete = new ArrayList<>();
 
-    private int[] systemBitmasks = new int[] {0b1, 0b10, 0b100, 0b1000, 0b10000, SystemBitmask.LIGHT_SYSTEM.getSystemMask()};
+    private int[] systemBitmasks = new int[] { SystemBitmask.HORIZONTAL_MOVEMENT.getSystemMask(), SystemBitmask.VERTICAL_MOVEMENT.getSystemMask(), SystemBitmask.INPUT.getSystemMask(), SystemBitmask.COLLIDER_SORTING.getSystemMask(), SystemBitmask.MOVEMENT_SYSTEM.getSystemMask(), SystemBitmask.LIGHT_SYSTEM.getSystemMask() };
     private SystemMethod[] systemMethods = new SystemMethod[]{FlattenedEngine::simpleHorizontalMovement,  FlattenedEngine::simpleVerticalMovement, FlattenedEngine::inputProcessing, FlattenedEngine::colliderSorting, FlattenedEngine::movementSystem, FlattenedEngine::lightingSystem};
 
     private final TreeSet<Ray> angleSortedRays = new TreeSet<>();
@@ -63,7 +61,7 @@ public class FlattenedEngine {
 
     private void updateEntities(){
         //remove pending entities
-        for(int i = entitiesToDelete.size()-1 ; i >= 0; i--){
+        for(int i = entitiesToDelete.size() - 1 ; i >= 0; i--){
             removeEntityInternal(entitiesToDelete.get(i));
         }
         entitiesToDelete.clear();
@@ -232,8 +230,6 @@ public class FlattenedEngine {
     		}
     	}
     }
-
-    
     
     private void simpleHorizontalMovement(float[] entity, double deltaTime){
         entity[EntityIndex.POSITION_X.getIndex()] = (float) (entity[2] + Math.sin((totalTime+entity[0])*3) * deltaTime * currentTimeScale * 100);
@@ -302,7 +298,7 @@ public class FlattenedEngine {
 
         for(int i= 0; i < dynamicColliders.size(); i++){
             float[] entity = dynamicColliders.get(i);
-            for(int j = i+1; j < dynamicColliders.size(); j++){
+            for(int j = i + 1; j < dynamicColliders.size(); j++){
                 collisionCheckAABB(entity, dynamicColliders.get(j));
             }
         }
@@ -422,17 +418,17 @@ public class FlattenedEngine {
                 }
 
                 //player and environment
-                if(entity1Mask == 12){
+                if(entity1Mask == 12) {
                     resolvePlayerCollision(entity1, entity2, xOverlap, yOverlap);
                     return;
                 }
 
-                if(entity2Mask == 12){
+                if(entity2Mask == 12) {
                     resolvePlayerCollision(entity2, entity1, xOverlap, yOverlap);
                     return;
                 }
 
-                float[] toDelete = entity1[14] > 0.5f ? entity1 : entity2;
+                float[] toDelete = entity1[EntityIndex.COLLISION_TYPE.getIndex()] > 0.5f ? entity1 : entity2;
                 removeEntity(toDelete);
             }
         }
@@ -453,15 +449,15 @@ public class FlattenedEngine {
     private float gravity = 3000.0f;
 
     private void movementSystem(float[] entity, double deltaTime){
-        double scaledDeltaTime = deltaTime * currentTimeScale;
+        final double scaledDeltaTime = deltaTime * currentTimeScale;
 
-        entity[16] +=  entity[17] * gravity * scaledDeltaTime;
+        entity[EntityIndex.VELOCITY_Y.getIndex()] +=  entity[EntityIndex.GRAVITATION_INFLUENCE.getIndex()] * gravity * scaledDeltaTime;
 
-        entity[2] += entity[15] * scaledDeltaTime;
-        entity[3] += entity[16] * scaledDeltaTime;
+        entity[EntityIndex.POSITION_X.getIndex()] += entity[EntityIndex.VELOCITY_X.getIndex()] * scaledDeltaTime;
+        entity[EntityIndex.POSITION_Y.getIndex()] += entity[EntityIndex.VELOCITY_Y.getIndex()] * scaledDeltaTime;
 
-        entity[15] *= entity[18];
-        entity[16] *= entity[18];
+        entity[EntityIndex.VELOCITY_X.getIndex()] *= entity[EntityIndex.DRAG.getIndex()];
+        entity[EntityIndex.VELOCITY_Y.getIndex()] *= entity[EntityIndex.DRAG.getIndex()];
     }
 
     private void lightingSystem(float[] entity, double deltaTime) { /*Dummy system*/ }
