@@ -1,5 +1,8 @@
 package superAlone40k.renderer;
 
+import superAlone40k.ecs.EntityIndex;
+import superAlone40k.ecs.EntityType;
+
 import java.awt.*;
 import java.awt.geom.Point2D;
 
@@ -77,7 +80,7 @@ public class Renderer {
     }
 
     public void renderEntity(Graphics2D g, float[] entity){
-        if(((int) entity[1]) == 24){
+        if((((int)entity[EntityIndex.ENTITY_TYPE_ID.getIndex()]) & EntityType.RAIN_DROP.getEntityType()) == EntityType.RAIN_DROP.getEntityType()){
             renderRainDropEntity(g, entity);
             return;
         }

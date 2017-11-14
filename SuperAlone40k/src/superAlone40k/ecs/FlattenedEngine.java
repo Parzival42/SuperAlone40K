@@ -392,7 +392,7 @@ public class FlattenedEngine {
                 	return;
                 }
 
-                //if raindrop and other entity
+                //if raindrop splatter and other entity
                 if(isBitmaskValid(EntityType.RAIN_DROP_SPLATTER.getEntityType(), entity1Id) && 
                 		!isBitmaskValid(EntityType.RAIN_DROP_SPLATTER.getEntityType(), entity2Id)) {
                 	removeEntity(entity1);
@@ -425,7 +425,7 @@ public class FlattenedEngine {
                 		!isBitmaskValid(EntityType.RAIN_DROP.getEntityType(), entity1Id)) {
                 	WindowWithFlattenedECS.getSimpleParticleSystem().burstEmit(
                 			(int) (entity2[EntityIndex.POSITION_X.getIndex()] + entity2[EntityIndex.EXTENT_X.getIndex()]),
-                			(int) (entity2[EntityIndex.POSITION_Y.getIndex()] + entity2[EntityIndex.EXTENT_Y.getIndex()]), 5);
+                			(int) (entity2[EntityIndex.POSITION_Y.getIndex()] + entity2[EntityIndex.EXTENT_Y.getIndex()]), 3);
                 	removeEntity(entity2);
                 	return;
                 }

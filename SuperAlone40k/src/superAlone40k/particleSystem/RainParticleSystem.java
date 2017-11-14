@@ -4,7 +4,10 @@ import superAlone40k.ecs.EntityIndex;
 import superAlone40k.ecs.EntityType;
 import superAlone40k.ecs.FlattenedEngine;
 import superAlone40k.ecs.SystemBitmask;
+import superAlone40k.util.EntityCreator;
+import superAlone40k.util.Vector2;
 
+import java.awt.*;
 import java.util.Random;
 
 public class RainParticleSystem {
@@ -66,44 +69,21 @@ public class RainParticleSystem {
     }
 
     private void emitParticle(){
-        float[] entity = new float[19];
+        Vector2 extent = new Vector2(3,45 + random.nextFloat() * 50.0f);
 
-        entity[EntityIndex.ENTITY_TYPE_ID.getIndex()] = EntityType.RAIN_DROP.getEntityType();
-        entity[EntityIndex.SYSTEM_MASK.getIndex()] = SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.MOVEMENT_SYSTEM.getSystemMask();
-
-        //pos
-        entity[EntityIndex.POSITION_X.getIndex()] = range * random.nextFloat() + rangeBegin;
-        entity[EntityIndex.POSITION_Y.getIndex()] = height - random.nextFloat() * 50.0f;
-
-        //extent
-        entity[EntityIndex.EXTENT_X.getIndex()] = 3;
-        entity[EntityIndex.EXTENT_Y.getIndex()] = 45+random.nextFloat()*45;
-
-        //color + alpha
-        entity[EntityIndex.COLOR_R.getIndex()] = 89/255.0f;
-        entity[EntityIndex.COLOR_G.getIndex()] = 106/255.0f;
-        entity[EntityIndex.COLOR_B.getIndex()] = 128/255.0f;
-        entity[EntityIndex.COLOR_A.getIndex()] = 0.12f + random.nextFloat() * 0.12f;
-
-        //aabb box center
-        entity[EntityIndex.AABB_CENTER_X.getIndex()] = 0;
-        entity[EntityIndex.AABB_CENTER_Y.getIndex()] = 0;
-
-        //aabb box extent
-        entity[EntityIndex.AABB_EXTENT_X.getIndex()] = entity[EntityIndex.EXTENT_X.getIndex()];
-        entity[EntityIndex.AABB_EXTENT_Y.getIndex()] = entity[EntityIndex.EXTENT_Y.getIndex()];
-
-        //aabb dynamic vs static
-        //raindrop -> dynamic -> 1
-        entity[EntityIndex.COLLISION_TYPE.getIndex()] = 1.0f;
-
-        //velocity
-        entity[EntityIndex.VELOCITY_X.getIndex()] = windForce;
-        entity[EntityIndex.VELOCITY_Y.getIndex()] = random.nextFloat() * downForce;
-
-        //affected by gravity? > yes > 1.0f
-        entity[EntityIndex.GRAVITATION_INFLUENCE.getIndex()] = 1.0f;
-        entity[EntityIndex.DRAG.getIndex()] = 0.975f;
+        float[] entity = EntityCreator.getInstance()
+                .setEntityTypeID(EntityType.RAIN_DROP.getEntityType())
+                .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.MOVEMENT_SYSTEM.getSystemMask())
+                .setPosition(new Vector2(range * random.nextFloat() + rangeBegin, height - random.nextFloat() * 50.0f))
+                .setExtent(extent)
+                .setColor(new Color(89 / 255.0f, 106 / 255.0f, 126 / 255.0f, 0.12f + random.nextFloat() * 0.12f))
+                .setAABBPosition(new Vector2(0, 0))
+                .setAABBExtent(extent)
+                .setCollisionType(1.0d)
+                .setVelocity(new Vector2(windForce, random.nextFloat() * downForce))
+                .setGravitationInfluence(1.0f)
+                .setDrag(0.975f)
+                .create();
 
         engine.addEntity(entity);
     }

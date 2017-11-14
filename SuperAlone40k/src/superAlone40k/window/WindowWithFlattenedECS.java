@@ -349,8 +349,8 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
         double deltaTime;
 
         // TODO: Currently wrong bitmask and/or wrong entity id's
-        simpleParticleSystem.emit(50, 5);
-        rainParticleSystem.emit(100);
+        //simpleParticleSystem.emit(50, 5);
+        rainParticleSystem.emit(75);
 
         while (running) {
             preUpdateTime = System.nanoTime();
@@ -359,7 +359,7 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
 
             timeScale = quartEase(uneasedTimeScale);
             update(deltaTime);
-            simpleParticleSystem.update(deltaTime);
+            //simpleParticleSystem.update(deltaTime);
             rainParticleSystem.update(deltaTime*timeScale);
 
             render();

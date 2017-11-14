@@ -4,7 +4,10 @@ import superAlone40k.ecs.EntityIndex;
 import superAlone40k.ecs.EntityType;
 import superAlone40k.ecs.FlattenedEngine;
 import superAlone40k.ecs.SystemBitmask;
+import superAlone40k.util.EntityCreator;
+import superAlone40k.util.Vector2;
 
+import java.awt.*;
 import java.util.Random;
 
 public class SimpleParticleSystem {
@@ -58,46 +61,21 @@ public class SimpleParticleSystem {
     }
 
     private void emitParticle(){
-        float[] entity = new float[EntityIndex.values().length];
+        Vector2 extent = new Vector2(2,2);
 
-        entity[EntityIndex.ENTITY_TYPE_ID.getIndex()] = EntityType.RAIN_DROP_SPLATTER.getEntityType();
-        entity[EntityIndex.SYSTEM_MASK.getIndex()] = SystemBitmask.MOVEMENT_SYSTEM.getSystemMask() | SystemBitmask.COLLIDER_SORTING.getSystemMask();
-
-        //pos
-        entity[EntityIndex.POSITION_X.getIndex()] = positionX;
-        entity[EntityIndex.POSITION_Y.getIndex()] = positionY - 10;
-
-        //extent
-        entity[EntityIndex.EXTENT_X.getIndex()] = 2;
-        entity[EntityIndex.EXTENT_Y.getIndex()] = 2;
-
-        //color
-        entity[EntityIndex.COLOR_R.getIndex()] = 89 / 255.0f;
-        entity[EntityIndex.COLOR_G.getIndex()] = 106 / 255.0f;
-        entity[EntityIndex.COLOR_B.getIndex()] = 128 / 255.0f;
-        entity[EntityIndex.COLOR_A.getIndex()] = 0.09f + random.nextFloat() * 0.09f;
-
-        //aabb box center
-        entity[EntityIndex.AABB_CENTER_X.getIndex()] = 0;
-        entity[EntityIndex.AABB_CENTER_Y.getIndex()] = 0;
-
-        //aabb box extent
-        entity[EntityIndex.AABB_EXTENT_X.getIndex()] = entity[EntityIndex.EXTENT_X.getIndex()];
-        entity[EntityIndex.AABB_EXTENT_Y.getIndex()] = entity[EntityIndex.EXTENT_Y.getIndex()];
-
-        //aabb dynamic vs static
-        //player -> dynamic -> 1
-        entity[EntityIndex.COLLISION_TYPE.getIndex()] = 1.0f;
-
-        //velocity
-        entity[EntityIndex.VELOCITY_X.getIndex()] = random.nextFloat() * emitForce - emitForce / 2;
-        entity[EntityIndex.VELOCITY_Y.getIndex()] = random.nextFloat() * -emitForce;
-
-        //gravitation influence
-        entity[EntityIndex.GRAVITATION_INFLUENCE.getIndex()] = 1.0f;
-
-        //drag
-        entity[EntityIndex.DRAG.getIndex()] = 0.975f;
+        float[] entity = EntityCreator.getInstance()
+                .setEntityTypeID(EntityType.RAIN_DROP_SPLATTER.getEntityType())
+                .setSystemMask(SystemBitmask.MOVEMENT_SYSTEM.getSystemMask() | SystemBitmask.COLLIDER_SORTING.getSystemMask())
+                .setPosition(new Vector2(positionX, positionY))
+                .setExtent(extent)
+                .setColor(new Color(89 / 255.0f, 106 / 255.0f, 128/ 255.0f, 0.12f + random.nextFloat() * 0.19f))
+                .setAABBPosition(new Vector2(0, 0))
+                .setAABBExtent(extent)
+                .setCollisionType(1.0d)
+                .setVelocity(new Vector2(random.nextFloat() * emitForce - emitForce / 2, random.nextFloat() * -emitForce))
+                .setGravitationInfluence(1.0f)
+                .setDrag(0.975f)
+                .create();
 
         engine.addEntity(entity);
     }
