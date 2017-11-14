@@ -82,15 +82,20 @@ public class Renderer {
             return;
         }
         g.setColor(new Color(entity[6], entity[7], entity[8], entity[9]));
-        g.fillRect((int)(entity[2]-entity[4]), (int)(entity[3]-entity[5]), (int)(2*entity[4]), (int)(2*entity[5]));
+		g.fillRect((int) (entity[2] - entity[4]), (int) (entity[3] - entity[5]), (int) (2 * entity[4]), (int) (2 * entity[5]));
     }
 
     private void renderRainDropEntity(Graphics2D g, float[] entity){
-        rainPaint = new GradientPaint(entity[2], entity[3]+entity[5], new Color(entity[6], entity[7], entity[8], entity[9]), entity[2], entity[3], new Color(0,0,0,0));
+		rainPaint = new GradientPaint(entity[EntityIndex.POSITION_X.getIndex()],
+				entity[EntityIndex.POSITION_Y.getIndex()] + entity[EntityIndex.EXTENT_Y.getIndex()],
+				new Color(entity[EntityIndex.COLOR_R.getIndex()], entity[EntityIndex.COLOR_G.getIndex()],
+						entity[EntityIndex.COLOR_B.getIndex()], entity[EntityIndex.COLOR_A.getIndex()]),
+				entity[EntityIndex.POSITION_X.getIndex()], entity[EntityIndex.POSITION_Y.getIndex()],
+				new Color(0, 0, 0, 0));
 
+		
         g.setPaint(rainPaint);
-        g.fillRect((int)(entity[2]-entity[4]), (int)(entity[3]-entity[5]), (int)(2*entity[4]), (int)(2*entity[5]));
+		g.fillRect((int) (entity[2] - entity[4]), (int) (entity[3] - entity[5]), (int) (2 * entity[4]),
+				(int) (2 * entity[5]));
     }
-
-
 }
