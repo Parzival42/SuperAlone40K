@@ -1,6 +1,7 @@
 package superAlone40k.ecs;
 
 public enum SystemBitmask {
+	// Use always powers of two!
 	HORIZONTAL_MOVEMENT(1),
 	VERTICAL_MOVEMENT(2),
 	INPUT(4),
