@@ -418,7 +418,6 @@ public class FlattenedEngine {
                 			(int) (entity1[EntityIndex.POSITION_X.getIndex()] + entity1[EntityIndex.EXTENT_X.getIndex()]),
                 			(int) (entity1[EntityIndex.POSITION_Y.getIndex()] + entity1[EntityIndex.EXTENT_Y.getIndex()]), 5);
                 	removeEntity(entity1);
-                	System.out.println("Heinzi");
                 	return;
                 }
 
