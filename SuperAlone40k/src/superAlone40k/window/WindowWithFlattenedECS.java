@@ -6,6 +6,7 @@ import superAlone40k.ecs.FlattenedEngine;
 import superAlone40k.ecs.SystemBitmask;
 import superAlone40k.particleSystem.*;
 import superAlone40k.renderer.Renderer;
+import superAlone40k.util.EntityCreator;
 import superAlone40k.util.Vector2;
 
 import javax.swing.*;
@@ -108,50 +109,23 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
 
     private void createSampleBulletEntities() {
         Random random = new Random();
+        Vector2 extent = new Vector2(15,5);
 
         for(int i = 0; i < 20; i++){
-            float[] entity = new float[EntityIndex.values().length];
 
-            //mask - input system, collider,
-            //00001100
-            entity[EntityIndex.SYSTEM_MASK.getIndex()] = 0;
+            float[] bullet = EntityCreator.getInstance()
+                    .setEntityTypeID(EntityType.BULLET.getEntityType() | EntityType.BOX_SHADOW.getEntityType())
+                    .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.MOVEMENT_SYSTEM.getSystemMask())
+                    .setPosition(new Vector2(1500 + i*200, random.nextFloat() * 720))
+                    .setExtent(extent)
+                    .setColor(new Color(1.0f, 1.0f, 1.0f,1.0f))
+                    .setAABBExtent(extent)
+                    .setCollisionType(1.0f)
+                    .setVelocity(new Vector2(-500,0))
+                    .setDrag(1.0f)
+                    .create();
 
-            //pos
-            entity[EntityIndex.POSITION_X.getIndex()] = 1500 + i*200;
-            entity[EntityIndex.POSITION_Y.getIndex()] = random.nextFloat() * 720;
-
-            //extent
-            entity[EntityIndex.EXTENT_X.getIndex()] = 15;
-            entity[EntityIndex.EXTENT_Y.getIndex()] = 5;
-
-            //color
-            entity[EntityIndex.COLOR_R.getIndex()] = 1.0f;
-            entity[EntityIndex.COLOR_G.getIndex()] = 1.0f;
-            entity[EntityIndex.COLOR_B.getIndex()] = 1.0f;
-            entity[EntityIndex.COLOR_A.getIndex()] = 1.0f;
-
-            //aabb box center
-            entity[EntityIndex.AABB_CENTER_X.getIndex()] = 0;
-            entity[EntityIndex.AABB_CENTER_Y.getIndex()] = 0;
-
-            //aabb box extent
-            entity[EntityIndex.AABB_EXTENT_X.getIndex()] = entity[4];
-            entity[EntityIndex.AABB_EXTENT_Y.getIndex()] = entity[5]-5;
-
-            //aabb dynamic vs static
-            //player -> dynamic -> 1
-            entity[EntityIndex.COLLISION_TYPE.getIndex()] = 1.0f;
-
-            //velocity
-            entity[EntityIndex.VELOCITY_X.getIndex()] = -500.0f;
-            entity[EntityIndex.VELOCITY_Y.getIndex()] = 0.0f;
-
-            entity[EntityIndex.GRAVITATION_INFLUENCE.getIndex()] = 0.0f;
-
-            //drag
-            entity[EntityIndex.DRAG.getIndex()] = 1.0f;
-
-            engine.addEntity(entity);
+            engine.addEntity(bullet);
         }
     }
 
@@ -178,52 +152,23 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
     	
     	return border;
     }
-    
+
     private float[] createPlayerEntity(){
-        float[] entity = new float[EntityIndex.values().length];
+        Vector2 extent = new Vector2(20,40);
 
-        entity[EntityIndex.ENTITY_TYPE_ID.getIndex()] = EntityType.BOX_SHADOW.getEntityType() | EntityType.PLAYER.getEntityType();
-        
-        //mask - input system, collider,
-        //00001100
-        entity[EntityIndex.SYSTEM_MASK.getIndex()] = SystemBitmask.INPUT.getSystemMask() | SystemBitmask.COLLIDER_SORTING.getSystemMask();
+        float[] player = EntityCreator.getInstance()
+                .setEntityTypeID(EntityType.BOX_SHADOW.getEntityType() | EntityType.PLAYER.getEntityType())
+                .setSystemMask(SystemBitmask.INPUT.getSystemMask() | SystemBitmask.COLLIDER_SORTING.getSystemMask())
+                .setPosition(new Vector2(500,650))
+                .setExtent(extent)
+                .setColor(new Color(218/255.0f, 94/255.0f, 92/255.0f, 1.0f))
+                .setAABBExtent(extent)
+                .setCollisionType(1.0f)
+                .setGravitationInfluence(1.0f)
+                .setDrag(0.975f)
+                .create();
 
-        //pos
-        entity[EntityIndex.POSITION_X.getIndex()] = 500;
-        entity[EntityIndex.POSITION_Y.getIndex()] = 650;
-
-        //extent
-        entity[EntityIndex.EXTENT_X.getIndex()] = 20;
-        entity[EntityIndex.EXTENT_Y.getIndex()] = 40;
-
-        //color
-        entity[EntityIndex.COLOR_R.getIndex()] = 218/255.0f;
-        entity[EntityIndex.COLOR_G.getIndex()] = 94/255.0f;
-        entity[EntityIndex.COLOR_B.getIndex()] = 92/255.0f;
-        entity[EntityIndex.COLOR_A.getIndex()] = 1.0f;
-
-        //aabb box center
-        entity[EntityIndex.AABB_CENTER_X.getIndex()] = 0;
-        entity[EntityIndex.AABB_CENTER_Y.getIndex()] = 0;
-
-        //aabb box extent
-        entity[EntityIndex.AABB_EXTENT_X.getIndex()] = entity[EntityIndex.EXTENT_X.getIndex()];
-        entity[EntityIndex.AABB_EXTENT_Y.getIndex()] = entity[EntityIndex.EXTENT_Y.getIndex()];
-
-        //aabb dynamic vs static
-        //player -> dynamic -> 1
-        entity[EntityIndex.COLLISION_TYPE.getIndex()] = 1.0f;
-
-        //velocity
-        entity[EntityIndex.VELOCITY_X.getIndex()] = 0.0f;
-        entity[EntityIndex.VELOCITY_Y.getIndex()] = 0.0f;
-
-        //gravity
-        entity[EntityIndex.GRAVITATION_INFLUENCE.getIndex()] = 1.0f;
-
-        //drag
-        entity[EntityIndex.DRAG.getIndex()] = 0.975f;
-        return entity;
+        return player;
     }
 
     private void createSampleFloorEntities() {
