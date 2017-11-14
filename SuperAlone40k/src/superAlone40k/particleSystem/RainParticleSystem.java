@@ -1,6 +1,7 @@
 package superAlone40k.particleSystem;
 
 import superAlone40k.ecs.EntityIndex;
+import superAlone40k.ecs.EntityType;
 import superAlone40k.ecs.FlattenedEngine;
 import superAlone40k.ecs.SystemBitmask;
 
@@ -20,7 +21,7 @@ public class RainParticleSystem {
     private float range;
 
     //emit settings
-    private float emitRate = 1.0f/10.0f;
+    private float emitRate = 1.0f / 10.0f;
 
     //emit control
     private boolean shouldEmit = false;
@@ -45,7 +46,7 @@ public class RainParticleSystem {
     }
 
     public void emit(int emitRate){
-        this.emitRate = 1.0f/emitRate;
+        this.emitRate = 1.0f / emitRate;
         this.shouldEmit = true;
     }
 
@@ -67,11 +68,12 @@ public class RainParticleSystem {
     private void emitParticle(){
         float[] entity = new float[19];
 
+        entity[EntityIndex.ENTITY_TYPE_ID.getIndex()] = EntityType.RAIN_DROP.getEntityType();
         entity[EntityIndex.SYSTEM_MASK.getIndex()] = SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.MOVEMENT_SYSTEM.getSystemMask();
 
         //pos
-        entity[EntityIndex.POSITION_X.getIndex()] = range*random.nextFloat()+ rangeBegin;
-        entity[EntityIndex.POSITION_Y.getIndex()] = height- random.nextFloat()*50.0f;
+        entity[EntityIndex.POSITION_X.getIndex()] = range * random.nextFloat() + rangeBegin;
+        entity[EntityIndex.POSITION_Y.getIndex()] = height - random.nextFloat() * 50.0f;
 
         //extent
         entity[EntityIndex.EXTENT_X.getIndex()] = 3;

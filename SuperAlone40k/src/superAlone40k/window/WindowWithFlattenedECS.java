@@ -60,7 +60,6 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
 
     public WindowWithFlattenedECS(String name, int width, int height){
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
         setLayout(new BorderLayout());
         setFocusable(true);
         setResizable(false);
@@ -73,6 +72,7 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
 
         pack();
         setVisible(true);
+        setLocationRelativeTo(null);
 
         canvas.createBufferStrategy(2);
         bufferStrategy = canvas.getBufferStrategy();
@@ -182,11 +182,10 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
     private float[] createPlayerEntity(){
         float[] entity = new float[EntityIndex.values().length];
 
-        entity[EntityIndex.ENTITY_TYPE_ID.getIndex()] = EntityType.BOX_SHADOW.getEntityType();
+        entity[EntityIndex.ENTITY_TYPE_ID.getIndex()] = EntityType.BOX_SHADOW.getEntityType() | EntityType.PLAYER.getEntityType();
         
         //mask - input system, collider,
         //00001100
-//        entity[EntityIndex.SYSTEM_MASK.getIndex()] = 12;
         entity[EntityIndex.SYSTEM_MASK.getIndex()] = SystemBitmask.INPUT.getSystemMask() | SystemBitmask.COLLIDER_SORTING.getSystemMask();
 
         //pos
@@ -224,8 +223,6 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
 
         //drag
         entity[EntityIndex.DRAG.getIndex()] = 0.975f;
-
-
         return entity;
     }
 
@@ -352,8 +349,8 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
         double deltaTime;
 
         // TODO: Currently wrong bitmask and/or wrong entity id's
-//        simpleParticleSystem.emit(50, 5);
-//        rainParticleSystem.emit(100);
+        simpleParticleSystem.emit(50, 5);
+        rainParticleSystem.emit(100);
 
         while (running) {
             preUpdateTime = System.nanoTime();
@@ -362,7 +359,7 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
 
             timeScale = quartEase(uneasedTimeScale);
             update(deltaTime);
-            //simpleParticleSystem.update(deltaTime);
+            simpleParticleSystem.update(deltaTime);
             rainParticleSystem.update(deltaTime*timeScale);
 
             render();

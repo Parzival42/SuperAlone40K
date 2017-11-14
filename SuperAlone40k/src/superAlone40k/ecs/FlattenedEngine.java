@@ -144,7 +144,7 @@ public class FlattenedEngine {
 
     private Ray[] getCornerRays(Vector2 lightPosition, float[] entity) {
     	// Box ray collision
-    	if((int) entity[EntityIndex.ENTITY_TYPE_ID.getIndex()] == EntityType.BOX_SHADOW.getEntityType()) {
+    	if(isBitmaskValid(EntityType.BOX_SHADOW.getEntityType(), (int) entity[EntityIndex.ENTITY_TYPE_ID.getIndex()])) {
     		Vector2 min = new Vector2(
     				entity[EntityIndex.POSITION_X.getIndex()] - entity[EntityIndex.EXTENT_X.getIndex()],
     				entity[EntityIndex.POSITION_Y.getIndex()] - entity[EntityIndex.EXTENT_Y.getIndex()]);
@@ -164,7 +164,7 @@ public class FlattenedEngine {
     		final Ray rightBottom = new Ray(lightPosition, toRightBottom);
 
     		return new Ray[] { leftTop, rightTop, leftBottom, rightBottom };
-    	} else if((int) entity[EntityIndex.ENTITY_TYPE_ID.getIndex()] == EntityType.SCREEN_BORDER.getEntityType()) {
+    	} else if(isBitmaskValid(EntityType.SCREEN_BORDER.getEntityType(), (int) entity[EntityIndex.ENTITY_TYPE_ID.getIndex()])) {
     		final Ray borderRay = new Ray(
     				new Vector2(entity[EntityIndex.BORDER_ORIGIN_X.getIndex()], entity[EntityIndex.BORDER_ORIGIN_Y.getIndex()]),
     				new Vector2(entity[EntityIndex.BORDER_DIR_X.getIndex()], entity[EntityIndex.BORDER_DIR_Y.getIndex()]));
@@ -177,7 +177,7 @@ public class FlattenedEngine {
     
     private void intersect(Ray ray, float[] entity) {
     	// Box ray collision
-    	if(entity[EntityIndex.ENTITY_TYPE_ID.getIndex()] == EntityType.BOX_SHADOW.getEntityType()) {
+    	if(isBitmaskValid(EntityType.BOX_SHADOW.getEntityType(), (int) entity[EntityIndex.ENTITY_TYPE_ID.getIndex()])) {
     		Vector2 min = new Vector2(
     				entity[EntityIndex.POSITION_X.getIndex()] - entity[EntityIndex.EXTENT_X.getIndex()],
     				entity[EntityIndex.POSITION_Y.getIndex()] - entity[EntityIndex.EXTENT_Y.getIndex()]);
@@ -218,7 +218,8 @@ public class FlattenedEngine {
     		}
     		final Vector2 hitPoint = ray.origin.copy().add(ray.direction.copy().scale(closestDistance));
     		ray.updateHitInformation(hitPoint);
-    	} else if(entity[EntityIndex.ENTITY_TYPE_ID.getIndex()] == EntityType.SCREEN_BORDER.getEntityType()) {
+    		
+    	} else if(isBitmaskValid(EntityType.SCREEN_BORDER.getEntityType(), (int) entity[EntityIndex.ENTITY_TYPE_ID.getIndex()])) {
     		final Ray borderRay = new Ray(
     				new Vector2(entity[EntityIndex.BORDER_ORIGIN_X.getIndex()], entity[EntityIndex.BORDER_ORIGIN_Y.getIndex()]),
     				new Vector2(entity[EntityIndex.BORDER_DIR_X.getIndex()], entity[EntityIndex.BORDER_DIR_Y.getIndex()]));
@@ -232,11 +233,13 @@ public class FlattenedEngine {
     }
     
     private void simpleHorizontalMovement(float[] entity, double deltaTime){
-        entity[EntityIndex.POSITION_X.getIndex()] = (float) (entity[2] + Math.sin((totalTime+entity[0])*3) * deltaTime * currentTimeScale * 100);
+		entity[EntityIndex.POSITION_X.getIndex()] = (float) (entity[2]
+				+ Math.sin((totalTime + entity[0]) * 3) * deltaTime * currentTimeScale * 100);
     }
 
     private void simpleVerticalMovement(float[] entity, double deltaTime){
-        entity[EntityIndex.POSITION_Y.getIndex()] = (float) (entity[3] + Math.sin((totalTime+entity[0])*3) * deltaTime * currentTimeScale * 100);
+		entity[EntityIndex.POSITION_Y.getIndex()] = (float) (entity[3]
+				+ Math.sin((totalTime + entity[0]) * 3) * deltaTime * currentTimeScale * 100);
     }
 
     //inputProcessing system variables
@@ -248,18 +251,22 @@ public class FlattenedEngine {
 
     private void inputProcessing(float[] entity, double deltaTime){
         if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_A)){
-            entity[EntityIndex.VELOCITY_X.getIndex()] -= movementSpeed*deltaTime;
+            entity[EntityIndex.VELOCITY_X.getIndex()] -= movementSpeed * deltaTime;
             entity[EntityIndex.VELOCITY_X.getIndex()] = entity[EntityIndex.VELOCITY_X.getIndex()] < -maxMovementSpeed ? -maxMovementSpeed : entity[15];
         }
 
         if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_D)){
-            entity[EntityIndex.VELOCITY_X.getIndex()] += movementSpeed*deltaTime;
+            entity[EntityIndex.VELOCITY_X.getIndex()] += movementSpeed * deltaTime;
             entity[EntityIndex.VELOCITY_X.getIndex()] = entity[EntityIndex.VELOCITY_X.getIndex()] > maxMovementSpeed ? maxMovementSpeed : entity[15];
         }
 
         if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_SPACE)){
-            entity[EntityIndex.VELOCITY_Y.getIndex()] -= jumpStrength*deltaTime;
+            entity[EntityIndex.VELOCITY_Y.getIndex()] -= jumpStrength * deltaTime;
             entity[EntityIndex.VELOCITY_Y.getIndex()] = entity[EntityIndex.VELOCITY_Y.getIndex()] > maxJumpStrength ? maxJumpStrength : entity[16];
+        }
+        
+        if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_ESCAPE)) {
+        	System.exit(42);
         }
 
         entity[EntityIndex.VELOCITY_Y.getIndex()] += playerGravity * deltaTime;
@@ -377,55 +384,61 @@ public class FlattenedEngine {
             if ((yOverlap) < 0) {
 
                 //if one of the entities is a raindrop
-                int entity1Mask = (int) entity1[EntityIndex.SYSTEM_MASK.getIndex()];
-                int entity2Mask = (int) entity2[EntityIndex.SYSTEM_MASK.getIndex()];
+                int entity1Id = (int) entity1[EntityIndex.ENTITY_TYPE_ID.getIndex()];
+                int entity2Id = (int) entity2[EntityIndex.ENTITY_TYPE_ID.getIndex()];
 
-                int entity1Type = (int) entity1[EntityIndex.ENTITY_TYPE_ID.getIndex()];
-                int entity2Type = (int) entity2[EntityIndex.ENTITY_TYPE_ID.getIndex()];
-
-                if(entity1Type == EntityType.RAIN_DROP_SPLATTER.getEntityType() && entity2Type == EntityType.RAIN_DROP_SPLATTER.getEntityType()){
-                    return;
+                if(isBitmaskValid(EntityType.RAIN_DROP_SPLATTER.getEntityType(), entity1Id) && 
+                		isBitmaskValid(EntityType.RAIN_DROP_SPLATTER.getEntityType(), entity2Id)) {
+                	return;
                 }
 
                 //if raindrop and other entity
-                if(entity1Type == EntityType.RAIN_DROP_SPLATTER.getEntityType() && entity2Type != EntityType.RAIN_DROP_SPLATTER.getEntityType()){
-                    removeEntity(entity1);
-                    return;
+                if(isBitmaskValid(EntityType.RAIN_DROP_SPLATTER.getEntityType(), entity1Id) && 
+                		!isBitmaskValid(EntityType.RAIN_DROP_SPLATTER.getEntityType(), entity2Id)) {
+                	removeEntity(entity1);
+                	return;
                 }
 
-                if(entity2Type == EntityType.RAIN_DROP_SPLATTER.getEntityType() && entity1Type != EntityType.RAIN_DROP_SPLATTER.getEntityType()){
-                    removeEntity(entity2);
-                    return;
+                if(isBitmaskValid(EntityType.RAIN_DROP_SPLATTER.getEntityType(), entity2Id) && 
+                		!isBitmaskValid(EntityType.RAIN_DROP_SPLATTER.getEntityType(), entity1Id)) {
+                	removeEntity(entity2);
+                	return;
                 }
-
 
                 //two raindrops do not collide
-                if(entity1Mask == 24 && entity2Mask == 24){
-                    return;
+                if(isBitmaskValid(EntityType.RAIN_DROP.getEntityType(), entity1Id) && 
+                		isBitmaskValid(EntityType.RAIN_DROP.getEntityType(), entity2Id)) {
+                	return;
                 }
 
                 //if raindrop and other entity
-                if(entity1Mask == 24 && entity2Mask != 24){
-                    WindowWithFlattenedECS.getSimpleParticleSystem().burstEmit((int)(entity1[2]+entity1[4]), (int)(entity1[3]+entity1[5]), 5);
-                    removeEntity(entity1);
-                    return;
+                if(isBitmaskValid(EntityType.RAIN_DROP.getEntityType(), entity1Id) && 
+                		!isBitmaskValid(EntityType.RAIN_DROP.getEntityType(), entity2Id)) {
+                	WindowWithFlattenedECS.getSimpleParticleSystem().burstEmit(
+                			(int) (entity1[EntityIndex.POSITION_X.getIndex()] + entity1[EntityIndex.EXTENT_X.getIndex()]),
+                			(int) (entity1[EntityIndex.POSITION_Y.getIndex()] + entity1[EntityIndex.EXTENT_Y.getIndex()]), 5);
+                	removeEntity(entity1);
+                	System.out.println("Heinzi");
+                	return;
                 }
 
-                if(entity2Mask == 24 && entity1Mask != 24){
-                    WindowWithFlattenedECS.getSimpleParticleSystem().burstEmit((int)(entity2[2]+entity2[4]), (int)(entity2[3]+entity2[5]), 5);
-                    removeEntity(entity2);
-                    return;
+                if(isBitmaskValid(EntityType.RAIN_DROP.getEntityType(), entity2Id) && 
+                		!isBitmaskValid(EntityType.RAIN_DROP.getEntityType(), entity1Id)) {
+                	WindowWithFlattenedECS.getSimpleParticleSystem().burstEmit(
+                			(int) (entity2[EntityIndex.POSITION_X.getIndex()] + entity2[EntityIndex.EXTENT_X.getIndex()]),
+                			(int) (entity2[EntityIndex.POSITION_Y.getIndex()] + entity2[EntityIndex.EXTENT_Y.getIndex()]), 5);
+                	removeEntity(entity2);
+                	return;
                 }
 
                 //player and environment
-                if(entity1Mask == 12) {
-                    resolvePlayerCollision(entity1, entity2, xOverlap, yOverlap);
-                    return;
+                if(isBitmaskValid(EntityType.PLAYER.getEntityType(), entity1Id)) {
+                	resolvePlayerCollision(entity1, entity2, xOverlap, yOverlap);
+                	return;
                 }
-
-                if(entity2Mask == 12) {
-                    resolvePlayerCollision(entity2, entity1, xOverlap, yOverlap);
-                    return;
+                if(isBitmaskValid(EntityType.PLAYER.getEntityType(), entity2Id)) {
+                	resolvePlayerCollision(entity2, entity1, xOverlap, yOverlap);
+                	return;
                 }
 
                 float[] toDelete = entity1[EntityIndex.COLLISION_TYPE.getIndex()] > 0.5f ? entity1 : entity2;
@@ -444,7 +457,6 @@ public class FlattenedEngine {
         }
     }
 
-
     //simple movement system
     private float gravity = 3000.0f;
 
@@ -461,4 +473,13 @@ public class FlattenedEngine {
     }
 
     private void lightingSystem(float[] entity, double deltaTime) { /*Dummy system*/ }
+    
+    /**
+     * @param originalMask Original mask from enumeration (Or other source).
+     * @param maskToCheck The mask you want to check against the original mask.
+     * @return Returns <strong>true</strong> if the masks are fitting.
+     */
+    public static boolean isBitmaskValid(int originalMask, int maskToCheck) {
+    	return (originalMask & maskToCheck) == originalMask;
+    }
 }

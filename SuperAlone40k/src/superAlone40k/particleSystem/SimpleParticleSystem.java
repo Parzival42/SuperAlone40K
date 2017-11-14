@@ -1,6 +1,7 @@
 package superAlone40k.particleSystem;
 
 import superAlone40k.ecs.EntityIndex;
+import superAlone40k.ecs.EntityType;
 import superAlone40k.ecs.FlattenedEngine;
 import superAlone40k.ecs.SystemBitmask;
 
@@ -59,8 +60,7 @@ public class SimpleParticleSystem {
     private void emitParticle(){
         float[] entity = new float[EntityIndex.values().length];
 
-        //mask -, collider, movement, input
-        //00011100
+        entity[EntityIndex.ENTITY_TYPE_ID.getIndex()] = EntityType.RAIN_DROP_SPLATTER.getEntityType();
         entity[EntityIndex.SYSTEM_MASK.getIndex()] = SystemBitmask.MOVEMENT_SYSTEM.getSystemMask() | SystemBitmask.COLLIDER_SORTING.getSystemMask();
 
         //pos
@@ -82,8 +82,8 @@ public class SimpleParticleSystem {
         entity[EntityIndex.AABB_CENTER_Y.getIndex()] = 0;
 
         //aabb box extent
-        entity[EntityIndex.AABB_EXTENT_X.getIndex()] = entity[4];
-        entity[EntityIndex.AABB_EXTENT_Y.getIndex()] = entity[5];
+        entity[EntityIndex.AABB_EXTENT_X.getIndex()] = entity[EntityIndex.EXTENT_X.getIndex()];
+        entity[EntityIndex.AABB_EXTENT_Y.getIndex()] = entity[EntityIndex.EXTENT_Y.getIndex()];
 
         //aabb dynamic vs static
         //player -> dynamic -> 1

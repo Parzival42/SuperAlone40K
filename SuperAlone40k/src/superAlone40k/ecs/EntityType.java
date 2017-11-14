@@ -5,7 +5,8 @@ public enum EntityType {
 	SCREEN_BORDER(1),
 	BOX_SHADOW(2),
 	RAIN_DROP_SPLATTER(4), 
-	RAIN_DROP(8);
+	RAIN_DROP(8),
+	PLAYER(16);
 	
 	final int entityType;
 	private EntityType(final int entityType) {
