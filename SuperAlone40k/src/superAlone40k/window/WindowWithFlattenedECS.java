@@ -1,6 +1,5 @@
 package superAlone40k.window;
 
-import superAlone40k.ecs.EntityIndex;
 import superAlone40k.ecs.EntityType;
 import superAlone40k.ecs.FlattenedEngine;
 import superAlone40k.ecs.SystemBitmask;
@@ -38,11 +37,8 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
     //ecs
     private FlattenedEngine engine;
 
-    //particle system
-    private static SimpleParticleSystem simpleParticleSystem;
-
     //rain particles
-    private RainParticleSystem rainParticleSystem;
+    private static RainParticleSystem rainParticleSystem;
 
     //time scale
     private static float timeScale = 1.0f;
@@ -52,8 +48,8 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
         uneasedTimeScale = newTimeScale;
     }
 
-    public static SimpleParticleSystem getSimpleParticleSystem(){
-        return simpleParticleSystem;
+    public static RainParticleSystem getRainParticleSystem(){
+        return rainParticleSystem;
     }
 
     public WindowWithFlattenedECS(String name, int width, int height){
@@ -61,7 +57,7 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
         setLayout(new BorderLayout());
         setFocusable(true);
         setResizable(false);
-        setName(name);
+        setTitle(name);
 
         canvas = new Canvas();
         canvas.setPreferredSize(new Dimension(width, height));
@@ -80,7 +76,6 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
         renderer = new Renderer();
 
         engine = new FlattenedEngine();
-        simpleParticleSystem = new SimpleParticleSystem(engine, 450, 500);
         rainParticleSystem = new RainParticleSystem(engine, -100,  0, 1280);
 
         //setUpTestEntities();
@@ -212,7 +207,6 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
 
         double deltaTime;
 
-        // TODO: Currently wrong bitmask and/or wrong entity id's
         rainParticleSystem.emit(75);
 
         while (running) {
@@ -220,7 +214,7 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
             deltaTime = (preUpdateTime - lastTime) / 1e9;
             lastTime = preUpdateTime;
 
-            timeScale = quartEase(uneasedTimeScale);
+            timeScale = quadEase(uneasedTimeScale);
             update(deltaTime);
 
 
@@ -253,13 +247,10 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
 
 
         if(elapsedTime >= 1.0f){
-//            System.out.println("FPS: "+frames);
+            setTitle("FPS: "+frames+ "   |   Engine update time (ms): "+ ((System.nanoTime()-preUpdateTime)/1e6) + "   |   Entity count: "+engine.getEntities().size());
             elapsedTime = 0.0f;
             frames = 0;
-
-//            System.out.println("Engine update time in nanoseconds: "+ (System.nanoTime()-preUpdateTime));
         }
-//      System.out.println("Entities: "+engine.getEntities().size());
     }
 
     private void render(){
@@ -320,9 +311,7 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
         keys[e.getKeyCode()] = false;
     }
 
-    private float quartEase(float t){
-        //return t<.5 ? 8*t*t*t*t : 1-8*(--t)*t*t*t;
+    private float quadEase(float t){
         return t<.5 ? 2*t*t : -1+(4-2*t)*t;
-        //return t;
     }
 }

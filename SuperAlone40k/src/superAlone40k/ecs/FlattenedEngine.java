@@ -13,8 +13,6 @@ import java.util.List;
 import java.util.TreeSet;
 
 public class FlattenedEngine {
-    private int runningID = 0;
-
     private ArrayList<float[]> entities = new ArrayList<>();
     private ArrayList<float[]>[] systemViews;
 
@@ -245,7 +243,7 @@ public class FlattenedEngine {
     //inputProcessing system variables
     private float movementSpeed = 700.0f;
     private float maxMovementSpeed = 200.0f;
-    private float jumpStrength = 5800.0f;
+    private float jumpStrength = 180000.0f;
     private float maxJumpStrength = 2000.0f;
     private float playerGravity = 2000.0f;
 
@@ -260,7 +258,9 @@ public class FlattenedEngine {
             entity[EntityIndex.VELOCITY_X.getIndex()] = entity[EntityIndex.VELOCITY_X.getIndex()] > maxMovementSpeed ? maxMovementSpeed : entity[15];
         }
 
-        if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_SPACE)){
+        boolean isGrounded = Math.abs(entity[EntityIndex.VELOCITY_Y.getIndex()]) < 0.5f;
+
+        if(isGrounded && WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_SPACE)){
             entity[EntityIndex.VELOCITY_Y.getIndex()] -= jumpStrength * deltaTime;
             entity[EntityIndex.VELOCITY_Y.getIndex()] = entity[EntityIndex.VELOCITY_Y.getIndex()] > maxJumpStrength ? maxJumpStrength : entity[16];
         }
@@ -414,18 +414,18 @@ public class FlattenedEngine {
                 //if raindrop and other entity
                 if(isBitmaskValid(EntityType.RAIN_DROP.getEntityType(), entity1Id) && 
                 		!isBitmaskValid(EntityType.RAIN_DROP.getEntityType(), entity2Id)) {
-                	WindowWithFlattenedECS.getSimpleParticleSystem().burstEmit(
-                			(int) (entity1[EntityIndex.POSITION_X.getIndex()] + entity1[EntityIndex.EXTENT_X.getIndex()]),
-                			(int) (entity1[EntityIndex.POSITION_Y.getIndex()] + entity1[EntityIndex.EXTENT_Y.getIndex()]), 5);
+                	WindowWithFlattenedECS.getRainParticleSystem().burstEmit(
+                			(int) (entity1[EntityIndex.POSITION_X.getIndex()]),
+                			(int) (entity1[EntityIndex.POSITION_Y.getIndex()] + entity1[EntityIndex.EXTENT_Y.getIndex()]*0.9f), 2);
                 	removeEntity(entity1);
                 	return;
                 }
 
                 if(isBitmaskValid(EntityType.RAIN_DROP.getEntityType(), entity2Id) && 
                 		!isBitmaskValid(EntityType.RAIN_DROP.getEntityType(), entity1Id)) {
-                	WindowWithFlattenedECS.getSimpleParticleSystem().burstEmit(
-                			(int) (entity2[EntityIndex.POSITION_X.getIndex()] + entity2[EntityIndex.EXTENT_X.getIndex()]),
-                			(int) (entity2[EntityIndex.POSITION_Y.getIndex()] + entity2[EntityIndex.EXTENT_Y.getIndex()]), 3);
+                	WindowWithFlattenedECS.getRainParticleSystem().burstEmit(
+                			(int) (entity2[EntityIndex.POSITION_X.getIndex()]),
+                			(int) (entity2[EntityIndex.POSITION_Y.getIndex()] + entity2[EntityIndex.EXTENT_Y.getIndex()]*0.9f), 2);
                 	removeEntity(entity2);
                 	return;
                 }
@@ -448,11 +448,11 @@ public class FlattenedEngine {
 
     private void resolvePlayerCollision(float[] player, float[] other, float xOverlap, float yOverlap){
         if(xOverlap > yOverlap){
-            float xOffset = player[2] < other[2] ? xOverlap : -xOverlap;
-            player[2] += xOffset;
+            float xOffset = player[EntityIndex.POSITION_X.getIndex()] < other[EntityIndex.POSITION_X.getIndex()] ? xOverlap : -xOverlap;
+            player[EntityIndex.POSITION_X.getIndex()] += xOffset;
         }else{
-            float yOffset = player[3] < other[3] ? yOverlap : -yOverlap;
-            player[3] += yOffset;
+            float yOffset = player[EntityIndex.POSITION_Y.getIndex()] < other[EntityIndex.POSITION_Y.getIndex()] ? yOverlap : -yOverlap;
+            player[EntityIndex.POSITION_Y.getIndex()] += yOffset;
         }
     }
 
