@@ -20,6 +20,8 @@ public class EntityCreator {
     private Vector2 velocity;
     private double gravitationInfluence;
     private double drag;
+    private Vector2 borderOrigin;
+    private Vector2 borderDirection;
 
     private static EntityCreator instance;
 
@@ -117,6 +119,24 @@ public class EntityCreator {
         return this;
     }
 
+    public EntityCreator setBorderOrigin(Vector2 borderOrigin){
+        return setBorderOrigin(borderOrigin.x, borderOrigin.y);
+    }
+
+    public EntityCreator setBorderOrigin(double x, double y){
+        borderOrigin.set(x,y);
+        return this;
+    }
+
+    public EntityCreator setBorderDirection(Vector2 borderDirection){
+        return setBorderDirection(borderDirection.x, borderDirection.y);
+    }
+
+    public EntityCreator setBorderDirection(double x, double y){
+        borderDirection.set(x,y);
+        return this;
+    }
+
     public float[] create(){
         float[] entity = new float[EntityIndex.values().length];
 
@@ -139,6 +159,10 @@ public class EntityCreator {
         entity[EntityIndex.VELOCITY_Y.getIndex()] = (float) velocity.y;
         entity[EntityIndex.GRAVITATION_INFLUENCE.getIndex()] = (float) gravitationInfluence;
         entity[EntityIndex.DRAG.getIndex()] = (float) drag;
+        entity[EntityIndex.BORDER_ORIGIN_X.getIndex()] = (float) borderOrigin.x;
+        entity[EntityIndex.BORDER_ORIGIN_Y.getIndex()] = (float) borderOrigin.y;
+        entity[EntityIndex.BORDER_DIR_X.getIndex()] = (float) borderDirection.x;
+        entity[EntityIndex.BORDER_DIR_Y.getIndex()] = (float) borderDirection.y;
 
         clear();
         return entity;
@@ -158,8 +182,7 @@ public class EntityCreator {
         velocity = new Vector2();
         gravitationInfluence = 0.0d;
         drag = 0.0d;
-
-
-
+        borderOrigin = new Vector2();
+        borderDirection = new Vector2();
     }
 }

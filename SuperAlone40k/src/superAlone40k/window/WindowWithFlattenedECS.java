@@ -38,9 +38,6 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
     //ecs
     private FlattenedEngine engine;
 
-    //player entity
-    private float[] player;
-
     //particle system
     private static SimpleParticleSystem simpleParticleSystem;
 
@@ -89,8 +86,7 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
         //setUpTestEntities();
         createSampleFloorEntities();
         createSampleBulletEntities();
-        player = createPlayerEntity();
-        engine.addEntity(player);
+        engine.addEntity(createPlayerEntity());
         
 		// Left top to Bottom left
         engine.addEntity(createScreenBorder(new Vector2(0, 0), new Vector2(0, 1)));
@@ -130,27 +126,22 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
     }
 
     private float[] createLight() {
-    	float[] light = new float[EntityIndex.values().length];
-    	
-    	light[EntityIndex.SYSTEM_MASK.getIndex()] = SystemBitmask.LIGHT_SYSTEM.getSystemMask();
-    	
-    	// Light Position
-    	light[EntityIndex.POSITION_X.getIndex()] = -100;
-    	light[EntityIndex.POSITION_Y.getIndex()] = 100;
-    	return light;
+        float[] light = EntityCreator.getInstance()
+                .setEntityTypeID(EntityType.LIGHT.getEntityType())
+                .setSystemMask(SystemBitmask.LIGHT_SYSTEM.getSystemMask())
+                .setPosition(new Vector2(-100, 100))
+                .create();
+        return light;
     }
-    
+
     private float[] createScreenBorder(Vector2 origin, Vector2 direction) {
-    	float[] border = new float[EntityIndex.values().length];
-    	
-    	border[EntityIndex.ENTITY_TYPE_ID.getIndex()] = EntityType.SCREEN_BORDER.getEntityType();
-    	
-    	border[EntityIndex.BORDER_ORIGIN_X.getIndex()] = (float) origin.x;
-    	border[EntityIndex.BORDER_ORIGIN_Y.getIndex()] = (float) origin.y;
-    	border[EntityIndex.BORDER_DIR_X.getIndex()] = (float) direction.x;
-    	border[EntityIndex.BORDER_DIR_Y.getIndex()] = (float) direction.y;
-    	
-    	return border;
+        float[] screenBorder = EntityCreator.getInstance()
+                .setEntityTypeID(EntityType.SCREEN_BORDER.getEntityType())
+                .setBorderOrigin(origin)
+                .setBorderDirection(direction)
+                .create();
+
+        return screenBorder;
     }
 
     private float[] createPlayerEntity(){
@@ -172,109 +163,37 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
     }
 
     private void createSampleFloorEntities() {
-        float[] entity = new float[EntityIndex.values().length];
+        Color platformColor = new Color(24/255.0f, 32/255.0f, 44/255.0f, 1.0f);
+        Vector2 extent = new Vector2(1500, 15);
 
-        entity[EntityIndex.ENTITY_TYPE_ID.getIndex()] = EntityType.BOX_SHADOW.getEntityType();
+        float[] mainFloor = EntityCreator.getInstance()
+                .setEntityTypeID(EntityType.BOX_SHADOW.getEntityType())
+                .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask())
+                .setPosition(new Vector2(0, canvas.getHeight() -15))
+                .setExtent(extent)
+                .setColor(platformColor)
+                .setAABBExtent(extent)
+                .setCollisionType(0.0f)
+                .create();
 
-        //mask - static collider
-        //00001000
-        entity[EntityIndex.SYSTEM_MASK.getIndex()] = 8;
+        engine.addEntity(mainFloor);
 
-        //pos
-        entity[EntityIndex.POSITION_X.getIndex()] = 0.0f;
-        entity[EntityIndex.POSITION_Y.getIndex()] = canvas.getHeight() - 15.0f;
-
-        //extent
-        entity[EntityIndex.EXTENT_X.getIndex()] = 1500.0f;
-        entity[EntityIndex.EXTENT_Y.getIndex()] = 15.0f;
-
-        //color
-        entity[EntityIndex.COLOR_R.getIndex()] = 24/255.0f;
-        entity[EntityIndex.COLOR_G.getIndex()] = 32/255.0f;
-        entity[EntityIndex.COLOR_B.getIndex()] = 44/255.0f;
-        entity[EntityIndex.COLOR_A.getIndex()] = 1.0f;
-
-        //aabb box center
-        entity[EntityIndex.AABB_CENTER_X.getIndex()] = 0;
-        entity[EntityIndex.AABB_CENTER_Y.getIndex()] = 0;
-
-        //aabb box extent
-        entity[EntityIndex.AABB_EXTENT_X.getIndex()] = entity[EntityIndex.EXTENT_X.getIndex()];
-        entity[EntityIndex.AABB_EXTENT_Y.getIndex()] = entity[EntityIndex.EXTENT_Y.getIndex()];
-
-        //aabb dynamic vs static
-        //platform -> static -> 0
-        entity[EntityIndex.COLLISION_TYPE.getIndex()] = 0.0f;
-
-      engine.addEntity(entity);
-
+        Vector2 platformExtent = new Vector2(100,10);
 
         for(int j = 0; j < 3; j++) {
-            float[] entityPlatform = new float[EntityIndex.values().length];
+            float[] platform = EntityCreator.getInstance()
+                    .setEntityTypeID(EntityType.BOX_SHADOW.getEntityType())
+                    .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask())
+                    .setPosition(new Vector2((175.0f) + j * 450.0f, canvas.getHeight() -305))
+                    .setExtent(platformExtent)
+                    .setColor(platformColor)
+                    .setAABBExtent(platformExtent)
+                    .setCollisionType(0.0f)
+                    .create();
 
-            entityPlatform[EntityIndex.ENTITY_TYPE_ID.getIndex()] = EntityType.BOX_SHADOW.getEntityType();
-            
-            //mask - static collider
-            //00001000
-            entityPlatform[EntityIndex.SYSTEM_MASK.getIndex()] = 8;
-
-            //pos
-            entityPlatform[EntityIndex.POSITION_X.getIndex()] = (175.0f) + j * 450.0f;
-            entityPlatform[EntityIndex.POSITION_Y.getIndex()] = canvas.getHeight() - 305.0f;
-
-            //extent
-            entityPlatform[EntityIndex.EXTENT_X.getIndex()] = 100.0f;
-            entityPlatform[EntityIndex.EXTENT_Y.getIndex()] = 10.0f;
-
-            //color
-            entityPlatform[EntityIndex.COLOR_R.getIndex()] = 24/255.0f;
-            entityPlatform[EntityIndex.COLOR_G.getIndex()] = 32/255.0f;
-            entityPlatform[EntityIndex.COLOR_B.getIndex()] = 44/255.0f;
-            entityPlatform[EntityIndex.COLOR_A.getIndex()] = 1.0f;
-
-            //aabb box center
-            entityPlatform[EntityIndex.AABB_CENTER_X.getIndex()] = 0;
-            entityPlatform[EntityIndex.AABB_CENTER_Y.getIndex()] = 0;
-
-            //aabb box extent
-            entityPlatform[EntityIndex.AABB_EXTENT_X.getIndex()] = entityPlatform[EntityIndex.EXTENT_X.getIndex()];
-            entityPlatform[EntityIndex.AABB_EXTENT_Y.getIndex()] = entityPlatform[EntityIndex.EXTENT_Y.getIndex()];
-
-            //aabb dynamic vs static
-            //platform -> static -> 0
-            entityPlatform[EntityIndex.COLLISION_TYPE.getIndex()] = 0.0f;
-
-            engine.addEntity(entityPlatform);
+            engine.addEntity(platform);
         }
     }
-
-    private void setUpTestEntities(){
-        for(int i = 1; i < 11; i++) {
-            float[] entity = new float[10];
-
-            //mask
-            //00000011
-            entity[EntityIndex.SYSTEM_MASK.getIndex()] = 3;
-
-            //pos
-            entity[EntityIndex.POSITION_X.getIndex()] = 1000.0f;
-            entity[EntityIndex.POSITION_Y.getIndex()] = i*40.0f;
-
-            //extent
-            entity[EntityIndex.EXTENT_X.getIndex()] = 5.0f;
-            entity[EntityIndex.EXTENT_Y.getIndex()] = 5.0f;
-
-            //color
-            entity[EntityIndex.COLOR_R.getIndex()] = 0.5f;
-            entity[EntityIndex.COLOR_G.getIndex()] = 0.8f;
-            entity[EntityIndex.COLOR_B.getIndex()] = 1.0f;
-            entity[EntityIndex.COLOR_A.getIndex()] = 1.0f;
-
-            engine.addEntity(entity);
-        }
-    }
-
-
 
     public void start(int targetFrameRate){
         targetFrameTimeNano = (long) 1e9 / targetFrameRate;
@@ -294,7 +213,6 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
         double deltaTime;
 
         // TODO: Currently wrong bitmask and/or wrong entity id's
-        //simpleParticleSystem.emit(50, 5);
         rainParticleSystem.emit(75);
 
         while (running) {
@@ -304,8 +222,7 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
 
             timeScale = quartEase(uneasedTimeScale);
             update(deltaTime);
-            //simpleParticleSystem.update(deltaTime);
-            rainParticleSystem.update(deltaTime*timeScale);
+
 
             render();
 
@@ -332,6 +249,7 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
         //engine update
         long preUpdateTime = System.nanoTime();
         engine.update(deltaTime, timeScale);
+        rainParticleSystem.update(deltaTime*timeScale*timeScale);
 
 
         if(elapsedTime >= 1.0f){
