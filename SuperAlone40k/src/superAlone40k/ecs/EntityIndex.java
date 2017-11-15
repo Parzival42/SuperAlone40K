@@ -25,8 +25,13 @@ public enum EntityIndex {
 	BORDER_ORIGIN_X(19),
 	BORDER_ORIGIN_Y(20),
 	BORDER_DIR_X(21),
-	BORDER_DIR_Y(22);
-	
+	BORDER_DIR_Y(22),
+
+	//trigger system box
+	TRIGGER_POSITION_X(23),
+	TRIGGER_POSITION_Y(24),
+	TRIGGER_EXTENT_X(25),
+	TRIGGER_EXTENT_Y(26);
 	
 	private final int index;
 	EntityIndex(final int index) {

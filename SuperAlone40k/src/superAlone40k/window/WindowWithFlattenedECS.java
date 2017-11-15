@@ -144,7 +144,7 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
 
         float[] player = EntityCreator.getInstance()
                 .setEntityTypeID(EntityType.BOX_SHADOW.getEntityType() | EntityType.PLAYER.getEntityType())
-                .setSystemMask(SystemBitmask.INPUT.getSystemMask() | SystemBitmask.COLLIDER_SORTING.getSystemMask())
+                .setSystemMask(SystemBitmask.INPUT.getSystemMask() | SystemBitmask.COLLIDER_SORTING.getSystemMask() |SystemBitmask.TRIGGER_SYSTEM.getSystemMask())
                 .setPosition(new Vector2(500,650))
                 .setExtent(extent)
                 .setColor(new Color(218/255.0f, 94/255.0f, 92/255.0f, 1.0f))
@@ -152,6 +152,8 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
                 .setCollisionType(1.0f)
                 .setGravitationInfluence(1.0f)
                 .setDrag(0.975f)
+                .setTriggerPosition(new Vector2(0, extent.y))
+                .setTriggerExtent(new Vector2(16,5))
                 .create();
 
         return player;

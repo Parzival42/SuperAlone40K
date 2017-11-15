@@ -22,6 +22,8 @@ public class EntityCreator {
     private double drag;
     private Vector2 borderOrigin;
     private Vector2 borderDirection;
+    private Vector2 triggerPosition;
+    private Vector2 triggerExtent;
 
     private static EntityCreator instance;
 
@@ -137,6 +139,24 @@ public class EntityCreator {
         return this;
     }
 
+    public EntityCreator setTriggerPosition(Vector2 triggerPosition){
+        return setTriggerPosition(triggerPosition.x, triggerPosition.y);
+    }
+
+    public EntityCreator setTriggerPosition(double x, double y){
+        triggerPosition.set(x,y);
+        return this;
+    }
+
+    public EntityCreator setTriggerExtent(Vector2 triggerExtent){
+        return setTriggerExtent(triggerExtent.x, triggerExtent.y);
+    }
+
+    public EntityCreator setTriggerExtent(double x, double y){
+        triggerExtent.set(x,y);
+        return this;
+    }
+
     public float[] create(){
         float[] entity = new float[EntityIndex.values().length];
 
@@ -163,6 +183,10 @@ public class EntityCreator {
         entity[EntityIndex.BORDER_ORIGIN_Y.getIndex()] = (float) borderOrigin.y;
         entity[EntityIndex.BORDER_DIR_X.getIndex()] = (float) borderDirection.x;
         entity[EntityIndex.BORDER_DIR_Y.getIndex()] = (float) borderDirection.y;
+        entity[EntityIndex.TRIGGER_POSITION_X.getIndex()] = (float) triggerPosition.x;
+        entity[EntityIndex.TRIGGER_POSITION_Y.getIndex()] = (float) triggerPosition.y;
+        entity[EntityIndex.TRIGGER_EXTENT_X.getIndex()] = (float) triggerExtent.x;
+        entity[EntityIndex.TRIGGER_EXTENT_Y.getIndex()] = (float) triggerExtent.y;
 
         clear();
         return entity;
@@ -184,5 +208,7 @@ public class EntityCreator {
         drag = 0.0d;
         borderOrigin = new Vector2();
         borderDirection = new Vector2();
+        triggerPosition = new Vector2();
+        triggerExtent = new Vector2();
     }
 }
