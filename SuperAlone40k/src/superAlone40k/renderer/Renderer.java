@@ -26,10 +26,10 @@ public class Renderer {
 
 
     public void renderEntity(Graphics2D g, float[] entity){
-        if((((int)entity[EntityIndex.ENTITY_TYPE_ID.getIndex()]) & EntityType.RAIN_DROP.getEntityType()) == EntityType.RAIN_DROP.getEntityType()){
+        /*if((((int)entity[EntityIndex.ENTITY_TYPE_ID.getIndex()]) & EntityType.RAIN_DROP.getEntityType()) == EntityType.RAIN_DROP.getEntityType()){
             renderRainDropEntity(g, entity);
             return;
-        }
+        }*/
         g.setColor(new Color(entity[6], entity[7], entity[8], entity[9]));
 		g.fillRect((int) (entity[2] - entity[4]), (int) (entity[3] - entity[5]), (int) (2 * entity[4]), (int) (2 * entity[5]));
     }
@@ -44,6 +44,7 @@ public class Renderer {
 
 		
         g.setPaint(rainPaint);
+
 		g.fillRect((int) (entity[2] - entity[4]), (int) (entity[3] - entity[5]), (int) (2 * entity[4]),
 				(int) (2 * entity[5]));
     }
