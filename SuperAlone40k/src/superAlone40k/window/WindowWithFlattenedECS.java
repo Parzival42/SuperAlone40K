@@ -33,6 +33,8 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
 
     //input
     private static boolean[] keys = new boolean[KeyEvent.KEY_LAST+1];
+    private static boolean[] keysDown = new boolean[KeyEvent.KEY_LAST+1];
+    private static boolean[] keysUp = new boolean[KeyEvent.KEY_LAST+1];
 
     //ecs
     private FlattenedEngine engine;
@@ -153,7 +155,8 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
                 .setGravitationInfluence(1.0f)
                 .setDrag(0.975f)
                 .setTriggerPosition(new Vector2(0, extent.y))
-                .setTriggerExtent(new Vector2(16,5))
+                .setTriggerExtent(new Vector2(10,5))
+                .setTriggerCollisionType(0.0f)
                 .create();
 
         return player;

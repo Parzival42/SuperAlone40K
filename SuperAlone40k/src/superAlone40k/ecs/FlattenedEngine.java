@@ -19,8 +19,8 @@ public class FlattenedEngine {
     private ArrayList<float[]> entitiesToAdd = new ArrayList<>();
     private ArrayList<float[]> entitiesToDelete = new ArrayList<>();
 
-    private int[] systemBitmasks = new int[] { SystemBitmask.HORIZONTAL_MOVEMENT.getSystemMask(), SystemBitmask.VERTICAL_MOVEMENT.getSystemMask(), SystemBitmask.INPUT.getSystemMask(), SystemBitmask.COLLIDER_SORTING.getSystemMask(), SystemBitmask.MOVEMENT_SYSTEM.getSystemMask(), SystemBitmask.LIGHT_SYSTEM.getSystemMask() };
-    private SystemMethod[] systemMethods = new SystemMethod[]{FlattenedEngine::simpleHorizontalMovement,  FlattenedEngine::simpleVerticalMovement, FlattenedEngine::inputProcessing, FlattenedEngine::colliderSorting, FlattenedEngine::movementSystem, FlattenedEngine::lightingSystem};
+    private int[] systemBitmasks = new int[] { SystemBitmask.HORIZONTAL_MOVEMENT.getSystemMask(), SystemBitmask.VERTICAL_MOVEMENT.getSystemMask(), SystemBitmask.INPUT.getSystemMask(), SystemBitmask.COLLIDER_SORTING.getSystemMask(), SystemBitmask.MOVEMENT_SYSTEM.getSystemMask(), SystemBitmask.LIGHT_SYSTEM.getSystemMask(), SystemBitmask.TRIGGER_SYSTEM.getSystemMask() };
+    private SystemMethod[] systemMethods = new SystemMethod[]{FlattenedEngine::simpleHorizontalMovement,  FlattenedEngine::simpleVerticalMovement, FlattenedEngine::inputProcessing, FlattenedEngine::colliderSorting, FlattenedEngine::movementSystem, FlattenedEngine::lightingSystem, FlattenedEngine::triggerSystem};
 
     private final TreeSet<Ray> angleSortedRays = new TreeSet<>();
     
@@ -241,11 +241,13 @@ public class FlattenedEngine {
     }
 
     //inputProcessing system variables
-    private float movementSpeed = 700.0f;
-    private float maxMovementSpeed = 200.0f;
+    private float movementSpeed = 800.0f;
+    private float maxMovementSpeed = 300.0f;
     private float jumpStrength = 180000.0f;
     private float maxJumpStrength = 2000.0f;
     private float playerGravity = 2000.0f;
+    private boolean isJumping = false;
+    private boolean isFalling = false;
 
     private void inputProcessing(float[] entity, double deltaTime){
         if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_A)){
@@ -258,11 +260,17 @@ public class FlattenedEngine {
             entity[EntityIndex.VELOCITY_X.getIndex()] = entity[EntityIndex.VELOCITY_X.getIndex()] > maxMovementSpeed ? maxMovementSpeed : entity[15];
         }
 
-        boolean isGrounded = Math.abs(entity[EntityIndex.VELOCITY_Y.getIndex()]) < 0.5f;
+        boolean isGrounded = false;
+        if(Math.abs(entity[EntityIndex.TRIGGER_STAY.getIndex()]) > 0.5f){
+            isGrounded = true;
+            isJumping = false;
+        }
 
-        if(isGrounded && WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_SPACE)){
-            entity[EntityIndex.VELOCITY_Y.getIndex()] -= jumpStrength * deltaTime;
-            entity[EntityIndex.VELOCITY_Y.getIndex()] = entity[EntityIndex.VELOCITY_Y.getIndex()] > maxJumpStrength ? maxJumpStrength : entity[16];
+
+        if(isGrounded && !isJumping && WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_SPACE)){
+            entity[EntityIndex.VELOCITY_Y.getIndex()] = (float) (-jumpStrength * deltaTime);
+            //entity[EntityIndex.VELOCITY_Y.getIndex()] = entity[EntityIndex.VELOCITY_Y.getIndex()] > maxJumpStrength ? maxJumpStrength : entity[16];
+            isJumping = true;
         }
         
         if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_ESCAPE)) {
@@ -450,9 +458,11 @@ public class FlattenedEngine {
         if(xOverlap > yOverlap){
             float xOffset = player[EntityIndex.POSITION_X.getIndex()] < other[EntityIndex.POSITION_X.getIndex()] ? xOverlap : -xOverlap;
             player[EntityIndex.POSITION_X.getIndex()] += xOffset;
+            player[EntityIndex.VELOCITY_X.getIndex()] = 0.0f;
         }else{
             float yOffset = player[EntityIndex.POSITION_Y.getIndex()] < other[EntityIndex.POSITION_Y.getIndex()] ? yOverlap : -yOverlap;
             player[EntityIndex.POSITION_Y.getIndex()] += yOffset;
+            player[EntityIndex.VELOCITY_Y.getIndex()] = 0.0f;
         }
     }
 
@@ -472,6 +482,57 @@ public class FlattenedEngine {
     }
 
     private void lightingSystem(float[] entity, double deltaTime) { /*Dummy system*/ }
+
+    private boolean checkForTriggerOverlap(float[] trigger, float[] other){
+        float xOverlap =
+                Math.abs(
+                        (trigger[EntityIndex.POSITION_X.getIndex()] + trigger[EntityIndex.TRIGGER_POSITION_X.getIndex()]) -
+                        (other[EntityIndex.POSITION_X.getIndex()] + other[EntityIndex.AABB_CENTER_X.getIndex()])) -
+                        (trigger[EntityIndex.TRIGGER_EXTENT_X.getIndex()] + other[EntityIndex.AABB_EXTENT_X.getIndex()]);
+
+        if ((xOverlap) < 0) {
+            float yOverlap = Math.abs(
+                    (trigger[EntityIndex.POSITION_Y.getIndex()] + trigger[EntityIndex.TRIGGER_POSITION_Y.getIndex()]) -
+                            (other[EntityIndex.POSITION_Y.getIndex()] + other[EntityIndex.AABB_CENTER_Y.getIndex()])) -
+                    (trigger[EntityIndex.TRIGGER_EXTENT_Y.getIndex()] + other[EntityIndex.AABB_EXTENT_Y.getIndex()]);
+
+            if ((yOverlap) < 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void triggerSystem(float[] trigger, double deltaTime){
+        ArrayList<float[]> colliders = trigger[EntityIndex.TRIGGER_COLLISION_TYPE.getIndex()] > 0.5f ? dynamicColliders : staticColliders;
+
+        for(int i = 0; i < colliders.size(); i++){
+            if(checkForTriggerOverlap(trigger, colliders.get(i))){
+                if(trigger[EntityIndex.TRIGGER_ENTER.getIndex()] < 0.5f && trigger[EntityIndex.TRIGGER_STAY.getIndex()] < 0.5f){
+                    trigger[EntityIndex.TRIGGER_ENTER.getIndex()] = 1.0f;
+                    return;
+                }
+
+                if (trigger[EntityIndex.TRIGGER_ENTER.getIndex()] > 0.5f && trigger[EntityIndex.TRIGGER_STAY.getIndex()] < 0.5f){
+                    trigger[EntityIndex.TRIGGER_STAY.getIndex()] = 1.0f;
+                    trigger[EntityIndex.TRIGGER_ENTER.getIndex()] = 0.0f;
+                    return;
+                }
+
+                return;
+            }
+        }
+
+        if(trigger[EntityIndex.TRIGGER_ENTER.getIndex()] > 0.5f ||trigger[EntityIndex.TRIGGER_STAY.getIndex()] > 0.5f){
+            trigger[EntityIndex.TRIGGER_EXIT.getIndex()] = 1.0f;
+            trigger[EntityIndex.TRIGGER_ENTER.getIndex()] = 0.0f;
+            trigger[EntityIndex.TRIGGER_STAY.getIndex()] = 0.0f;
+        }else if(trigger[EntityIndex.TRIGGER_EXIT.getIndex()] >0.5f){
+            trigger[EntityIndex.TRIGGER_EXIT.getIndex()] = 0.0f;
+        }
+    }
+
+
     
     /**
      * @param originalMask Original mask from enumeration (Or other source).

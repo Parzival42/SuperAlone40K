@@ -9,6 +9,10 @@ import java.awt.*;
  */
 public class EntityCreator {
 
+    private static EntityCreator instance;
+    private static int index;
+    private static float[][] entityBuffer;
+
     private int entityTypeID;
     private int systemMask;
     private Vector2 position;
@@ -24,8 +28,14 @@ public class EntityCreator {
     private Vector2 borderDirection;
     private Vector2 triggerPosition;
     private Vector2 triggerExtent;
+    private double triggerCollisionType;
 
-    private static EntityCreator instance;
+    static{
+        entityBuffer = new float[2][EntityIndex.values().length];
+        index = 0;
+    }
+
+
 
     public static EntityCreator getInstance(){
         if(instance == null){
@@ -157,6 +167,11 @@ public class EntityCreator {
         return this;
     }
 
+    public EntityCreator setTriggerCollisionType(double collisionType){
+        this.triggerCollisionType = collisionType;
+        return this;
+    }
+
     public float[] create(){
         float[] entity = new float[EntityIndex.values().length];
 
@@ -187,6 +202,7 @@ public class EntityCreator {
         entity[EntityIndex.TRIGGER_POSITION_Y.getIndex()] = (float) triggerPosition.y;
         entity[EntityIndex.TRIGGER_EXTENT_X.getIndex()] = (float) triggerExtent.x;
         entity[EntityIndex.TRIGGER_EXTENT_Y.getIndex()] = (float) triggerExtent.y;
+        entity[EntityIndex.TRIGGER_COLLISION_TYPE.getIndex()] = (float) triggerCollisionType;
 
         clear();
         return entity;
@@ -210,5 +226,6 @@ public class EntityCreator {
         borderDirection = new Vector2();
         triggerPosition = new Vector2();
         triggerExtent = new Vector2();
+        triggerCollisionType = 0.0d;
     }
 }
