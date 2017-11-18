@@ -10,17 +10,21 @@ import java.awt.*;
 import java.util.Random;
 
 public class RainParticleSystem {
-
+	private static Random RND = new Random();
+	public static double PARTICLE_WIDTH = 3.0;
+	public static Color PARTICLE_COLOR_START = new Color(49 / 255f, 65 / 255f, 88 / 255f);
+	public static Color PARTICLE_COLOR_END = new Color(60 / 255f, 80 / 255f, 108 / 255f);
+	
     //engine
-    FlattenedEngine engine;
+    private final FlattenedEngine engine;
 
     //emit height
-    private float height;
+    final private float height;
 
     //emit range
-    private float rangeBegin;
-    private float rangeEnd;
-    private float range;
+    final private float rangeBegin;
+    final private float rangeEnd;
+    final private float range;
 
     //emit settings
     private float emitRate = 1.0f / 10.0f;
@@ -39,7 +43,6 @@ public class RainParticleSystem {
 
     //current time;
     private double remainingTime = 0.0f;
-    private Random random = new Random();
 
     public RainParticleSystem(FlattenedEngine engine, float height, float rangeBegin, float rangeEnd){
         this.engine = engine;
@@ -71,18 +74,18 @@ public class RainParticleSystem {
     }
 
     private void emitParticle(){
-        Vector2 extent = new Vector2(3,45 + random.nextFloat() * 50.0f);
+        final Vector2 extent = new Vector2(PARTICLE_WIDTH, 45 + RND.nextFloat() * 50.0f);
 
-        float[] entity = EntityCreator.getInstance()
+        final float[] entity = EntityCreator.getInstance()
                 .setEntityTypeID(EntityType.RAIN_DROP.getEntityType())
                 .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.MOVEMENT_SYSTEM.getSystemMask())
-                .setPosition(new Vector2(range * random.nextFloat() + rangeBegin, height - random.nextFloat() * 50.0f))
+                .setPosition(new Vector2(range * RND.nextFloat() + rangeBegin, height - RND.nextFloat() * 50.0f))
                 .setExtent(extent)
-                .setColor(new Color(89 / 255.0f, 106 / 255.0f, 126 / 255.0f, 0.12f + random.nextFloat() * 0.12f))
+                .setColor(new Color(89 / 255.0f, 106 / 255.0f, 126 / 255.0f, 0.12f + RND.nextFloat() * 0.12f))
                 .setAABBPosition(new Vector2(0, extent.y/2.0f))
                 .setAABBExtent(extent.x, extent.y/2.0f)
                 .setCollisionType(1.0d)
-                .setVelocity(new Vector2(windForce, random.nextFloat() * downForce))
+                .setVelocity(new Vector2(windForce, RND.nextFloat() * downForce))
                 .setGravitationInfluence(1.0f)
                 .setDrag(0.975f)
                 .create();
@@ -98,18 +101,18 @@ public class RainParticleSystem {
     }
 
     private void emitSplatterParticle(int positionX, int positionY){
-        Vector2 extent = new Vector2(2,2);
+        final Vector2 extent = new Vector2(2, 2);
 
         float[] entity = EntityCreator.getInstance()
                 .setEntityTypeID(EntityType.RAIN_DROP_SPLATTER.getEntityType())
                 .setSystemMask(SystemBitmask.MOVEMENT_SYSTEM.getSystemMask() | SystemBitmask.COLLIDER_SORTING.getSystemMask())
                 .setPosition(new Vector2(positionX, positionY))
                 .setExtent(extent)
-                .setColor(new Color(89 / 255.0f, 106 / 255.0f, 128/ 255.0f, 0.12f + random.nextFloat() * 0.09f))
+                .setColor(new Color(89 / 255.0f, 106 / 255.0f, 128 / 255.0f, 0.12f + RND.nextFloat() * 0.09f))
                 .setAABBPosition(new Vector2(0, 0))
                 .setAABBExtent(extent)
                 .setCollisionType(1.0d)
-                .setVelocity(new Vector2((-0.5f + random.nextFloat()) * splatterEmitForce, random.nextFloat()*-splatterEmitForce))
+                .setVelocity(new Vector2((-0.5f + RND.nextFloat()) * splatterEmitForce, RND.nextFloat() * -splatterEmitForce))
                 .setGravitationInfluence(1.0f)
                 .setDrag(0.975f)
                 .create();

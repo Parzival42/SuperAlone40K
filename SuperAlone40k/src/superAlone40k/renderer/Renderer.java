@@ -2,50 +2,67 @@ package superAlone40k.renderer;
 
 import superAlone40k.ecs.EntityIndex;
 import superAlone40k.ecs.EntityType;
+import superAlone40k.particleSystem.RainParticleSystem;
 
 import java.awt.*;
-
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 
 public class Renderer {
-
-
-    Color backgroundColor = new Color(42,57, 76);
-
-
+	private static final int PRE_CALCULATED_RAINDROP_HEIGHT = 30;
+    private final Color backgroundColor = new Color(42, 57, 76);
+    
+    // Pre-calculated raindrop
+    private final BufferedImage rainDrop;
+    
     //rain gradient test
     GradientPaint rainPaint;
 
+    public Renderer() { 
+    	rainDrop = createGradientImage(
+    			(int) RainParticleSystem.PARTICLE_WIDTH, 
+    			PRE_CALCULATED_RAINDROP_HEIGHT, 
+    			new GradientPaint(0, 0, RainParticleSystem.PARTICLE_COLOR_START, 0, PRE_CALCULATED_RAINDROP_HEIGHT, RainParticleSystem.PARTICLE_COLOR_END));
+    }
 
-    public Renderer(){}
-
-    public void renderBackground(Graphics2D g){
+    public void renderBackground(Graphics2D g) {
         g.setColor(backgroundColor);
-        //g.setBackground(backgroundColor);
         g.fillRect(0,0,1280,720);
     }
 
 
-    public void renderEntity(Graphics2D g, float[] entity){
-        /*if((((int)entity[EntityIndex.ENTITY_TYPE_ID.getIndex()]) & EntityType.RAIN_DROP.getEntityType()) == EntityType.RAIN_DROP.getEntityType()){
+    public void renderEntity(Graphics2D g, float[] entity) {
+        if((((int) entity[EntityIndex.ENTITY_TYPE_ID.getIndex()]) & EntityType.RAIN_DROP.getEntityType()) == EntityType.RAIN_DROP.getEntityType()){
             renderRainDropEntity(g, entity);
             return;
-        }*/
-        g.setColor(new Color(entity[6], entity[7], entity[8], entity[9]));
-		g.fillRect((int) (entity[2] - entity[4]), (int) (entity[3] - entity[5]), (int) (2 * entity[4]), (int) (2 * entity[5]));
+        }
+        
+		g.setColor(new Color(entity[EntityIndex.COLOR_R.getIndex()], entity[EntityIndex.COLOR_G.getIndex()],
+				entity[EntityIndex.COLOR_B.getIndex()], entity[EntityIndex.COLOR_A.getIndex()]));
+		
+		g.fillRect((int) (entity[EntityIndex.POSITION_X.getIndex()] - entity[EntityIndex.EXTENT_X.getIndex()]),
+				(int) (entity[EntityIndex.POSITION_Y.getIndex()] - entity[EntityIndex.EXTENT_Y.getIndex()]),
+				(int) (2 * entity[EntityIndex.EXTENT_X.getIndex()]),
+				(int) (2 * entity[EntityIndex.EXTENT_Y.getIndex()]));
     }
 
-    private void renderRainDropEntity(Graphics2D g, float[] entity){
-		rainPaint = new GradientPaint(entity[EntityIndex.POSITION_X.getIndex()],
-				entity[EntityIndex.POSITION_Y.getIndex()] + entity[EntityIndex.EXTENT_Y.getIndex()],
-				new Color(entity[EntityIndex.COLOR_R.getIndex()], entity[EntityIndex.COLOR_G.getIndex()],
-						entity[EntityIndex.COLOR_B.getIndex()], entity[EntityIndex.COLOR_A.getIndex()]),
-				entity[EntityIndex.POSITION_X.getIndex()], entity[EntityIndex.POSITION_Y.getIndex()],
-				new Color(0, 0, 0, 0));
-
-		
-        g.setPaint(rainPaint);
-
-		g.fillRect((int) (entity[2] - entity[4]), (int) (entity[3] - entity[5]), (int) (2 * entity[4]),
-				(int) (2 * entity[5]));
+    private void renderRainDropEntity(Graphics2D g, float[] entity) {
+    	final double scaleX = RainParticleSystem.PARTICLE_WIDTH * 2.0;
+    	final double scaleY = entity[EntityIndex.EXTENT_Y.getIndex()] * 2.0;
+    	final double positionX = entity[EntityIndex.POSITION_X.getIndex()] - (scaleX * 0.5);
+    	final double positionY = entity[EntityIndex.POSITION_Y.getIndex()] - (scaleY * 0.5);
+    	
+    	final AffineTransform transformation = AffineTransform.getTranslateInstance(positionX, positionY);
+    	transformation.concatenate(AffineTransform.getScaleInstance(1.0, scaleY / rainDrop.getHeight()));
+    	
+    	g.drawImage(rainDrop, transformation, null);
+    }
+    
+    public static BufferedImage createGradientImage(int width, int height, GradientPaint gradient) {
+    	final BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+    	final Graphics2D g = image.createGraphics();
+    	g.setPaint(gradient);
+    	g.fillRect(0, 0, width, height);
+    	return image;
     }
 }

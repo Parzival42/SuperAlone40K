@@ -32,9 +32,9 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
     private Renderer renderer;
 
     //input
-    private static boolean[] keys = new boolean[KeyEvent.KEY_LAST+1];
-    private static boolean[] keysDown = new boolean[KeyEvent.KEY_LAST+1];
-    private static boolean[] keysUp = new boolean[KeyEvent.KEY_LAST+1];
+	private static boolean[] keys = new boolean[KeyEvent.KEY_LAST + 1];
+	private static boolean[] keysDown = new boolean[KeyEvent.KEY_LAST + 1];
+	private static boolean[] keysUp = new boolean[KeyEvent.KEY_LAST + 1];
 
     //ecs
     private FlattenedEngine engine;
@@ -287,19 +287,16 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
         return g;
     }
 
-
     private void endRenderUpdate(Graphics2D g){
         g.dispose();
         bufferStrategy.show();
     }
-
 
     //----INPUT---
 
     public static boolean isKeyPressed(int key){
         return keys[key];
     }
-
 
     @Override
     public void keyTyped(KeyEvent e) {
@@ -317,6 +314,6 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
     }
 
     private float quadEase(float t){
-        return t<.5 ? 2*t*t : -1+(4-2*t)*t;
+		return t < .5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
     }
 }
