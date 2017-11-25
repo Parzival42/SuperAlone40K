@@ -243,11 +243,13 @@ public class FlattenedEngine {
     //inputProcessing system variables
     private float movementSpeed = 800.0f;
     private float maxMovementSpeed = 300.0f;
-    private float jumpStrength = 180000.0f;
-    private float maxJumpStrength = 2000.0f;
+    private float jumpStrength = 1200.0f;
+    private float maxJumpStrength = 700.0f;
     private float playerGravity = 2000.0f;
     private boolean isJumping = false;
-    private boolean isFalling = false;
+    private boolean isDoubleJumping = false;
+    private boolean jumpRequestValid = true;
+    private boolean isJumpRequested = false;
 
     private void inputProcessing(float[] entity, double deltaTime){
         if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_A)){
@@ -264,15 +266,33 @@ public class FlattenedEngine {
         if(Math.abs(entity[EntityIndex.TRIGGER_STAY.getIndex()]) > 0.5f){
             isGrounded = true;
             isJumping = false;
+            isDoubleJumping = false;
         }
 
+        if(!WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_SPACE)){
+            jumpRequestValid = true;
+        }
 
-        if(isGrounded && !isJumping && WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_SPACE)){
-            entity[EntityIndex.VELOCITY_Y.getIndex()] = (float) (-jumpStrength * deltaTime);
-            //entity[EntityIndex.VELOCITY_Y.getIndex()] = entity[EntityIndex.VELOCITY_Y.getIndex()] > maxJumpStrength ? maxJumpStrength : entity[16];
+        //jump requested?
+        if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_SPACE) && jumpRequestValid){
+            jumpRequestValid = false;
+            isJumpRequested = true;
+        }
+
+        //first jump
+        if(isGrounded && isJumpRequested){
+            entity[EntityIndex.VELOCITY_Y.getIndex()] = -jumpStrength;
             isJumping = true;
+            isJumpRequested = false;
         }
-        
+
+        //second jump
+        if(isJumping && isJumpRequested){
+            entity[EntityIndex.VELOCITY_Y.getIndex()] = -jumpStrength;
+            isDoubleJumping = true;
+            isJumpRequested = false;
+        }
+
         if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_ESCAPE)) {
         	System.exit(42);
         }
@@ -280,12 +300,13 @@ public class FlattenedEngine {
         entity[EntityIndex.VELOCITY_Y.getIndex()] += playerGravity * deltaTime;
 
         entity[EntityIndex.POSITION_X.getIndex()] += entity[EntityIndex.VELOCITY_X.getIndex()] * deltaTime;
-        entity[EntityIndex.POSITION_Y.getIndex()] += (entity[EntityIndex.VELOCITY_Y.getIndex()] /*+ gravity*/) * deltaTime;
+        entity[EntityIndex.POSITION_Y.getIndex()] += entity[EntityIndex.VELOCITY_Y.getIndex()] * deltaTime;
 
-        float timeScale = Math.abs(entity[EntityIndex.VELOCITY_X.getIndex()] / maxMovementSpeed);
+        float relativeHorizontalSpeed = Math.abs(entity[EntityIndex.VELOCITY_X.getIndex()]/maxMovementSpeed);
+        float relativeVerticalSpeed = Math.abs(entity[EntityIndex.VELOCITY_Y.getIndex()]/maxJumpStrength);
+
+        float timeScale = relativeHorizontalSpeed < relativeVerticalSpeed ? relativeVerticalSpeed : relativeHorizontalSpeed;
         WindowWithFlattenedECS.setTimeScale(timeScale < 0.25f ? 0.25f : timeScale);
-
-        //System.out.println("speed: "+entity[15]);
 
         entity[EntityIndex.VELOCITY_X.getIndex()] *= entity[EntityIndex.DRAG.getIndex()];
         entity[EntityIndex.VELOCITY_Y.getIndex()] *= entity[EntityIndex.DRAG.getIndex()];

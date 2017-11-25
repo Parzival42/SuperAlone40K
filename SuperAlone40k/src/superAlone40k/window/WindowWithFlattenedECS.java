@@ -153,7 +153,7 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
                 .setAABBExtent(extent)
                 .setCollisionType(1.0f)
                 .setGravitationInfluence(1.0f)
-                .setDrag(0.975f)
+                .setDrag(0.95f)
                 .setTriggerPosition(new Vector2(0, extent.y))
                 .setTriggerExtent(new Vector2(10,5))
                 .setTriggerCollisionType(0.0f)
