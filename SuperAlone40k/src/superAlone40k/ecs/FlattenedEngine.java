@@ -254,8 +254,8 @@ public class FlattenedEngine {
     }
 
     //player control parameters
-    private float movementSpeed = 800.0f;
-    private float maxMovementSpeed = 300.0f;
+    private float movementSpeed = 1000.0f;
+    private float maxMovementSpeed = 350.0f;
     private float jumpStrength = 1200.0f;
     private float maxJumpStrength = 700.0f;
     private float playerGravity = 2000.0f;
@@ -436,7 +436,10 @@ public class FlattenedEngine {
 		angleSortedRays.add(originalRay);
 		angleSortedRays.add(rightOffset);
 	}
-    
+
+	//death zone height
+    double deathZoneHeight = 1500;
+
     private void collisionCheckAABB(float[] entity1, float[] entity2) {
     	float xOverlap = 
     			Math.abs(
@@ -512,6 +515,8 @@ public class FlattenedEngine {
                 float[] toDelete = entity1[EntityIndex.COLLISION_TYPE.getIndex()] > 0.5f ? entity1 : entity2;
                 removeEntity(toDelete);
             }
+        }else if(entity1[EntityIndex.POSITION_Y.getIndex()] > deathZoneHeight){
+    	    removeEntity(entity1);
         }
     }
 

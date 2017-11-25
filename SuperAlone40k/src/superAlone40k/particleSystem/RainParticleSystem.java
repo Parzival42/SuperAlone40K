@@ -7,6 +7,7 @@ import superAlone40k.util.EntityCreator;
 import superAlone40k.util.Vector2;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.util.Random;
 
 public class RainParticleSystem {
@@ -44,6 +45,9 @@ public class RainParticleSystem {
     //current time;
     private double remainingTime = 0.0f;
 
+    //camera
+    private AffineTransform camera;
+
     public RainParticleSystem(FlattenedEngine engine, float height, float rangeBegin, float rangeEnd){
         this.engine = engine;
         this.height = height;
@@ -51,6 +55,10 @@ public class RainParticleSystem {
         this.rangeEnd = rangeEnd;
 
         range = rangeEnd - rangeBegin;
+    }
+
+    public void setCamera(AffineTransform camera){
+        this.camera = camera;
     }
 
     public void emit(int emitRate){
@@ -74,12 +82,13 @@ public class RainParticleSystem {
     }
 
     private void emitParticle(){
+        final Vector2 position = new Vector2(range * RND.nextFloat() + rangeBegin - camera.getTranslateX(), height - RND.nextFloat() * 50.0f - camera.getTranslateY());
         final Vector2 extent = new Vector2(PARTICLE_WIDTH, 45 + RND.nextFloat() * 50.0f);
 
         final float[] entity = EntityCreator.getInstance()
                 .setEntityTypeID(EntityType.RAIN_DROP.getEntityType())
                 .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.MOVEMENT_SYSTEM.getSystemMask())
-                .setPosition(new Vector2(range * RND.nextFloat() + rangeBegin, height - RND.nextFloat() * 50.0f))
+                .setPosition(position)
                 .setExtent(extent)
                 .setColor(new Color(89 / 255.0f, 106 / 255.0f, 126 / 255.0f, 0.12f + RND.nextFloat() * 0.12f))
                 .setAABBPosition(new Vector2(0, extent.y/2.0f))

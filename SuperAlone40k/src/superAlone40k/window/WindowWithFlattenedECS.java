@@ -22,9 +22,10 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
     private boolean running = true;
     private long targetFrameTimeNano = (long) 1e9 / 60;
 
-    //FPS measurement
+    //measurement
     private int frames = 0;
-    private double elapsedTime = 0.0f;
+    private double elapsedTime = 0.0d;
+    private double engineUpdateTime = 0.0d;
 
     //render
     private Canvas canvas;
@@ -78,7 +79,7 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
         renderer = new Renderer();
 
         engine = new FlattenedEngine();
-        rainParticleSystem = new RainParticleSystem(engine, -100,  0, 1280);
+        rainParticleSystem = new RainParticleSystem(engine, -100,  -200, 1480);
 
         //setUpTestEntities();
         createSampleFloorEntities();
@@ -153,7 +154,7 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
                 .setAABBExtent(extent)
                 .setCollisionType(1.0f)
                 .setGravitationInfluence(1.0f)
-                .setDrag(0.95f)
+                .setDrag(0.975f)
                 .setTriggerPosition(new Vector2(0, extent.y))
                 .setTriggerExtent(new Vector2(10,5))
                 .setTriggerCollisionType(0.0f)
@@ -248,6 +249,7 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
         //engine update
         long preUpdateTime = System.nanoTime();
         engine.update(deltaTime, timeScale);
+        rainParticleSystem.setCamera(engine.getCamera());
         rainParticleSystem.update(deltaTime*timeScale*timeScale);
 
 
