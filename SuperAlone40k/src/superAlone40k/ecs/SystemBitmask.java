@@ -8,7 +8,8 @@ public enum SystemBitmask {
 	COLLIDER_SORTING(8),
 	MOVEMENT_SYSTEM(16),
 	LIGHT_SYSTEM(32),
-	TRIGGER_SYSTEM(64);
+	TRIGGER_SYSTEM(64),
+	LIFETIME_SYSTEM(128);
 	
 	private final int systemMask;
 

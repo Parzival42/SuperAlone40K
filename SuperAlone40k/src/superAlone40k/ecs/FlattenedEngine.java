@@ -20,8 +20,8 @@ public class FlattenedEngine {
     private ArrayList<float[]> entitiesToAdd = new ArrayList<>();
     private ArrayList<float[]> entitiesToDelete = new ArrayList<>();
 
-    private int[] systemBitmasks = new int[] { SystemBitmask.HORIZONTAL_MOVEMENT.getSystemMask(), SystemBitmask.VERTICAL_MOVEMENT.getSystemMask(), SystemBitmask.INPUT.getSystemMask(), SystemBitmask.COLLIDER_SORTING.getSystemMask(), SystemBitmask.MOVEMENT_SYSTEM.getSystemMask(), SystemBitmask.LIGHT_SYSTEM.getSystemMask(), SystemBitmask.TRIGGER_SYSTEM.getSystemMask() };
-    private SystemMethod[] systemMethods = new SystemMethod[]{FlattenedEngine::simpleHorizontalMovement,  FlattenedEngine::simpleVerticalMovement, FlattenedEngine::inputProcessing, FlattenedEngine::colliderSorting, FlattenedEngine::movementSystem, FlattenedEngine::lightingSystem, FlattenedEngine::triggerSystem};
+    private int[] systemBitmasks = new int[] { SystemBitmask.HORIZONTAL_MOVEMENT.getSystemMask(), SystemBitmask.VERTICAL_MOVEMENT.getSystemMask(), SystemBitmask.INPUT.getSystemMask(), SystemBitmask.COLLIDER_SORTING.getSystemMask(), SystemBitmask.MOVEMENT_SYSTEM.getSystemMask(), SystemBitmask.LIGHT_SYSTEM.getSystemMask(), SystemBitmask.TRIGGER_SYSTEM.getSystemMask(), SystemBitmask.LIFETIME_SYSTEM.getSystemMask() };
+    private SystemMethod[] systemMethods = new SystemMethod[]{FlattenedEngine::simpleHorizontalMovement,  FlattenedEngine::simpleVerticalMovement, FlattenedEngine::inputProcessing, FlattenedEngine::colliderSorting, FlattenedEngine::movementSystem, FlattenedEngine::lightingSystem, FlattenedEngine::triggerSystem, FlattenedEngine::lifetimeSystem};
 
     private final TreeSet<Ray> angleSortedRays = new TreeSet<>();
     
@@ -246,6 +246,9 @@ public class FlattenedEngine {
         //player movement
         playerControl(entity, deltaTime);
 
+        //timescale update
+        timeScaleControl(entity, deltaTime);
+
         //camera position update
         cameraControl(entity, deltaTime);
 
@@ -267,12 +270,12 @@ public class FlattenedEngine {
     private void playerControl(float[] player, double deltaTime){
         if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_A)){
             player[EntityIndex.VELOCITY_X.getIndex()] -= movementSpeed * deltaTime;
-            player[EntityIndex.VELOCITY_X.getIndex()] = player[EntityIndex.VELOCITY_X.getIndex()] < -maxMovementSpeed ? -maxMovementSpeed : player[15];
+            player[EntityIndex.VELOCITY_X.getIndex()] = player[EntityIndex.VELOCITY_X.getIndex()] < -maxMovementSpeed ? -maxMovementSpeed : player[EntityIndex.VELOCITY_X.getIndex()];
         }
 
         if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_D)){
             player[EntityIndex.VELOCITY_X.getIndex()] += movementSpeed * deltaTime;
-            player[EntityIndex.VELOCITY_X.getIndex()] = player[EntityIndex.VELOCITY_X.getIndex()] > maxMovementSpeed ? maxMovementSpeed : player[15];
+            player[EntityIndex.VELOCITY_X.getIndex()] = player[EntityIndex.VELOCITY_X.getIndex()] > maxMovementSpeed ? maxMovementSpeed : player[EntityIndex.VELOCITY_X.getIndex()];
         }
 
         boolean isGrounded = false;
@@ -313,7 +316,9 @@ public class FlattenedEngine {
 
         player[EntityIndex.POSITION_X.getIndex()] += player[EntityIndex.VELOCITY_X.getIndex()] * deltaTime;
         player[EntityIndex.POSITION_Y.getIndex()] += player[EntityIndex.VELOCITY_Y.getIndex()] * deltaTime;
+    }
 
+    private void timeScaleControl(float[] player, double deltaTime){
         float relativeHorizontalSpeed = Math.abs(player[EntityIndex.VELOCITY_X.getIndex()]/maxMovementSpeed);
         float relativeVerticalSpeed = Math.abs(player[EntityIndex.VELOCITY_Y.getIndex()]/maxJumpStrength);
 
@@ -598,6 +603,13 @@ public class FlattenedEngine {
             trigger[EntityIndex.TRIGGER_STAY.getIndex()] = 0.0f;
         }else if(trigger[EntityIndex.TRIGGER_EXIT.getIndex()] >0.5f){
             trigger[EntityIndex.TRIGGER_EXIT.getIndex()] = 0.0f;
+        }
+    }
+
+    private void lifetimeSystem(float[] entity, double deltaTime){
+        entity[EntityIndex.LIFETIME.getIndex()] -= deltaTime;
+        if(entity[EntityIndex.LIFETIME.getIndex()] < 0.0f){
+            removeEntity(entity);
         }
     }
 

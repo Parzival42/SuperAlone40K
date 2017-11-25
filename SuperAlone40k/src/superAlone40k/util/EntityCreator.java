@@ -29,13 +29,12 @@ public class EntityCreator {
     private Vector2 triggerPosition;
     private Vector2 triggerExtent;
     private double triggerCollisionType;
+    private double lifetime;
 
     static{
         entityBuffer = new float[2][EntityIndex.values().length];
         index = 0;
     }
-
-
 
     public static EntityCreator getInstance(){
         if(instance == null){
@@ -172,6 +171,11 @@ public class EntityCreator {
         return this;
     }
 
+    public EntityCreator setLifetime(double lifetime){
+        this.lifetime = lifetime;
+        return this;
+    }
+
     public float[] create(){
         float[] entity = new float[EntityIndex.values().length];
 
@@ -203,6 +207,8 @@ public class EntityCreator {
         entity[EntityIndex.TRIGGER_EXTENT_X.getIndex()] = (float) triggerExtent.x;
         entity[EntityIndex.TRIGGER_EXTENT_Y.getIndex()] = (float) triggerExtent.y;
         entity[EntityIndex.TRIGGER_COLLISION_TYPE.getIndex()] = (float) triggerCollisionType;
+        entity[EntityIndex.TRIGGER_OBJECT_TYPE.getIndex()] = -1.0f;
+        entity[EntityIndex.LIFETIME.getIndex()] = (float)lifetime;
 
         clear();
         return entity;
@@ -227,5 +233,7 @@ public class EntityCreator {
         triggerPosition = new Vector2();
         triggerExtent = new Vector2();
         triggerCollisionType = 0.0d;
+        lifetime = 0.0f;
+
     }
 }

@@ -26,6 +26,7 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
     private int frames = 0;
     private double elapsedTime = 0.0d;
     private double engineUpdateTime = 0.0d;
+    private double renderTime;
 
     //render
     private Canvas canvas;
@@ -34,8 +35,6 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
 
     //input
 	private static boolean[] keys = new boolean[KeyEvent.KEY_LAST + 1];
-	private static boolean[] keysDown = new boolean[KeyEvent.KEY_LAST + 1];
-	private static boolean[] keysUp = new boolean[KeyEvent.KEY_LAST + 1];
 
     //ecs
     private FlattenedEngine engine;
@@ -46,6 +45,7 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
     //time scale
     private static float timeScale = 1.0f;
     private static float uneasedTimeScale = 1.0f;
+
 
     public static void setTimeScale(float newTimeScale){
         uneasedTimeScale = newTimeScale;
@@ -109,7 +109,7 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
 
             float[] bullet = EntityCreator.getInstance()
                     .setEntityTypeID(EntityType.BULLET.getEntityType() | EntityType.BOX_SHADOW.getEntityType())
-                    .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.MOVEMENT_SYSTEM.getSystemMask())
+                    .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.MOVEMENT_SYSTEM.getSystemMask() | SystemBitmask.LIFETIME_SYSTEM.getSystemMask())
                     .setPosition(new Vector2(1500 + i*200, random.nextFloat() * 720))
                     .setExtent(extent)
                     .setColor(new Color(1.0f, 1.0f, 1.0f,1.0f))
@@ -117,6 +117,7 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
                     .setCollisionType(1.0f)
                     .setVelocity(new Vector2(-500,0))
                     .setDrag(1.0f)
+                    .setLifetime(10.0f+ random.nextFloat()* 10.0f)
                     .create();
 
             engine.addEntity(bullet);
@@ -220,11 +221,29 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
             deltaTime = (preUpdateTime - lastTime) / 1e9;
             lastTime = preUpdateTime;
 
+            //FPS
+            frames++;
+            elapsedTime += deltaTime;
+
             timeScale = quadEase(uneasedTimeScale);
+
+            //update
+            long updateStartTime = System.nanoTime();
             update(deltaTime);
+            engineUpdateTime = ((System.nanoTime()-updateStartTime)/1e6);
 
-
+            //render
+            updateStartTime = System.nanoTime();
             render();
+            renderTime = ((System.nanoTime()-updateStartTime)/1e6);
+
+            //measurement
+            if(elapsedTime >= 1.0f){
+                setTitle("FPS: "+frames+"   |   Engine Update Time: "+engineUpdateTime+"   |   Render time: "+renderTime+ "   |   Entity count: "+engine.getEntities().size());
+                engineUpdateTime = ((System.nanoTime()-preUpdateTime)/1e6);
+                elapsedTime = 0.0f;
+                frames = 0;
+            }
 
             postUpdateTime = System.nanoTime();
             sleepTime = targetFrameTimeNano - (postUpdateTime - preUpdateTime);
@@ -242,22 +261,9 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
     }
 
     private void update(double deltaTime){
-        //FPS
-        frames++;
-        elapsedTime += deltaTime;
-
-        //engine update
-        long preUpdateTime = System.nanoTime();
         engine.update(deltaTime, timeScale);
         rainParticleSystem.setCamera(engine.getCamera());
         rainParticleSystem.update(deltaTime*timeScale*timeScale);
-
-
-        if(elapsedTime >= 1.0f){
-            setTitle("FPS: "+frames+ "   |   Engine update time (ms): "+ ((System.nanoTime()-preUpdateTime)/1e6) + "   |   Render time (ms): " +"   |   Entity count: "+engine.getEntities().size());
-            elapsedTime = 0.0f;
-            frames = 0;
-        }
     }
 
     private void render(){
@@ -273,9 +279,6 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
                 renderer.renderEntity(g, engine.getCamera(), entities.get(i));
             }
 
-//            renderer.renderTestLight(g);
-
-            //renderer.renderVignette(g);
         endRenderUpdate(g);
     }
 

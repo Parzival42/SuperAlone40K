@@ -35,8 +35,11 @@ public enum EntityIndex {
 	TRIGGER_COLLISION_TYPE(27),
 	TRIGGER_ENTER(28),
 	TRIGGER_STAY(29),
-	TRIGGER_EXIT(30);
-	
+	TRIGGER_EXIT(30),
+	TRIGGER_OBJECT_TYPE(31),
+
+	LIFETIME(32);
+
 	private final int index;
 	EntityIndex(final int index) {
 		this.index = index;
