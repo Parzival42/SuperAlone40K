@@ -84,6 +84,8 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
         //setUpTestEntities();
         createSampleFloorEntities();
         createSampleBulletEntities();
+        createCheckpointEntity();
+        createCheckpointParticles();
         engine.addEntity(createPlayerEntity());
         
 		// Left top to Bottom left
@@ -99,6 +101,39 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
         engine.addEntity(createScreenBorder(new Vector2(width, 0), new Vector2(-1, 0)));
         
         engine.addEntity(createLight());
+    }
+
+    private void createCheckpointParticles(){
+
+        for(int i =0; i < 10; i++){
+            float[] particle = EntityCreator.getInstance()
+                    .setEntityTypeID(EntityType.NONE.getEntityType())
+                    .setSystemMask(SystemBitmask.HORIZONTAL_MOVEMENT.getSystemMask())
+                    .setPosition(2450, canvas.getHeight()-40 -25 *i)
+                    .setExtent(new Vector2(5,5))
+                    .setColor(new Color(1.0f,1.0f,1.0f, 0.05f))
+                    .create();
+
+            engine.addEntity(particle);
+        }
+    }
+
+    private void createCheckpointEntity(){
+        Vector2 extent = new Vector2(50,120);
+
+        float[] checkpoint = EntityCreator.getInstance()
+                .setEntityTypeID(EntityType.CHECKPOINT.getEntityType())
+                .setSystemMask(SystemBitmask.TRIGGER_SYSTEM.getSystemMask() | SystemBitmask.CHECKPOINT_SYSTEM.getSystemMask())
+                .setPosition(2450,canvas.getHeight()-150)
+                .setExtent(extent)
+                .setColor(new Color(1.0f,1.0f,1.0f, 0.05f))
+                .setAABBExtent(new Vector2())
+                .setCollisionType(1.0f)
+                .setTriggerExtent(extent)
+                .setTriggerCollisionType(1.0f)
+                .create();
+
+        engine.addEntity(checkpoint);
     }
 
     private void createSampleBulletEntities() {
@@ -149,7 +184,7 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
         float[] player = EntityCreator.getInstance()
                 .setEntityTypeID(EntityType.BOX_SHADOW.getEntityType() | EntityType.PLAYER.getEntityType())
                 .setSystemMask(SystemBitmask.INPUT.getSystemMask() | SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.TRIGGER_SYSTEM.getSystemMask())
-                .setPosition(new Vector2(500,650))
+                .setPosition(new Vector2(250,650))
                 .setExtent(extent)
                 .setColor(new Color(218/255.0f, 94/255.0f, 92/255.0f, 1.0f))
                 .setAABBExtent(extent)
@@ -171,7 +206,7 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
         float[] mainFloor = EntityCreator.getInstance()
                 .setEntityTypeID(EntityType.BOX_SHADOW.getEntityType())
                 .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask())
-                .setPosition(new Vector2(0, canvas.getHeight() -15))
+                .setPosition(new Vector2(1200, canvas.getHeight() -15))
                 .setExtent(extent)
                 .setColor(platformColor)
                 .setAABBExtent(extent)
@@ -182,7 +217,7 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
 
         Vector2 platformExtent = new Vector2(100,10);
 
-        for(int j = 0; j < 3; j++) {
+        for(int j = 0; j < 6; j++) {
             float[] platform = EntityCreator.getInstance()
                     .setEntityTypeID(EntityType.BOX_SHADOW.getEntityType())
                     .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask())
@@ -250,6 +285,7 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
             if (sleepTime <= 0) continue;
             try {
                 Thread.sleep((long) (sleepTime / 1e6), (int) (sleepTime % 1e6));
+                //Thread.yield();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }

@@ -1,6 +1,7 @@
 package superAlone40k.util;
 
 import superAlone40k.ecs.EntityIndex;
+import superAlone40k.ecs.EntityType;
 
 import java.awt.*;
 
@@ -207,7 +208,7 @@ public class EntityCreator {
         entity[EntityIndex.TRIGGER_EXTENT_X.getIndex()] = (float) triggerExtent.x;
         entity[EntityIndex.TRIGGER_EXTENT_Y.getIndex()] = (float) triggerExtent.y;
         entity[EntityIndex.TRIGGER_COLLISION_TYPE.getIndex()] = (float) triggerCollisionType;
-        entity[EntityIndex.TRIGGER_OBJECT_TYPE.getIndex()] = -1.0f;
+        entity[EntityIndex.TRIGGER_OBJECT_TYPE.getIndex()] = EntityType.NONE.getEntityType();
         entity[EntityIndex.LIFETIME.getIndex()] = (float)lifetime;
 
         clear();
@@ -232,7 +233,7 @@ public class EntityCreator {
         borderDirection = new Vector2();
         triggerPosition = new Vector2();
         triggerExtent = new Vector2();
-        triggerCollisionType = 0.0d;
+        triggerCollisionType = 0.0f;
         lifetime = 0.0f;
 
     }

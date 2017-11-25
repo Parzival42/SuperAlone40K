@@ -20,8 +20,8 @@ public class FlattenedEngine {
     private ArrayList<float[]> entitiesToAdd = new ArrayList<>();
     private ArrayList<float[]> entitiesToDelete = new ArrayList<>();
 
-    private int[] systemBitmasks = new int[] { SystemBitmask.HORIZONTAL_MOVEMENT.getSystemMask(), SystemBitmask.VERTICAL_MOVEMENT.getSystemMask(), SystemBitmask.INPUT.getSystemMask(), SystemBitmask.COLLIDER_SORTING.getSystemMask(), SystemBitmask.MOVEMENT_SYSTEM.getSystemMask(), SystemBitmask.LIGHT_SYSTEM.getSystemMask(), SystemBitmask.TRIGGER_SYSTEM.getSystemMask(), SystemBitmask.LIFETIME_SYSTEM.getSystemMask() };
-    private SystemMethod[] systemMethods = new SystemMethod[]{FlattenedEngine::simpleHorizontalMovement,  FlattenedEngine::simpleVerticalMovement, FlattenedEngine::inputProcessing, FlattenedEngine::colliderSorting, FlattenedEngine::movementSystem, FlattenedEngine::lightingSystem, FlattenedEngine::triggerSystem, FlattenedEngine::lifetimeSystem};
+    private int[] systemBitmasks = new int[] { SystemBitmask.HORIZONTAL_MOVEMENT.getSystemMask(), SystemBitmask.VERTICAL_MOVEMENT.getSystemMask(), SystemBitmask.INPUT.getSystemMask(), SystemBitmask.COLLIDER_SORTING.getSystemMask(), SystemBitmask.MOVEMENT_SYSTEM.getSystemMask(), SystemBitmask.LIGHT_SYSTEM.getSystemMask(), SystemBitmask.TRIGGER_SYSTEM.getSystemMask(), SystemBitmask.LIFETIME_SYSTEM.getSystemMask(), SystemBitmask.CHECKPOINT_SYSTEM.getSystemMask() };
+    private SystemMethod[] systemMethods = new SystemMethod[]{FlattenedEngine::simpleHorizontalMovement,  FlattenedEngine::simpleVerticalMovement, FlattenedEngine::inputProcessing, FlattenedEngine::colliderSorting, FlattenedEngine::movementSystem, FlattenedEngine::lightingSystem, FlattenedEngine::triggerSystem, FlattenedEngine::lifetimeSystem, FlattenedEngine::checkpointSystem};
 
     private final TreeSet<Ray> angleSortedRays = new TreeSet<>();
     
@@ -234,12 +234,12 @@ public class FlattenedEngine {
     
     private void simpleHorizontalMovement(float[] entity, double deltaTime){
 		entity[EntityIndex.POSITION_X.getIndex()] = (float) (entity[2]
-				+ Math.sin((totalTime + entity[0]) * 3) * deltaTime * currentTimeScale * 100);
+				+ Math.sin((totalTime + entity[3]) * 3) * deltaTime  * 100);
     }
 
     private void simpleVerticalMovement(float[] entity, double deltaTime){
 		entity[EntityIndex.POSITION_Y.getIndex()] = (float) (entity[3]
-				+ Math.sin((totalTime + entity[0]) * 3) * deltaTime * currentTimeScale * 100);
+				+ Math.sin((totalTime + entity[2]) * 3) * deltaTime  * 100);
     }
 
     private void inputProcessing(float[] entity, double deltaTime){
@@ -507,6 +507,25 @@ public class FlattenedEngine {
                 	return;
                 }
 
+                //player and bullet
+                if(isBitmaskValid(EntityType.PLAYER.getEntityType(), entity2Id) &&
+                        isBitmaskValid(EntityType.BULLET.getEntityType(), entity1Id)) {
+                    removeEntity(entity1);
+                    //removeEntity(entity2);
+                    respawn(entity2);
+                    System.out.println("Game Over");
+                    return;
+                }
+
+                if(isBitmaskValid(EntityType.BULLET.getEntityType(), entity2Id) &&
+                        isBitmaskValid(EntityType.PLAYER.getEntityType(), entity1Id)) {
+                    //removeEntity(entity1);
+                    removeEntity(entity2);
+                    respawn(entity1);
+                    System.out.println("Game Over");
+                    return;
+                }
+
                 //player and environment
                 if(isBitmaskValid(EntityType.PLAYER.getEntityType(), entity1Id)) {
                 	resolvePlayerCollision(entity1, entity2, xOverlap, yOverlap);
@@ -581,15 +600,17 @@ public class FlattenedEngine {
         ArrayList<float[]> colliders = trigger[EntityIndex.TRIGGER_COLLISION_TYPE.getIndex()] > 0.5f ? dynamicColliders : staticColliders;
 
         for(int i = 0; i < colliders.size(); i++){
-            if(checkForTriggerOverlap(trigger, colliders.get(i))){
+            if(colliders.get(i)!= trigger && checkForTriggerOverlap(trigger, colliders.get(i))){
                 if(trigger[EntityIndex.TRIGGER_ENTER.getIndex()] < 0.5f && trigger[EntityIndex.TRIGGER_STAY.getIndex()] < 0.5f){
                     trigger[EntityIndex.TRIGGER_ENTER.getIndex()] = 1.0f;
+                    trigger[EntityIndex.TRIGGER_OBJECT_TYPE.getIndex()] = colliders.get(i)[EntityIndex.ENTITY_TYPE_ID.getIndex()];
                     return;
                 }
 
                 if (trigger[EntityIndex.TRIGGER_ENTER.getIndex()] > 0.5f && trigger[EntityIndex.TRIGGER_STAY.getIndex()] < 0.5f){
                     trigger[EntityIndex.TRIGGER_STAY.getIndex()] = 1.0f;
                     trigger[EntityIndex.TRIGGER_ENTER.getIndex()] = 0.0f;
+                    trigger[EntityIndex.TRIGGER_OBJECT_TYPE.getIndex()] = colliders.get(i)[EntityIndex.ENTITY_TYPE_ID.getIndex()];
                     return;
                 }
 
@@ -603,6 +624,7 @@ public class FlattenedEngine {
             trigger[EntityIndex.TRIGGER_STAY.getIndex()] = 0.0f;
         }else if(trigger[EntityIndex.TRIGGER_EXIT.getIndex()] >0.5f){
             trigger[EntityIndex.TRIGGER_EXIT.getIndex()] = 0.0f;
+            trigger[EntityIndex.TRIGGER_OBJECT_TYPE.getIndex()] = EntityType.NONE.getEntityType();
         }
     }
 
@@ -610,6 +632,22 @@ public class FlattenedEngine {
         entity[EntityIndex.LIFETIME.getIndex()] -= deltaTime;
         if(entity[EntityIndex.LIFETIME.getIndex()] < 0.0f){
             removeEntity(entity);
+        }
+    }
+
+
+    private void respawn(float[] player){
+        camera.setToTranslation(0.0d,0.0d);
+        player[EntityIndex.POSITION_X.getIndex()] = 250;
+        player[EntityIndex.POSITION_Y.getIndex()] = 650;
+        minPosX = 200.0f;
+        maxPosX = 1000.0f;
+    }
+
+
+    private void checkpointSystem(float[] entity, double deltaTime){
+        if(isBitmaskValid(EntityType.PLAYER.getEntityType(), (int) entity[EntityIndex.TRIGGER_OBJECT_TYPE.getIndex()])){
+            System.out.println("Game Won!!! ");
         }
     }
 

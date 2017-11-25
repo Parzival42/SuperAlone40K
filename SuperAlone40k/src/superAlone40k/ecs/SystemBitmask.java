@@ -9,7 +9,8 @@ public enum SystemBitmask {
 	MOVEMENT_SYSTEM(16),
 	LIGHT_SYSTEM(32),
 	TRIGGER_SYSTEM(64),
-	LIFETIME_SYSTEM(128);
+	LIFETIME_SYSTEM(128),
+	CHECKPOINT_SYSTEM(256);
 	
 	private final int systemMask;
 
