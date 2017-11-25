@@ -7,6 +7,7 @@ import superAlone40k.window.WindowWithFlattenedECS;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +52,8 @@ public class FlattenedEngine {
     
     public void render(Graphics2D graphics) {
     	final List<float[]> lights = systemViews[5];
-    	
+
+    	graphics.setTransform(camera);
     	for(float[] lightEntity : lights) {
     		calculateShadows(lightEntity, graphics);
     	}
@@ -164,7 +166,7 @@ public class FlattenedEngine {
     		return new Ray[] { leftTop, rightTop, leftBottom, rightBottom };
     	} else if(isBitmaskValid(EntityType.SCREEN_BORDER.getEntityType(), (int) entity[EntityIndex.ENTITY_TYPE_ID.getIndex()])) {
     		final Ray borderRay = new Ray(
-    				new Vector2(entity[EntityIndex.BORDER_ORIGIN_X.getIndex()], entity[EntityIndex.BORDER_ORIGIN_Y.getIndex()]),
+    				new Vector2(entity[EntityIndex.BORDER_ORIGIN_X.getIndex()]-camera.getTranslateX(), entity[EntityIndex.BORDER_ORIGIN_Y.getIndex()]-camera.getTranslateY()),
     				new Vector2(entity[EntityIndex.BORDER_DIR_X.getIndex()], entity[EntityIndex.BORDER_DIR_Y.getIndex()]));
     		
     		final Vector2 toCornerPosition = new Vector2(borderRay.origin.x, borderRay.origin.y).sub(lightPosition);
@@ -219,7 +221,7 @@ public class FlattenedEngine {
     		
     	} else if(isBitmaskValid(EntityType.SCREEN_BORDER.getEntityType(), (int) entity[EntityIndex.ENTITY_TYPE_ID.getIndex()])) {
     		final Ray borderRay = new Ray(
-    				new Vector2(entity[EntityIndex.BORDER_ORIGIN_X.getIndex()], entity[EntityIndex.BORDER_ORIGIN_Y.getIndex()]),
+    				new Vector2(entity[EntityIndex.BORDER_ORIGIN_X.getIndex()]-camera.getTranslateX(), entity[EntityIndex.BORDER_ORIGIN_Y.getIndex()]-camera.getTranslateY()),
     				new Vector2(entity[EntityIndex.BORDER_DIR_X.getIndex()], entity[EntityIndex.BORDER_DIR_Y.getIndex()]));
     		
     		final Vector2 hitPoint = ray.collideWith(borderRay, true);
@@ -240,7 +242,18 @@ public class FlattenedEngine {
 				+ Math.sin((totalTime + entity[0]) * 3) * deltaTime * currentTimeScale * 100);
     }
 
-    //inputProcessing system variables
+    private void inputProcessing(float[] entity, double deltaTime){
+        //player movement
+        playerControl(entity, deltaTime);
+
+        //camera position update
+        cameraControl(entity, deltaTime);
+
+        //menu control stuff
+        menuControl();
+    }
+
+    //player control parameters
     private float movementSpeed = 800.0f;
     private float maxMovementSpeed = 300.0f;
     private float jumpStrength = 1200.0f;
@@ -251,19 +264,19 @@ public class FlattenedEngine {
     private boolean jumpRequestValid = true;
     private boolean isJumpRequested = false;
 
-    private void inputProcessing(float[] entity, double deltaTime){
+    private void playerControl(float[] player, double deltaTime){
         if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_A)){
-            entity[EntityIndex.VELOCITY_X.getIndex()] -= movementSpeed * deltaTime;
-            entity[EntityIndex.VELOCITY_X.getIndex()] = entity[EntityIndex.VELOCITY_X.getIndex()] < -maxMovementSpeed ? -maxMovementSpeed : entity[15];
+            player[EntityIndex.VELOCITY_X.getIndex()] -= movementSpeed * deltaTime;
+            player[EntityIndex.VELOCITY_X.getIndex()] = player[EntityIndex.VELOCITY_X.getIndex()] < -maxMovementSpeed ? -maxMovementSpeed : player[15];
         }
 
         if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_D)){
-            entity[EntityIndex.VELOCITY_X.getIndex()] += movementSpeed * deltaTime;
-            entity[EntityIndex.VELOCITY_X.getIndex()] = entity[EntityIndex.VELOCITY_X.getIndex()] > maxMovementSpeed ? maxMovementSpeed : entity[15];
+            player[EntityIndex.VELOCITY_X.getIndex()] += movementSpeed * deltaTime;
+            player[EntityIndex.VELOCITY_X.getIndex()] = player[EntityIndex.VELOCITY_X.getIndex()] > maxMovementSpeed ? maxMovementSpeed : player[15];
         }
 
         boolean isGrounded = false;
-        if(Math.abs(entity[EntityIndex.TRIGGER_STAY.getIndex()]) > 0.5f){
+        if(Math.abs(player[EntityIndex.TRIGGER_STAY.getIndex()]) > 0.5f){
             isGrounded = true;
             isJumping = false;
             isDoubleJumping = false;
@@ -281,36 +294,63 @@ public class FlattenedEngine {
 
         //first jump
         if(isGrounded && isJumpRequested){
-            entity[EntityIndex.VELOCITY_Y.getIndex()] = -jumpStrength;
+            player[EntityIndex.VELOCITY_Y.getIndex()] = -jumpStrength;
             isJumping = true;
             isJumpRequested = false;
         }
 
         //second jump
-        if(isJumping && isJumpRequested){
-            entity[EntityIndex.VELOCITY_Y.getIndex()] = -jumpStrength;
+        if(isJumping && !isDoubleJumping && isJumpRequested){
+            player[EntityIndex.VELOCITY_Y.getIndex()] = -jumpStrength;
             isDoubleJumping = true;
             isJumpRequested = false;
         }
 
-        if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_ESCAPE)) {
-        	System.exit(42);
-        }
+        player[EntityIndex.VELOCITY_X.getIndex()] *= player[EntityIndex.DRAG.getIndex()];
+        player[EntityIndex.VELOCITY_Y.getIndex()] *= player[EntityIndex.DRAG.getIndex()];
 
-        entity[EntityIndex.VELOCITY_Y.getIndex()] += playerGravity * deltaTime;
+        player[EntityIndex.VELOCITY_Y.getIndex()] += playerGravity * deltaTime;
 
-        entity[EntityIndex.POSITION_X.getIndex()] += entity[EntityIndex.VELOCITY_X.getIndex()] * deltaTime;
-        entity[EntityIndex.POSITION_Y.getIndex()] += entity[EntityIndex.VELOCITY_Y.getIndex()] * deltaTime;
+        player[EntityIndex.POSITION_X.getIndex()] += player[EntityIndex.VELOCITY_X.getIndex()] * deltaTime;
+        player[EntityIndex.POSITION_Y.getIndex()] += player[EntityIndex.VELOCITY_Y.getIndex()] * deltaTime;
 
-        float relativeHorizontalSpeed = Math.abs(entity[EntityIndex.VELOCITY_X.getIndex()]/maxMovementSpeed);
-        float relativeVerticalSpeed = Math.abs(entity[EntityIndex.VELOCITY_Y.getIndex()]/maxJumpStrength);
+        float relativeHorizontalSpeed = Math.abs(player[EntityIndex.VELOCITY_X.getIndex()]/maxMovementSpeed);
+        float relativeVerticalSpeed = Math.abs(player[EntityIndex.VELOCITY_Y.getIndex()]/maxJumpStrength);
 
         float timeScale = relativeHorizontalSpeed < relativeVerticalSpeed ? relativeVerticalSpeed : relativeHorizontalSpeed;
         WindowWithFlattenedECS.setTimeScale(timeScale < 0.25f ? 0.25f : timeScale);
-
-        entity[EntityIndex.VELOCITY_X.getIndex()] *= entity[EntityIndex.DRAG.getIndex()];
-        entity[EntityIndex.VELOCITY_Y.getIndex()] *= entity[EntityIndex.DRAG.getIndex()];
     }
+
+    private void menuControl(){
+        if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_ESCAPE)) {
+            System.exit(42);
+        }
+    }
+
+    //camera control parameters
+    private float minPosX = 200.0f;
+    private float maxPosX = 1000.0f;
+
+    private AffineTransform camera = new AffineTransform();
+
+    private void cameraControl(float[] player, double deltaTime){
+        float xChange = 0.0f;
+        if(player[EntityIndex.POSITION_X.getIndex()] < minPosX && player[EntityIndex.VELOCITY_X.getIndex()] < 0.05f){
+            xChange = (float) (player[EntityIndex.VELOCITY_X.getIndex()] * deltaTime);
+
+        }else if(player[EntityIndex.POSITION_X.getIndex()]> maxPosX && player[EntityIndex.VELOCITY_X.getIndex()] > 0.05f){
+            xChange = (float) (player[EntityIndex.VELOCITY_X.getIndex()]*deltaTime);
+        }
+
+        camera.setToTranslation(camera.getTranslateX()-xChange, camera.getTranslateY());
+        minPosX += xChange;
+        maxPosX += xChange;
+    }
+
+    public AffineTransform getCamera(){
+        return camera;
+    }
+
 
     //collision detection variables
     private ArrayList<float[]> staticColliders = new ArrayList<>();
@@ -502,7 +542,10 @@ public class FlattenedEngine {
         entity[EntityIndex.VELOCITY_Y.getIndex()] *= entity[EntityIndex.DRAG.getIndex()];
     }
 
-    private void lightingSystem(float[] entity, double deltaTime) { /*Dummy system*/ }
+    private void lightingSystem(float[] entity, double deltaTime) {
+        //entity[EntityIndex.POSITION_X.getIndex()] = (float) (-camera.getTranslateX()+100);
+        //entity[EntityIndex.POSITION_Y.getIndex()] = (float) (-camera.getTranslateY()+100);
+    }
 
     private boolean checkForTriggerOverlap(float[] trigger, float[] other){
         float xOverlap =

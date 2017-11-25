@@ -146,7 +146,7 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
 
         float[] player = EntityCreator.getInstance()
                 .setEntityTypeID(EntityType.BOX_SHADOW.getEntityType() | EntityType.PLAYER.getEntityType())
-                .setSystemMask(SystemBitmask.INPUT.getSystemMask() | SystemBitmask.COLLIDER_SORTING.getSystemMask() |SystemBitmask.TRIGGER_SYSTEM.getSystemMask())
+                .setSystemMask(SystemBitmask.INPUT.getSystemMask() | SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.TRIGGER_SYSTEM.getSystemMask())
                 .setPosition(new Vector2(500,650))
                 .setExtent(extent)
                 .setColor(new Color(218/255.0f, 94/255.0f, 92/255.0f, 1.0f))
@@ -252,7 +252,7 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
 
 
         if(elapsedTime >= 1.0f){
-            setTitle("FPS: "+frames+ "   |   Engine update time (ms): "+ ((System.nanoTime()-preUpdateTime)/1e6) + "   |   Entity count: "+engine.getEntities().size());
+            setTitle("FPS: "+frames+ "   |   Engine update time (ms): "+ ((System.nanoTime()-preUpdateTime)/1e6) + "   |   Render time (ms): " +"   |   Entity count: "+engine.getEntities().size());
             elapsedTime = 0.0f;
             frames = 0;
         }
@@ -268,7 +268,7 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
             //render entities
             ArrayList<float[]> entities = engine.getEntities();
             for(int i = 0; i < entities.size(); i++){
-                renderer.renderEntity(g, entities.get(i));
+                renderer.renderEntity(g, engine.getCamera(), entities.get(i));
             }
 
 //            renderer.renderTestLight(g);
