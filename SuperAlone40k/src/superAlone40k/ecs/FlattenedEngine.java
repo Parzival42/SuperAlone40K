@@ -1,6 +1,8 @@
 package superAlone40k.ecs;
 
+import superAlone40k.util.Easing;
 import superAlone40k.util.Ray;
+import superAlone40k.util.Tween;
 import superAlone40k.util.Vector2;
 import superAlone40k.window.WindowWithFlattenedECS;
 
@@ -138,7 +140,7 @@ public class FlattenedEngine {
 
     private interface SystemMethod{
         void execute(FlattenedEngine engine, float[] entity, double deltaTime);
-    }
+}
 
     // ---- ENTITY SYSTEM METHODS
 
@@ -297,6 +299,16 @@ public class FlattenedEngine {
 
         //first jump
         if(isGrounded && isJumpRequested){
+            //TODO: uncomment to see easeing in action
+           /* ArrayList<float[]> playerList = new ArrayList<>();
+            playerList.add(player);
+
+            Tween.getInstance().add(playerList, 0, EntityIndex.EXTENT_X.getIndex(), 40, 0.3f, Easing.Type.ElasticEaseOut, false);
+            Tween.getInstance().add(playerList, 0, EntityIndex.EXTENT_Y.getIndex(), 80, 0.3f, Easing.Type.ElasticEaseOut, false);
+
+            Tween.getInstance().add(playerList, 0, EntityIndex.AABB_EXTENT_X.getIndex(), 40, 0.3f, Easing.Type.ElasticEaseOut, false);
+            Tween.getInstance().add(playerList, 0, EntityIndex.AABB_EXTENT_Y.getIndex(), 80, 0.3f, Easing.Type.ElasticEaseOut, false);*/
+
             player[EntityIndex.VELOCITY_Y.getIndex()] = -jumpStrength;
             isJumping = true;
             isJumpRequested = false;
@@ -304,6 +316,17 @@ public class FlattenedEngine {
 
         //second jump
         if(isJumping && !isDoubleJumping && isJumpRequested){
+
+            //TODO: uncomment to see easeing in action
+            /*ArrayList<float[]> playerList = new ArrayList<>();
+            playerList.add(player);
+
+            Tween.getInstance().add(playerList, 0, EntityIndex.EXTENT_X.getIndex(), 20, 0.3f, Easing.Type.ElasticEaseIn, false);
+            Tween.getInstance().add(playerList, 0, EntityIndex.EXTENT_Y.getIndex(), 40, 0.3f, Easing.Type.ElasticEaseIn, false);
+
+            Tween.getInstance().add(playerList, 0, EntityIndex.AABB_EXTENT_X.getIndex(), 20, 0.3f, Easing.Type.ElasticEaseIn, false);
+            Tween.getInstance().add(playerList, 0, EntityIndex.AABB_EXTENT_Y.getIndex(), 40, 0.3f, Easing.Type.ElasticEaseIn, false);*/
+
             player[EntityIndex.VELOCITY_Y.getIndex()] = -jumpStrength;
             isDoubleJumping = true;
             isJumpRequested = false;
@@ -445,6 +468,7 @@ public class FlattenedEngine {
 	//death zone height
     double deathZoneHeight = 1500;
 
+    //region Collision Check AABB
     private void collisionCheckAABB(float[] entity1, float[] entity2) {
     	float xOverlap = 
     			Math.abs(
@@ -543,6 +567,7 @@ public class FlattenedEngine {
     	    removeEntity(entity1);
         }
     }
+    //endregion
 
     private void resolvePlayerCollision(float[] player, float[] other, float xOverlap, float yOverlap){
         if(xOverlap > yOverlap){
