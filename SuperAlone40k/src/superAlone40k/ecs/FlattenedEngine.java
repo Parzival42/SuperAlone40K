@@ -140,100 +140,20 @@ public class FlattenedEngine {
 
     private interface SystemMethod{
         void execute(FlattenedEngine engine, float[] entity, double deltaTime);
-}
+    }
+
+    /**
+     * @param originalMask Original mask from enumeration (Or other source).
+     * @param maskToCheck The mask you want to check against the original mask.
+     * @return Returns <strong>true</strong> if the masks are fitting.
+     */
+    public static boolean isBitmaskValid(int originalMask, int maskToCheck) {
+        return (originalMask & maskToCheck) == originalMask;
+    }
 
     // ---- ENTITY SYSTEM METHODS
 
-    private Ray[] getCornerRays(Vector2 lightPosition, float[] entity) {
-    	// Box ray collision
-    	if(isBitmaskValid(EntityType.BOX_SHADOW.getEntityType(), (int) entity[EntityIndex.ENTITY_TYPE_ID.getIndex()])) {
-    		Vector2 min = new Vector2(
-    				entity[EntityIndex.POSITION_X.getIndex()] - entity[EntityIndex.EXTENT_X.getIndex()],
-    				entity[EntityIndex.POSITION_Y.getIndex()] - entity[EntityIndex.EXTENT_Y.getIndex()]);
-    		final float width = entity[EntityIndex.EXTENT_X.getIndex()] * 2;
-    		final float height = entity[EntityIndex.EXTENT_Y.getIndex()] * 2;
-
-    		final Vector2 toLeftTop = new Vector2(min.x, min.y).sub(lightPosition);
-    		final Ray leftTop = new Ray(lightPosition, toLeftTop);
-
-    		final Vector2 toRightTop = new Vector2(min.x + width, min.y).sub(lightPosition);
-    		final Ray rightTop = new Ray(lightPosition, toRightTop);
-
-    		final Vector2 toLeftBottom = new Vector2(min.x, min.y + height).sub(lightPosition);
-    		final Ray leftBottom = new Ray(lightPosition, toLeftBottom);
-
-    		final Vector2 toRightBottom = new Vector2(min.x + width, min.y + height).sub(lightPosition);
-    		final Ray rightBottom = new Ray(lightPosition, toRightBottom);
-
-    		return new Ray[] { leftTop, rightTop, leftBottom, rightBottom };
-    	} else if(isBitmaskValid(EntityType.SCREEN_BORDER.getEntityType(), (int) entity[EntityIndex.ENTITY_TYPE_ID.getIndex()])) {
-    		final Ray borderRay = new Ray(
-    				new Vector2(entity[EntityIndex.BORDER_ORIGIN_X.getIndex()]-camera.getTranslateX(), entity[EntityIndex.BORDER_ORIGIN_Y.getIndex()]-camera.getTranslateY()),
-    				new Vector2(entity[EntityIndex.BORDER_DIR_X.getIndex()], entity[EntityIndex.BORDER_DIR_Y.getIndex()]));
-    		
-    		final Vector2 toCornerPosition = new Vector2(borderRay.origin.x, borderRay.origin.y).sub(lightPosition);
-    		return new Ray[] { new Ray(lightPosition, toCornerPosition) };
-    	}
-    	return null;
-    }
-    
-    private void intersect(Ray ray, float[] entity) {
-    	// Box ray collision
-    	if(isBitmaskValid(EntityType.BOX_SHADOW.getEntityType(), (int) entity[EntityIndex.ENTITY_TYPE_ID.getIndex()])) {
-    		Vector2 min = new Vector2(
-    				entity[EntityIndex.POSITION_X.getIndex()] - entity[EntityIndex.EXTENT_X.getIndex()],
-    				entity[EntityIndex.POSITION_Y.getIndex()] - entity[EntityIndex.EXTENT_Y.getIndex()]);
-    		Vector2 max = new Vector2(
-    				entity[EntityIndex.POSITION_X.getIndex()] + entity[EntityIndex.EXTENT_X.getIndex()],
-    				entity[EntityIndex.POSITION_Y.getIndex()] + entity[EntityIndex.EXTENT_Y.getIndex()]);
-    		
-    		double swap;
-    		
-    		double txMin = (min.x - ray.origin.x) / ray.direction.x;
-    		double txMax = (max.x - ray.origin.x) / ray.direction.x;
-    		
-    		if(txMin > txMax) {
-    			swap = txMin;
-    			txMin = txMax;
-    			txMax = swap;
-    		}
-    		
-    		double tyMin = (min.y - ray.origin.y) / ray.direction.y;
-    		double tyMax = (max.y - ray.origin.y) / ray.direction.y;
-    		
-    		if(tyMin > tyMax) {
-    			swap = tyMin;
-    			tyMin = tyMax;
-    			tyMax = swap;
-    		}
-    		
-    		if(txMin > tyMax || tyMin > txMax) {
-    			return;
-    		}
-    		
-    		final double tMin = (txMin > tyMin) ? txMin : tyMin;	// Choose max
-    		final double tMax = (txMax < tyMax) ? txMax : tyMax;	// Choose min
-    		
-    		final double closestDistance = (tMin < tMax) ? tMin : tMax;
-    		if(closestDistance < 0) {
-    			return;
-    		}
-    		final Vector2 hitPoint = ray.origin.copy().add(ray.direction.copy().scale(closestDistance));
-    		ray.updateHitInformation(hitPoint);
-    		
-    	} else if(isBitmaskValid(EntityType.SCREEN_BORDER.getEntityType(), (int) entity[EntityIndex.ENTITY_TYPE_ID.getIndex()])) {
-    		final Ray borderRay = new Ray(
-    				new Vector2(entity[EntityIndex.BORDER_ORIGIN_X.getIndex()]-camera.getTranslateX(), entity[EntityIndex.BORDER_ORIGIN_Y.getIndex()]-camera.getTranslateY()),
-    				new Vector2(entity[EntityIndex.BORDER_DIR_X.getIndex()], entity[EntityIndex.BORDER_DIR_Y.getIndex()]));
-    		
-    		final Vector2 hitPoint = ray.collideWith(borderRay, true);
-    		
-    		if(hitPoint != null) {
-    			ray.updateHitInformation(hitPoint);
-    		}
-    	}
-    }
-    
+    //region Horizontal and Vertical Movement Systems
     private void simpleHorizontalMovement(float[] entity, double deltaTime){
 		entity[EntityIndex.POSITION_X.getIndex()] = (float) (entity[2]
 				+ Math.sin((totalTime + entity[3]) * 3) * deltaTime  * 100);
@@ -243,7 +163,9 @@ public class FlattenedEngine {
 		entity[EntityIndex.POSITION_Y.getIndex()] = (float) (entity[3]
 				+ Math.sin((totalTime + entity[2]) * 3) * deltaTime  * 100);
     }
+    //endregion
 
+    //region Input System (player, camera, menu, timescale
     private void inputProcessing(float[] entity, double deltaTime){
         //player movement
         playerControl(entity, deltaTime);
@@ -378,39 +300,105 @@ public class FlattenedEngine {
     public AffineTransform getCamera(){
         return camera;
     }
+    //endregion
 
+    //region Lighting System
 
-    //collision detection variables
-    private ArrayList<float[]> staticColliders = new ArrayList<>();
-    private ArrayList<float[]> dynamicColliders = new ArrayList<>();
+    private void lightingSystem(float[] entity, double deltaTime) {
+        //entity[EntityIndex.POSITION_X.getIndex()] = (float) (-camera.getTranslateX()+100);
+        //entity[EntityIndex.POSITION_Y.getIndex()] = (float) (-camera.getTranslateY()+100);
+    }
 
-    private void colliderSorting(float[] entity, double deltaTime){
-        if(entity[EntityIndex.COLLISION_TYPE.getIndex()] > 0.5f){
-            dynamicColliders.add(entity);
-        }else{
-            staticColliders.add(entity);
+    private Ray[] getCornerRays(Vector2 lightPosition, float[] entity) {
+        // Box ray collision
+        if(isBitmaskValid(EntityType.BOX_SHADOW.getEntityType(), (int) entity[EntityIndex.ENTITY_TYPE_ID.getIndex()])) {
+            Vector2 min = new Vector2(
+                    entity[EntityIndex.POSITION_X.getIndex()] - entity[EntityIndex.EXTENT_X.getIndex()],
+                    entity[EntityIndex.POSITION_Y.getIndex()] - entity[EntityIndex.EXTENT_Y.getIndex()]);
+            final float width = entity[EntityIndex.EXTENT_X.getIndex()] * 2;
+            final float height = entity[EntityIndex.EXTENT_Y.getIndex()] * 2;
+
+            final Vector2 toLeftTop = new Vector2(min.x, min.y).sub(lightPosition);
+            final Ray leftTop = new Ray(lightPosition, toLeftTop);
+
+            final Vector2 toRightTop = new Vector2(min.x + width, min.y).sub(lightPosition);
+            final Ray rightTop = new Ray(lightPosition, toRightTop);
+
+            final Vector2 toLeftBottom = new Vector2(min.x, min.y + height).sub(lightPosition);
+            final Ray leftBottom = new Ray(lightPosition, toLeftBottom);
+
+            final Vector2 toRightBottom = new Vector2(min.x + width, min.y + height).sub(lightPosition);
+            final Ray rightBottom = new Ray(lightPosition, toRightBottom);
+
+            return new Ray[] { leftTop, rightTop, leftBottom, rightBottom };
+        } else if(isBitmaskValid(EntityType.SCREEN_BORDER.getEntityType(), (int) entity[EntityIndex.ENTITY_TYPE_ID.getIndex()])) {
+            final Ray borderRay = new Ray(
+                    new Vector2(entity[EntityIndex.BORDER_ORIGIN_X.getIndex()]-camera.getTranslateX(), entity[EntityIndex.BORDER_ORIGIN_Y.getIndex()]-camera.getTranslateY()),
+                    new Vector2(entity[EntityIndex.BORDER_DIR_X.getIndex()], entity[EntityIndex.BORDER_DIR_Y.getIndex()]));
+
+            final Vector2 toCornerPosition = new Vector2(borderRay.origin.x, borderRay.origin.y).sub(lightPosition);
+            return new Ray[] { new Ray(lightPosition, toCornerPosition) };
+        }
+        return null;
+    }
+
+    private void intersect(Ray ray, float[] entity) {
+        // Box ray collision
+        if(isBitmaskValid(EntityType.BOX_SHADOW.getEntityType(), (int) entity[EntityIndex.ENTITY_TYPE_ID.getIndex()])) {
+            Vector2 min = new Vector2(
+                    entity[EntityIndex.POSITION_X.getIndex()] - entity[EntityIndex.EXTENT_X.getIndex()],
+                    entity[EntityIndex.POSITION_Y.getIndex()] - entity[EntityIndex.EXTENT_Y.getIndex()]);
+            Vector2 max = new Vector2(
+                    entity[EntityIndex.POSITION_X.getIndex()] + entity[EntityIndex.EXTENT_X.getIndex()],
+                    entity[EntityIndex.POSITION_Y.getIndex()] + entity[EntityIndex.EXTENT_Y.getIndex()]);
+
+            double swap;
+
+            double txMin = (min.x - ray.origin.x) / ray.direction.x;
+            double txMax = (max.x - ray.origin.x) / ray.direction.x;
+
+            if(txMin > txMax) {
+                swap = txMin;
+                txMin = txMax;
+                txMax = swap;
+            }
+
+            double tyMin = (min.y - ray.origin.y) / ray.direction.y;
+            double tyMax = (max.y - ray.origin.y) / ray.direction.y;
+
+            if(tyMin > tyMax) {
+                swap = tyMin;
+                tyMin = tyMax;
+                tyMax = swap;
+            }
+
+            if(txMin > tyMax || tyMin > txMax) {
+                return;
+            }
+
+            final double tMin = (txMin > tyMin) ? txMin : tyMin;	// Choose max
+            final double tMax = (txMax < tyMax) ? txMax : tyMax;	// Choose min
+
+            final double closestDistance = (tMin < tMax) ? tMin : tMax;
+            if(closestDistance < 0) {
+                return;
+            }
+            final Vector2 hitPoint = ray.origin.copy().add(ray.direction.copy().scale(closestDistance));
+            ray.updateHitInformation(hitPoint);
+
+        } else if(isBitmaskValid(EntityType.SCREEN_BORDER.getEntityType(), (int) entity[EntityIndex.ENTITY_TYPE_ID.getIndex()])) {
+            final Ray borderRay = new Ray(
+                    new Vector2(entity[EntityIndex.BORDER_ORIGIN_X.getIndex()]-camera.getTranslateX(), entity[EntityIndex.BORDER_ORIGIN_Y.getIndex()]-camera.getTranslateY()),
+                    new Vector2(entity[EntityIndex.BORDER_DIR_X.getIndex()], entity[EntityIndex.BORDER_DIR_Y.getIndex()]));
+
+            final Vector2 hitPoint = ray.collideWith(borderRay, true);
+
+            if(hitPoint != null) {
+                ray.updateHitInformation(hitPoint);
+            }
         }
     }
 
-    private void performCollisionDetection(){
-        for(int i = 0; i < dynamicColliders.size(); i++){
-            float[] entity = dynamicColliders.get(i);
-            for(int j = 0; j < staticColliders.size(); j++){
-                collisionCheckAABB(entity, staticColliders.get(j));
-            }
-        }
-
-        for(int i= 0; i < dynamicColliders.size(); i++){
-            float[] entity = dynamicColliders.get(i);
-            for(int j = i + 1; j < dynamicColliders.size(); j++){
-                collisionCheckAABB(entity, dynamicColliders.get(j));
-            }
-        }
-
-        staticColliders.clear();
-        dynamicColliders.clear();
-    }
-    
     private void calculateShadows(float[] lightEntity, Graphics2D graphics) {
     	final Vector2 lightPosition = new Vector2(lightEntity[EntityIndex.POSITION_X.getIndex()], lightEntity[EntityIndex.POSITION_Y.getIndex()]);
     	final Path2D.Double path = new Path2D.Double();
@@ -464,11 +452,46 @@ public class FlattenedEngine {
 		angleSortedRays.add(originalRay);
 		angleSortedRays.add(rightOffset);
 	}
+    //endregion
 
-	//death zone height
-    double deathZoneHeight = 1500;
+    //region Collision System
+
+    //collision detection variables
+    private ArrayList<float[]> staticColliders = new ArrayList<>();
+    private ArrayList<float[]> dynamicColliders = new ArrayList<>();
+
+    private void colliderSorting(float[] entity, double deltaTime){
+        if(entity[EntityIndex.COLLISION_TYPE.getIndex()] > 0.5f){
+            dynamicColliders.add(entity);
+        }else{
+            staticColliders.add(entity);
+        }
+    }
+
+    private void performCollisionDetection(){
+        for(int i = 0; i < dynamicColliders.size(); i++){
+            float[] entity = dynamicColliders.get(i);
+            for(int j = 0; j < staticColliders.size(); j++){
+                collisionCheckAABB(entity, staticColliders.get(j));
+            }
+        }
+
+        for(int i= 0; i < dynamicColliders.size(); i++){
+            float[] entity = dynamicColliders.get(i);
+            for(int j = i + 1; j < dynamicColliders.size(); j++){
+                collisionCheckAABB(entity, dynamicColliders.get(j));
+            }
+        }
+
+        staticColliders.clear();
+        dynamicColliders.clear();
+    }
 
     //region Collision Check AABB
+
+    //death zone height
+    double deathZoneHeight = 1500;
+
     private void collisionCheckAABB(float[] entity1, float[] entity2) {
     	float xOverlap = 
     			Math.abs(
@@ -569,6 +592,7 @@ public class FlattenedEngine {
     }
     //endregion
 
+    //region Collision Response
     private void resolvePlayerCollision(float[] player, float[] other, float xOverlap, float yOverlap){
         if(xOverlap > yOverlap){
             float xOffset = player[EntityIndex.POSITION_X.getIndex()] < other[EntityIndex.POSITION_X.getIndex()] ? xOverlap : -xOverlap;
@@ -581,7 +605,17 @@ public class FlattenedEngine {
         }
     }
 
-    //simple movement system
+    private void respawn(float[] player){
+        camera.setToTranslation(0.0d,0.0d);
+        player[EntityIndex.POSITION_X.getIndex()] = 250;
+        player[EntityIndex.POSITION_Y.getIndex()] = 650;
+        minPosX = 200.0f;
+        maxPosX = 1000.0f;
+    }
+    //endregion
+    //endregion
+
+    //region Movement System
     private float gravity = 3000.0f;
 
     private void movementSystem(float[] entity, double deltaTime){
@@ -595,12 +629,9 @@ public class FlattenedEngine {
         entity[EntityIndex.VELOCITY_X.getIndex()] *= entity[EntityIndex.DRAG.getIndex()];
         entity[EntityIndex.VELOCITY_Y.getIndex()] *= entity[EntityIndex.DRAG.getIndex()];
     }
+    //endregion
 
-    private void lightingSystem(float[] entity, double deltaTime) {
-        //entity[EntityIndex.POSITION_X.getIndex()] = (float) (-camera.getTranslateX()+100);
-        //entity[EntityIndex.POSITION_Y.getIndex()] = (float) (-camera.getTranslateY()+100);
-    }
-
+    //region Trigger System
     private boolean checkForTriggerOverlap(float[] trigger, float[] other){
         float xOverlap =
                 Math.abs(
@@ -652,38 +683,24 @@ public class FlattenedEngine {
             trigger[EntityIndex.TRIGGER_OBJECT_TYPE.getIndex()] = EntityType.NONE.getEntityType();
         }
     }
+    //endregion
 
+    //region Lifetime System
     private void lifetimeSystem(float[] entity, double deltaTime){
         entity[EntityIndex.LIFETIME.getIndex()] -= deltaTime;
         if(entity[EntityIndex.LIFETIME.getIndex()] < 0.0f){
             removeEntity(entity);
         }
     }
+    //endregion
 
-
-    private void respawn(float[] player){
-        camera.setToTranslation(0.0d,0.0d);
-        player[EntityIndex.POSITION_X.getIndex()] = 250;
-        player[EntityIndex.POSITION_Y.getIndex()] = 650;
-        minPosX = 200.0f;
-        maxPosX = 1000.0f;
-    }
-
-
+    //region Checkpoint System
     private void checkpointSystem(float[] entity, double deltaTime){
         if(isBitmaskValid(EntityType.PLAYER.getEntityType(), (int) entity[EntityIndex.TRIGGER_OBJECT_TYPE.getIndex()])){
             System.out.println("Game Won!!! ");
         }
     }
+    //endregion
 
 
-    
-    /**
-     * @param originalMask Original mask from enumeration (Or other source).
-     * @param maskToCheck The mask you want to check against the original mask.
-     * @return Returns <strong>true</strong> if the masks are fitting.
-     */
-    public static boolean isBitmaskValid(int originalMask, int maskToCheck) {
-    	return (originalMask & maskToCheck) == originalMask;
-    }
 }
