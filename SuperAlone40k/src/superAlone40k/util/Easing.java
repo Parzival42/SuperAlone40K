@@ -21,7 +21,7 @@ public class Easing {
         BounceEaseInOut
     }
 
-    public static float updateEasing(Type type, float time,float beginning , float end, float duration) {
+    public static float updateEasing(Type type, float time, float beginning , float end, float duration) {
 
         float value = 0;
 
@@ -84,52 +84,52 @@ public class Easing {
 
     // LINEAR
 
-    public static float linearEaseInOut (float time,float beginning , float change, float duration) {
+    private static float linearEaseInOut (float time,float beginning , float change, float duration) {
         return change*time/duration + beginning;
     }
 
     // SINE
 
-    public static float  sineEaseIn(float time,float beginning , float change, float duration) {
+    private static float  sineEaseIn(float time,float beginning , float change, float duration) {
         return -change * (float)Math.cos(time/duration * (Math.PI/2)) + change + beginning;
     }
 
-    public static float  sineEaseOut(float time,float beginning , float change, float duration) {
+    private static float  sineEaseOut(float time,float beginning , float change, float duration) {
         return change * (float)Math.sin(time/duration * (Math.PI/2)) + beginning;
     }
 
-    public static float  sineEaseInOut(float time,float beginning , float change, float duration) {
+    private static float  sineEaseInOut(float time,float beginning , float change, float duration) {
         return -change/2 * ((float)Math.cos(Math.PI*time/duration) - 1) + beginning;
     }
 
     // CUBIC
 
-    public static float cubicEaseIn (float time,float beginning , float change, float duration) {
+    private static float cubicEaseIn (float time,float beginning , float change, float duration) {
         return change*(time/=duration)*time*time + beginning;
     }
 
-    public static float cubicEaseOut (float time,float beginning , float change, float duration) {
+    private static float cubicEaseOut (float time,float beginning , float change, float duration) {
         return change*((time=time/duration-1)*time*time + 1) + beginning;
     }
 
-    public static float cubicEaseInOut (float time,float beginning , float change, float duration) {
+    private static float cubicEaseInOut (float time,float beginning , float change, float duration) {
         if ((time/=duration/2) < 1) return change/2*time*time*time + beginning;
         return change/2*((time-=2)*time*time + 2) + beginning;
     }
 
     // BACK
 
-    public static float  backEaseIn(float time,float beginning , float change, float duration) {
+    private static float  backEaseIn(float time,float beginning , float change, float duration) {
         float s = 1.70158f;
         return change*(time/=duration)*time*((s+1)*time - s) + beginning;
     }
 
-    public static float  backEaseOut(float time,float beginning , float change, float duration) {
+    private static float  backEaseOut(float time,float beginning , float change, float duration) {
         float s = 1.70158f;
         return change*((time=time/duration-1)*time*((s+1)*time + s) + 1) + beginning;
     }
 
-    public static float  backEaseInOut(float time,float beginning , float change, float duration) {
+    private static float  backEaseInOut(float time,float beginning , float change, float duration) {
         float s = 1.70158f;
         if ((time/=duration/2) < 1) return change/2*(time*time*(((s*=(1.525f))+1)*time - s)) + beginning;
         return change/2*((time-=2)*time*(((s*=(1.525f))+1)*time + s) + 2) + beginning;
@@ -137,7 +137,7 @@ public class Easing {
 
     // ELASTIC
 
-    public static float  elasticEaseIn(float time,float beginning , float change, float duration) {
+    private static float  elasticEaseIn(float time,float beginning , float change, float duration) {
         if (time==0) return beginning;  if ((time/=duration)==1) return beginning+change;
         float p=duration*.3f;
         float a=change;
@@ -145,7 +145,7 @@ public class Easing {
         return -(a*(float)Math.pow(2,10*(time-=1)) * (float)Math.sin( (time*duration-s)*(2*(float)Math.PI)/p )) + beginning;
     }
 
-    public static float  elasticEaseOut(float time,float beginning , float change, float duration) {
+    private static float  elasticEaseOut(float time,float beginning , float change, float duration) {
         if (time==0) return beginning;  if ((time/=duration)==1) return beginning+change;
         float p=duration*.3f;
         float a=change;
@@ -153,7 +153,7 @@ public class Easing {
         return (a*(float)Math.pow(2,-10*time) * (float)Math.sin( (time*duration-s)*(2*(float)Math.PI)/p ) + change + beginning);
     }
 
-    public static float  elasticEaseInOut(float time,float beginning , float change, float duration) {
+    private static float  elasticEaseInOut(float time,float beginning , float change, float duration) {
         if (time==0) return beginning;  if ((time/=duration/2)==2) return beginning+change;
         float p=duration*(.3f*1.5f);
         float a=change;
@@ -164,11 +164,11 @@ public class Easing {
 
     // BOUNCE
 
-    public static float  bounceEaseIn(float time,float beginning , float change, float duration) {
+    private static float  bounceEaseIn(float time,float beginning , float change, float duration) {
         return change - bounceEaseOut (duration-time, 0, change, duration) + beginning;
     }
 
-    public static float  bounceEaseOut(float time,float beginning , float change, float duration) {
+    private static float  bounceEaseOut(float time,float beginning , float change, float duration) {
         if ((time/=duration) < (1/2.75f)) {
             return change*(7.5625f*time*time) + beginning;
         } else if (time < (2/2.75f)) {
@@ -180,7 +180,7 @@ public class Easing {
         }
     }
 
-    public static float  bounceEaseInOut(float time,float beginning , float change, float duration) {
+    private static float  bounceEaseInOut(float time,float beginning , float change, float duration) {
         if (time < duration/2) return bounceEaseIn (time*2, 0, change, duration) * .5f + beginning;
         else return bounceEaseOut (time*2-duration, 0, change, duration) * .5f + change*.5f + beginning;
     }

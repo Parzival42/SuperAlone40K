@@ -2,7 +2,7 @@ package superAlone40k.ecs;
 
 import superAlone40k.util.Easing;
 import superAlone40k.util.Ray;
-import superAlone40k.util.Tween;
+import superAlone40k.util.TweenEngine;
 import superAlone40k.util.Vector2;
 import superAlone40k.window.WindowWithFlattenedECS;
 
@@ -300,14 +300,14 @@ public class FlattenedEngine {
         //first jump
         if(isGrounded && isJumpRequested){
             //TODO: uncomment to see easeing in action
-           /* ArrayList<float[]> playerList = new ArrayList<>();
+           /*ArrayList<float[]> playerList = new ArrayList<>();
             playerList.add(player);
 
-            Tween.getInstance().add(playerList, 0, EntityIndex.EXTENT_X.getIndex(), 40, 0.3f, Easing.Type.ElasticEaseOut, false);
-            Tween.getInstance().add(playerList, 0, EntityIndex.EXTENT_Y.getIndex(), 80, 0.3f, Easing.Type.ElasticEaseOut, false);
+            TweenEngine.getInstance().tween(playerList.get(0), EntityIndex.EXTENT_X.getIndex(), 40, 0.3f, Easing.Type.ElasticEaseOut, false);
+            TweenEngine.getInstance().tween(playerList.get(0), EntityIndex.EXTENT_Y.getIndex(), 80, 0.3f, Easing.Type.ElasticEaseOut, false);
 
-            Tween.getInstance().add(playerList, 0, EntityIndex.AABB_EXTENT_X.getIndex(), 40, 0.3f, Easing.Type.ElasticEaseOut, false);
-            Tween.getInstance().add(playerList, 0, EntityIndex.AABB_EXTENT_Y.getIndex(), 80, 0.3f, Easing.Type.ElasticEaseOut, false);*/
+            TweenEngine.getInstance().tween(playerList.get(0), EntityIndex.AABB_EXTENT_X.getIndex(), 40, 0.3f, Easing.Type.ElasticEaseOut, false);
+            TweenEngine.getInstance().tween(playerList.get(0), EntityIndex.AABB_EXTENT_Y.getIndex(), 80, 0.3f, Easing.Type.ElasticEaseOut, false);*/
 
             player[EntityIndex.VELOCITY_Y.getIndex()] = -jumpStrength;
             isJumping = true;
@@ -321,11 +321,11 @@ public class FlattenedEngine {
             /*ArrayList<float[]> playerList = new ArrayList<>();
             playerList.add(player);
 
-            Tween.getInstance().add(playerList, 0, EntityIndex.EXTENT_X.getIndex(), 20, 0.3f, Easing.Type.ElasticEaseIn, false);
-            Tween.getInstance().add(playerList, 0, EntityIndex.EXTENT_Y.getIndex(), 40, 0.3f, Easing.Type.ElasticEaseIn, false);
+            TweenEngine.getInstance().add(playerList, 0, EntityIndex.EXTENT_X.getIndex(), 20, 0.3f, Easing.Type.ElasticEaseIn, false);
+            TweenEngine.getInstance().add(playerList, 0, EntityIndex.EXTENT_Y.getIndex(), 40, 0.3f, Easing.Type.ElasticEaseIn, false);
 
-            Tween.getInstance().add(playerList, 0, EntityIndex.AABB_EXTENT_X.getIndex(), 20, 0.3f, Easing.Type.ElasticEaseIn, false);
-            Tween.getInstance().add(playerList, 0, EntityIndex.AABB_EXTENT_Y.getIndex(), 40, 0.3f, Easing.Type.ElasticEaseIn, false);*/
+            TweenEngine.getInstance().add(playerList, 0, EntityIndex.AABB_EXTENT_X.getIndex(), 20, 0.3f, Easing.Type.ElasticEaseIn, false);
+            TweenEngine.getInstance().add(playerList, 0, EntityIndex.AABB_EXTENT_Y.getIndex(), 40, 0.3f, Easing.Type.ElasticEaseIn, false);*/
 
             player[EntityIndex.VELOCITY_Y.getIndex()] = -jumpStrength;
             isDoubleJumping = true;
