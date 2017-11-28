@@ -6,6 +6,7 @@ import superAlone40k.ecs.SystemBitmask;
 import superAlone40k.particleSystem.*;
 import superAlone40k.renderer.Renderer;
 import superAlone40k.util.EntityCreator;
+import superAlone40k.util.Tween;
 import superAlone40k.util.Vector2;
 
 import javax.swing.*;
@@ -300,6 +301,7 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
         engine.update(deltaTime, timeScale);
         rainParticleSystem.setCamera(engine.getCamera());
         rainParticleSystem.update(deltaTime*timeScale*timeScale);
+        Tween.getInstance().update(deltaTime);
     }
 
     private void render(){
