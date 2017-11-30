@@ -86,6 +86,7 @@ public class FlattenedEngine {
         //general update
         performCollisionDetection();
         rainSystem(deltaTime*currentTimeScale*currentTimeScale);
+        cleanupSystem();
     }
 
 	public void addEntity(float[] entity){
@@ -747,5 +748,20 @@ public class FlattenedEngine {
         }
     }
     //endregion
+
+    //region Cleanup System
+    private void cleanupSystem(){
+        double tolerance = camera.getTranslateX();
+        System.out.println("camera x: "+tolerance);
+        for(int i = 0; i < entities.size(); i++){
+            float[] entity = entities.get(i);
+
+            if(entity[EntityIndex.POSITION_X.getIndex()]+entity[EntityIndex.EXTENT_X.getIndex()] < -tolerance){
+                removeEntity(entity);
+            }
+        }
+    }
+    //endregion
+
 
 }

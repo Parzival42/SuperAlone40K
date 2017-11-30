@@ -1,8 +1,6 @@
 package superAlone40k.util;
 
-import superAlone40k.ecs.EntityType;
 import superAlone40k.ecs.FlattenedEngine;
-import superAlone40k.ecs.SystemBitmask;
 
 import java.awt.*;
 import java.util.Random;
@@ -44,7 +42,7 @@ public class Level {
     }
 
     public void update(double deltaTime){
-        //TODO: do usefull stuff
+        //TODO: do useful stuff
     }
 
 
