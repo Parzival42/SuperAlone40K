@@ -1,5 +1,6 @@
 package superAlone40k.ecs;
 
+import superAlone40k.Main;
 import superAlone40k.util.*;
 import superAlone40k.window.WindowWithFlattenedECS;
 
@@ -322,21 +323,21 @@ public class FlattenedEngine {
         // Box ray collision
         if(isBitmaskValid(EntityType.BOX_SHADOW.getEntityType(), (int) entity[EntityIndex.ENTITY_TYPE_ID.getIndex()])) {
             Vector2 min = new Vector2(
-                    entity[EntityIndex.POSITION_X.getIndex()] - entity[EntityIndex.EXTENT_X.getIndex()],
+            		entity[EntityIndex.POSITION_X.getIndex()] - entity[EntityIndex.EXTENT_X.getIndex()],
                     entity[EntityIndex.POSITION_Y.getIndex()] - entity[EntityIndex.EXTENT_Y.getIndex()]);
             final float width = entity[EntityIndex.EXTENT_X.getIndex()] * 2;
             final float height = entity[EntityIndex.EXTENT_Y.getIndex()] * 2;
 
-            final Vector2 toLeftTop = new Vector2(min.x, min.y).sub(lightPosition);
+            final Vector2 toLeftTop = new Vector2(Math.max(min.x, -camera.getTranslateX()), min.y).sub(lightPosition);
             final Ray leftTop = new Ray(lightPosition, toLeftTop);
 
-            final Vector2 toRightTop = new Vector2(min.x + width, min.y).sub(lightPosition);
+            final Vector2 toRightTop = new Vector2(Math.min(min.x + width, -camera.getTranslateX() + Main.WIDTH), min.y).sub(lightPosition);
             final Ray rightTop = new Ray(lightPosition, toRightTop);
 
-            final Vector2 toLeftBottom = new Vector2(min.x, min.y + height).sub(lightPosition);
+            final Vector2 toLeftBottom = new Vector2(Math.max(min.x, -camera.getTranslateX()), min.y + height).sub(lightPosition);
             final Ray leftBottom = new Ray(lightPosition, toLeftBottom);
 
-            final Vector2 toRightBottom = new Vector2(min.x + width, min.y + height).sub(lightPosition);
+            final Vector2 toRightBottom = new Vector2(Math.min(min.x + width, -camera.getTranslateX() + Main.WIDTH), min.y + height).sub(lightPosition);
             final Ray rightBottom = new Ray(lightPosition, toRightBottom);
 
             return new Ray[] { leftTop, rightTop, leftBottom, rightBottom };
@@ -355,10 +356,10 @@ public class FlattenedEngine {
         // Box ray collision
         if(isBitmaskValid(EntityType.BOX_SHADOW.getEntityType(), (int) entity[EntityIndex.ENTITY_TYPE_ID.getIndex()])) {
             Vector2 min = new Vector2(
-                    entity[EntityIndex.POSITION_X.getIndex()] - entity[EntityIndex.EXTENT_X.getIndex()],
+            		entity[EntityIndex.POSITION_X.getIndex()] - entity[EntityIndex.EXTENT_X.getIndex()],
                     entity[EntityIndex.POSITION_Y.getIndex()] - entity[EntityIndex.EXTENT_Y.getIndex()]);
             Vector2 max = new Vector2(
-                    entity[EntityIndex.POSITION_X.getIndex()] + entity[EntityIndex.EXTENT_X.getIndex()],
+            		entity[EntityIndex.POSITION_X.getIndex()] + entity[EntityIndex.EXTENT_X.getIndex()],
                     entity[EntityIndex.POSITION_Y.getIndex()] + entity[EntityIndex.EXTENT_Y.getIndex()]);
 
             double swap;
@@ -765,7 +766,7 @@ public class FlattenedEngine {
     //region Cleanup System
     private void cleanupSystem(){
         double tolerance = camera.getTranslateX();
-        System.out.println("camera x: "+tolerance);
+        System.out.println("camera x: " + tolerance);
         for(int i = 0; i < entities.size(); i++){
             final float[] entity = entities.get(i);
             
