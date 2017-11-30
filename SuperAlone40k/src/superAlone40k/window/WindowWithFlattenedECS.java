@@ -1,14 +1,8 @@
 package superAlone40k.window;
 
-import superAlone40k.ecs.EntityType;
 import superAlone40k.ecs.FlattenedEngine;
-import superAlone40k.ecs.SystemBitmask;
-import superAlone40k.particleSystem.*;
 import superAlone40k.renderer.Renderer;
-import superAlone40k.util.Entities;
-import superAlone40k.util.EntityCreator;
-import superAlone40k.util.TweenEngine;
-import superAlone40k.util.Vector2;
+import superAlone40k.util.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,7 +10,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferStrategy;
 import java.util.ArrayList;
-import java.util.Random;
 
 public class WindowWithFlattenedECS extends JFrame implements KeyListener {
 
@@ -40,6 +33,7 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
 
     //ecs
     private FlattenedEngine engine;
+    private Level level;
 
     //time scale
     private static float timeScale = 1.0f;
@@ -69,130 +63,16 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
         canvas.createBufferStrategy(2);
         bufferStrategy = canvas.getBufferStrategy();
 
-
-
         renderer = new Renderer();
-
         engine = new FlattenedEngine();
-
-        //setUpTestEntities();
-        createSampleFloorEntities();
-        createSampleBulletEntities();
-        createCheckpointEntity();
-        createCheckpointParticles();
-        engine.addEntity(Entities.createPlayer());
-        
-		// Left top to Bottom left
-        engine.addEntity(Entities.createScreenBorder(new Vector2(0, 0), new Vector2(0, 1)));
-        
-        // Bottom left to Bottom right
-        engine.addEntity(Entities.createScreenBorder(new Vector2(0, height), new Vector2(1, 0)));
-        
-        // Bottom right to Top right
-        engine.addEntity(Entities.createScreenBorder(new Vector2(width, height), new Vector2(0, -1)));
-        
-        // Top right to Top left
-        engine.addEntity(Entities.createScreenBorder(new Vector2(width, 0), new Vector2(-1, 0)));
-        
-        engine.addEntity(Entities.createLight());
+        level = new Level(engine, canvas);
     }
 
-    private void createCheckpointParticles(){
 
-        for(int i =0; i < 10; i++){
-            float[] particle = EntityCreator.getInstance()
-                    .setEntityTypeID(EntityType.NONE.getEntityType())
-                    .setSystemMask(SystemBitmask.HORIZONTAL_MOVEMENT.getSystemMask())
-                    .setPosition(2450, canvas.getHeight()-40 -25 *i)
-                    .setExtent(new Vector2(5,5))
-                    .setColor(new Color(1.0f,1.0f,1.0f, 0.05f))
-                    .create();
-
-            engine.addEntity(particle);
-        }
-    }
-
-    private void createCheckpointEntity(){
-        Vector2 extent = new Vector2(50,120);
-
-        float[] checkpoint = EntityCreator.getInstance()
-                .setEntityTypeID(EntityType.CHECKPOINT.getEntityType())
-                .setSystemMask(SystemBitmask.TRIGGER_SYSTEM.getSystemMask() | SystemBitmask.CHECKPOINT_SYSTEM.getSystemMask())
-                .setPosition(2450,canvas.getHeight()-150)
-                .setExtent(extent)
-                .setColor(new Color(1.0f,1.0f,1.0f, 0.05f))
-                .setAABBExtent(new Vector2())
-                .setCollisionType(1.0f)
-                .setTriggerExtent(extent)
-                .setTriggerCollisionType(1.0f)
-                .create();
-
-        engine.addEntity(checkpoint);
-    }
-
-    private void createSampleBulletEntities() {
-        Random random = new Random();
-        Vector2 extent = new Vector2(15,5);
-
-        for(int i = 0; i < 20; i++){
-
-            float[] bullet = EntityCreator.getInstance()
-                    .setEntityTypeID(EntityType.BULLET.getEntityType() | EntityType.BOX_SHADOW.getEntityType())
-                    .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.MOVEMENT_SYSTEM.getSystemMask() | SystemBitmask.LIFETIME_SYSTEM.getSystemMask())
-                    .setPosition(new Vector2(1500 + i*200, random.nextFloat() * 720))
-                    .setExtent(extent)
-                    .setColor(new Color(1.0f, 1.0f, 1.0f,1.0f))
-                    .setAABBExtent(extent)
-                    .setCollisionType(1.0f)
-                    .setVelocity(new Vector2(-500,0))
-                    .setDrag(1.0f)
-                    .setLifetime(10.0f+ random.nextFloat()* 10.0f)
-                    .create();
-
-            engine.addEntity(bullet);
-        }
-    }
-
-    private void createSampleFloorEntities() {
-        Color platformColor = new Color(24/255.0f, 32/255.0f, 44/255.0f, 1.0f);
-        Vector2 extent = new Vector2(1500, 15);
-
-        float[] mainFloor = EntityCreator.getInstance()
-                .setEntityTypeID(EntityType.BOX_SHADOW.getEntityType())
-                .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask())
-                .setPosition(new Vector2(1200, canvas.getHeight() -15))
-                .setExtent(extent)
-                .setColor(platformColor)
-                .setAABBExtent(extent)
-                .setCollisionType(0.0f)
-                .create();
-
-        engine.addEntity(mainFloor);
-
-        Vector2 platformExtent = new Vector2(100,10);
-
-        for(int j = 0; j < 6; j++) {
-            float[] platform = EntityCreator.getInstance()
-                    .setEntityTypeID(EntityType.BOX_SHADOW.getEntityType())
-                    .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask())
-                    .setPosition(new Vector2((175.0f) + j * 450.0f, canvas.getHeight() -305))
-                    .setExtent(platformExtent)
-                    .setColor(platformColor)
-                    .setAABBExtent(platformExtent)
-                    .setCollisionType(0.0f)
-                    .create();
-
-            engine.addEntity(platform);
-        }
-    }
 
     public void start(int targetFrameRate){
         targetFrameTimeNano = (long) 1e9 / targetFrameRate;
         loop();
-    }
-
-    public void start(){
-        start(60);
     }
 
     private void loop() {
@@ -250,6 +130,7 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
 
     private void update(double deltaTime){
         engine.update(deltaTime, timeScale);
+        level.update(deltaTime);
         TweenEngine.getInstance().update(deltaTime);
     }
 

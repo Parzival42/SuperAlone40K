@@ -110,4 +110,74 @@ public class Entities {
     }
     //endregion
 
+    //region Platform
+    public static float[] createPlatform(Vector2 position, Vector2 extent){
+        float[] entity = EntityCreator.getInstance()
+                .setEntityTypeID(EntityType.BOX_SHADOW.getEntityType())
+                .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask())
+                .setPosition(position)
+                .setExtent(extent)
+                .setColor(new Color(24/255.0f, 32/255.0f, 44/255.0f, 1.0f))
+                .setAABBExtent(extent)
+                .setCollisionType(0.0f)
+                .create();
+
+        return entity;
+    }
+    //endregion
+
+    //region Bullet
+    public static float[] createBullet(Vector2 position, Vector2 velocity){
+        Vector2 extent = new Vector2(15,5);
+
+        float[] entity = EntityCreator.getInstance()
+                .setEntityTypeID(EntityType.BULLET.getEntityType() | EntityType.BOX_SHADOW.getEntityType())
+                .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.MOVEMENT_SYSTEM.getSystemMask() | SystemBitmask.LIFETIME_SYSTEM.getSystemMask())
+                .setPosition(position)
+                .setExtent(extent)
+                .setColor(new Color(1.0f, 1.0f, 1.0f,1.0f))
+                .setAABBExtent(extent)
+                .setCollisionType(1.0f)
+                .setVelocity(velocity)
+                .setDrag(1.0f)
+                .setLifetime(10.0f+ random.nextFloat()* 10.0f)
+                .create();
+
+        return entity;
+    }
+    //endregion
+
+    //region Horizontal Moving Particle
+    public static float[] createHorizontalMovingParticle(Vector2 position){
+        float[] entity = EntityCreator.getInstance()
+                .setEntityTypeID(EntityType.NONE.getEntityType())
+                .setSystemMask(SystemBitmask.HORIZONTAL_MOVEMENT.getSystemMask())
+                .setPosition(position)
+                .setExtent(new Vector2(5,5))
+                .setColor(new Color(1.0f,1.0f,1.0f, 0.05f))
+                .create();
+
+        return entity;
+    }
+    //endregion
+
+    //region Checkpoint
+    public static float[] createCheckpoint(Vector2 position){
+        Vector2 extent = new Vector2(50,120);
+
+        float[] entity = EntityCreator.getInstance()
+                .setEntityTypeID(EntityType.CHECKPOINT.getEntityType())
+                .setSystemMask(SystemBitmask.TRIGGER_SYSTEM.getSystemMask() | SystemBitmask.CHECKPOINT_SYSTEM.getSystemMask())
+                .setPosition(position)
+                .setExtent(extent)
+                .setColor(new Color(1.0f,1.0f,1.0f, 0.05f))
+                .setAABBExtent(new Vector2())
+                .setCollisionType(1.0f)
+                .setTriggerExtent(extent)
+                .setTriggerCollisionType(1.0f)
+                .create();
+
+        return entity;
+    }
+    //endregion
 }
