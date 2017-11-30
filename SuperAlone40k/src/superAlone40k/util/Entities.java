@@ -1,14 +1,15 @@
 package superAlone40k.util;
 
+import superAlone40k.ecs.EntityIndex;
 import superAlone40k.ecs.EntityType;
 import superAlone40k.ecs.SystemBitmask;
 
 import java.awt.*;
-import java.util.Random;
+import java.util.ArrayList;
+import java.util.SplittableRandom;
 
 public class Entities {
-
-    private static Random random = new Random();
+    private final static SplittableRandom random = new SplittableRandom();
 
     //rain particle constants
     public static double RAIN_PARTICLE_WIDTH = 3.0d;
@@ -20,13 +21,18 @@ public class Entities {
     //rain splatter particle constants
     public static Vector2 RAIN_SPLATTER_EXTENT = new Vector2(2.0d, 2.0d);
 
+    // List of players in the game (Should be normally max. 1).
+    private static ArrayList<float[]> PLAYERS = new ArrayList<>();
 
     //region Player
-    public static float[] createPlayer(){
-        Vector2 extent = new Vector2(20,40);
+    /**
+     * Creates a player entity and adds it to the player register.
+     */
+    public static float[] createPlayer() {
+        final Vector2 extent = new Vector2(20, 40);
 
         float[] player = EntityCreator.getInstance()
-                .setEntityTypeID(EntityType.BOX_SHADOW.getEntityType() | EntityType.PLAYER.getEntityType())
+                .setEntityTypeID(/*EntityType.BOX_SHADOW.getEntityType() | */EntityType.PLAYER.getEntityType())
                 .setSystemMask(SystemBitmask.INPUT.getSystemMask() | SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.TRIGGER_SYSTEM.getSystemMask())
                 .setPosition(new Vector2(250,650))
                 .setExtent(extent)
@@ -39,9 +45,29 @@ public class Entities {
                 .setTriggerExtent(new Vector2(10,5))
                 .setTriggerCollisionType(0.0f)
                 .create();
-
+        
+        PLAYERS.add(player);
         return player;
     }
+    
+    /**
+     * @return Returns <strong>true</strong> if a player is already in the game, <strong>false</strong> otherwise.
+     */
+    public static boolean isPlayerInGame() {
+    	return PLAYERS.size() > 0 ? true : false;
+    }
+    
+    /**
+     * Returns the first player in the player-register. If no player is found
+     * <strong>null</strong> is returned. 
+     */
+    public static float[] getFirstPlayer() {
+    	if(isPlayerInGame()) {
+    		return PLAYERS.get(0);
+    	}
+    	return null;
+    }
+    
     //endregion
 
     //region Screen Border
@@ -70,14 +96,14 @@ public class Entities {
 
     //region Rain Particle
     public static float[] createRainParticle(Vector2 position, Vector2 velocity){
-        Vector2 extent = new Vector2(RAIN_PARTICLE_WIDTH, RAIN_PARTICLE_BASE_HEIGHT + random.nextFloat() * RAIN_PARTICLE_HEIGHT_VARIANCE);
+        Vector2 extent = new Vector2(RAIN_PARTICLE_WIDTH, RAIN_PARTICLE_BASE_HEIGHT + random.nextDouble() * RAIN_PARTICLE_HEIGHT_VARIANCE);
 
         final float[] entity = EntityCreator.getInstance()
                 .setEntityTypeID(EntityType.RAIN_DROP.getEntityType())
                 .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.MOVEMENT_SYSTEM.getSystemMask())
                 .setPosition(position)
                 .setExtent(extent)
-                .setColor(new Color(89 / 255.0f, 106 / 255.0f, 126 / 255.0f, 0.12f + random.nextFloat() * 0.12f))
+                .setColor(new Color(89 / 255.0f, 106 / 255.0f, 126 / 255.0f, 0.12f + (float) random.nextDouble() * 0.12f))
                 .setAABBPosition(new Vector2(0, extent.y/2.0f))
                 .setAABBExtent(extent.x, extent.y/2.0f)
                 .setCollisionType(1.0d)
@@ -97,7 +123,7 @@ public class Entities {
                 .setSystemMask(SystemBitmask.MOVEMENT_SYSTEM.getSystemMask() | SystemBitmask.COLLIDER_SORTING.getSystemMask())
                 .setPosition(position)
                 .setExtent(RAIN_SPLATTER_EXTENT)
-                .setColor(new Color(89 / 255.0f, 106 / 255.0f, 128 / 255.0f, 0.12f + random.nextFloat() * 0.09f))
+                .setColor(new Color(89 / 255.0f, 106 / 255.0f, 128 / 255.0f, 0.12f + (float) random.nextDouble() * 0.09f))
                 .setAABBPosition(new Vector2(0, 0))
                 .setAABBExtent(RAIN_SPLATTER_EXTENT)
                 .setCollisionType(1.0d)
@@ -128,7 +154,7 @@ public class Entities {
 
     //region Bullet
     public static float[] createBullet(Vector2 position, Vector2 velocity){
-        Vector2 extent = new Vector2(15,5);
+        final Vector2 extent = new Vector2(15, 5);
 
         float[] entity = EntityCreator.getInstance()
                 .setEntityTypeID(EntityType.BULLET.getEntityType() | EntityType.BOX_SHADOW.getEntityType())
@@ -140,7 +166,7 @@ public class Entities {
                 .setCollisionType(1.0f)
                 .setVelocity(velocity)
                 .setDrag(1.0f)
-                .setLifetime(10.0f+ random.nextFloat()* 10.0f)
+                .setLifetime(10.0f + random.nextDouble() * 10.0f)
                 .create();
 
         return entity;
@@ -178,6 +204,23 @@ public class Entities {
                 .create();
 
         return entity;
+    }
+    //endregion
+    
+    //region Entity specific util methods
+    /**
+     * Sets the position for the given entity.
+     */
+    public static void setPositionFor(final float[] entity, float x, float y) {
+    	entity[EntityIndex.POSITION_X.getIndex()] = x;
+    	entity[EntityIndex.POSITION_Y.getIndex()] = y;
+    }
+    
+    /**
+     * Returns the position of the given entity as {@link Vector2}.
+     */
+    public static Vector2 getPositionFor(final float[] entity) {
+    	return new Vector2(entity[EntityIndex.POSITION_X.getIndex()], entity[EntityIndex.POSITION_Y.getIndex()]);
     }
     //endregion
 }

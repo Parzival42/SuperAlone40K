@@ -14,6 +14,9 @@ import java.util.Random;
 import java.util.TreeSet;
 
 public class FlattenedEngine {
+	// Turn on to see fancy shadow debug lines
+	public static boolean DEBUG_SHADOWS = false;
+	
     private ArrayList<float[]> entities = new ArrayList<>();
     private ArrayList<float[]>[] systemViews;
 
@@ -288,11 +291,11 @@ public class FlattenedEngine {
         if(player[EntityIndex.POSITION_X.getIndex()] < minPosX && player[EntityIndex.VELOCITY_X.getIndex()] < 0.05f){
             xChange = (float) (player[EntityIndex.VELOCITY_X.getIndex()] * deltaTime);
 
-        }else if(player[EntityIndex.POSITION_X.getIndex()]> maxPosX && player[EntityIndex.VELOCITY_X.getIndex()] > 0.05f){
+        }else if(player[EntityIndex.POSITION_X.getIndex()] > maxPosX && player[EntityIndex.VELOCITY_X.getIndex()] > 0.05f){
             xChange = (float) (player[EntityIndex.VELOCITY_X.getIndex()]*deltaTime);
         }
 
-        camera.setToTranslation(camera.getTranslateX()-xChange, camera.getTranslateY());
+        camera.setToTranslation(camera.getTranslateX() - xChange, camera.getTranslateY());
         minPosX += xChange;
         maxPosX += xChange;
     }
@@ -304,7 +307,13 @@ public class FlattenedEngine {
 
     //region Lighting System
 
-    private void lightingSystem(float[] entity, double deltaTime) {
+    private void lightingSystem(float[] lightSource, double deltaTime) {
+    	final float[] player = Entities.getFirstPlayer();
+    	final Vector2 playerPosition = new Vector2(player[EntityIndex.POSITION_X.getIndex()], player[EntityIndex.POSITION_Y.getIndex()]);
+    	
+    	// Set light position to player position
+    	Entities.setPositionFor(lightSource, (float) playerPosition.x, (float) playerPosition.y);
+    	
         //entity[EntityIndex.POSITION_X.getIndex()] = (float) (-camera.getTranslateX()+100);
         //entity[EntityIndex.POSITION_Y.getIndex()] = (float) (-camera.getTranslateY()+100);
     }
@@ -333,7 +342,7 @@ public class FlattenedEngine {
             return new Ray[] { leftTop, rightTop, leftBottom, rightBottom };
         } else if(isBitmaskValid(EntityType.SCREEN_BORDER.getEntityType(), (int) entity[EntityIndex.ENTITY_TYPE_ID.getIndex()])) {
             final Ray borderRay = new Ray(
-                    new Vector2(entity[EntityIndex.BORDER_ORIGIN_X.getIndex()]-camera.getTranslateX(), entity[EntityIndex.BORDER_ORIGIN_Y.getIndex()]-camera.getTranslateY()),
+                    new Vector2(entity[EntityIndex.BORDER_ORIGIN_X.getIndex()] - camera.getTranslateX(), entity[EntityIndex.BORDER_ORIGIN_Y.getIndex()] - camera.getTranslateY()),
                     new Vector2(entity[EntityIndex.BORDER_DIR_X.getIndex()], entity[EntityIndex.BORDER_DIR_Y.getIndex()]));
 
             final Vector2 toCornerPosition = new Vector2(borderRay.origin.x, borderRay.origin.y).sub(lightPosition);
@@ -388,8 +397,8 @@ public class FlattenedEngine {
 
         } else if(isBitmaskValid(EntityType.SCREEN_BORDER.getEntityType(), (int) entity[EntityIndex.ENTITY_TYPE_ID.getIndex()])) {
             final Ray borderRay = new Ray(
-                    new Vector2(entity[EntityIndex.BORDER_ORIGIN_X.getIndex()]-camera.getTranslateX(), entity[EntityIndex.BORDER_ORIGIN_Y.getIndex()]-camera.getTranslateY()),
-                    new Vector2(entity[EntityIndex.BORDER_DIR_X.getIndex()], entity[EntityIndex.BORDER_DIR_Y.getIndex()]));
+            		new Vector2(entity[EntityIndex.BORDER_ORIGIN_X.getIndex()] - camera.getTranslateX(), entity[EntityIndex.BORDER_ORIGIN_Y.getIndex()] - camera.getTranslateY()),
+            		new Vector2(entity[EntityIndex.BORDER_DIR_X.getIndex()], entity[EntityIndex.BORDER_DIR_Y.getIndex()]));
 
             final Vector2 hitPoint = ray.collideWith(borderRay, true);
 
@@ -419,15 +428,19 @@ public class FlattenedEngine {
     			path.lineTo(sortedRay.hitPoint.x, sortedRay.hitPoint.y);
     			
     			// Debug draw
-//				graphics.setColor(Color.RED);
-//				graphics.drawLine((int) sortedRay.origin.x, (int) sortedRay.origin.y, (int) sortedRay.hitPoint.x, (int) sortedRay.hitPoint.y);
-//				graphics.fillOval((int) sortedRay.hitPoint.x - 12, (int) sortedRay.hitPoint.y - 12, 24, 24);
+    			if(DEBUG_SHADOWS) {
+    				graphics.setColor(Color.RED);
+    				graphics.drawLine((int) sortedRay.origin.x, (int) sortedRay.origin.y, (int) sortedRay.hitPoint.x, (int) sortedRay.hitPoint.y);
+    				graphics.fillOval((int) sortedRay.hitPoint.x - 12, (int) sortedRay.hitPoint.y - 12, 24, 24);
+    			}
     		}
     	}
     	
     	graphics.setColor(new Color(49, 65, 88));
 		path.closePath();
-		graphics.fill(path);
+		if(!DEBUG_SHADOWS) {	// TODO: Remove this in finished code
+			graphics.fill(path);
+		}
 		angleSortedRays.clear();
 	}
 
@@ -608,7 +621,7 @@ public class FlattenedEngine {
     }
 
     private void respawn(float[] player){
-        camera.setToTranslation(0.0d,0.0d);
+        camera.setToTranslation(0.0d, 0.0d);
         player[EntityIndex.POSITION_X.getIndex()] = 250;
         player[EntityIndex.POSITION_Y.getIndex()] = 650;
         minPosX = 200.0f;
@@ -754,14 +767,15 @@ public class FlattenedEngine {
         double tolerance = camera.getTranslateX();
         System.out.println("camera x: "+tolerance);
         for(int i = 0; i < entities.size(); i++){
-            float[] entity = entities.get(i);
-
-            if(entity[EntityIndex.POSITION_X.getIndex()]+entity[EntityIndex.EXTENT_X.getIndex()] < -tolerance){
-                removeEntity(entity);
+            final float[] entity = entities.get(i);
+            
+            // Don't delete screen borders!
+            if(!isBitmaskValid(EntityType.SCREEN_BORDER.getEntityType(), (int) entity[EntityIndex.ENTITY_TYPE_ID.getIndex()])) {
+            	if(entity[EntityIndex.POSITION_X.getIndex()] + entity[EntityIndex.EXTENT_X.getIndex()] < -tolerance){
+            		removeEntity(entity);
+            	}
             }
         }
     }
     //endregion
-
-
 }

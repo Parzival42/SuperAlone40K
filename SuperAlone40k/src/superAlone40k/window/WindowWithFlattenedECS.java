@@ -11,6 +11,7 @@ import java.awt.event.KeyListener;
 import java.awt.image.BufferStrategy;
 import java.util.ArrayList;
 
+@SuppressWarnings("serial")
 public class WindowWithFlattenedECS extends JFrame implements KeyListener {
 
     //game loop
