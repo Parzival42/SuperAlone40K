@@ -2,7 +2,7 @@ package superAlone40k.renderer;
 
 import superAlone40k.ecs.EntityIndex;
 import superAlone40k.ecs.EntityType;
-import superAlone40k.particleSystem.RainParticleSystem;
+import superAlone40k.util.Entities;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -15,14 +15,11 @@ public class Renderer {
     // Pre-calculated raindrop
     private final BufferedImage rainDrop;
     
-    //rain gradient test
-    GradientPaint rainPaint;
-
-    public Renderer() { 
+    public Renderer() {
     	rainDrop = createGradientImage(
-    			(int) RainParticleSystem.PARTICLE_WIDTH, 
+    			(int) Entities.RAIN_PARTICLE_WIDTH,
     			PRE_CALCULATED_RAINDROP_HEIGHT, 
-    			new GradientPaint(0, 0, RainParticleSystem.PARTICLE_COLOR_START, 0, PRE_CALCULATED_RAINDROP_HEIGHT, RainParticleSystem.PARTICLE_COLOR_END));
+    			new GradientPaint(0, 0, Entities.RAIN_PARTICLE_COLOR_START, 0, PRE_CALCULATED_RAINDROP_HEIGHT, Entities.RAIN_PARTICLE_COLOR_END));
     }
 
     public void renderBackground(Graphics2D g) {
@@ -48,7 +45,7 @@ public class Renderer {
     }
 
     private void renderRainDropEntity(Graphics2D g, AffineTransform camera, float[] entity) {
-    	final double scaleX = RainParticleSystem.PARTICLE_WIDTH * 2.0;
+		final double scaleX = entity[EntityIndex.EXTENT_X.getIndex()] * 2.0;
     	final double scaleY = entity[EntityIndex.EXTENT_Y.getIndex()] * 2.0;
     	final double positionX = entity[EntityIndex.POSITION_X.getIndex()] - (scaleX * 0.5);
     	final double positionY = entity[EntityIndex.POSITION_Y.getIndex()] - (scaleY * 0.5);

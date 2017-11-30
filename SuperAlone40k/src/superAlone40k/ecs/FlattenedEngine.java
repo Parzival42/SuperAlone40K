@@ -1,9 +1,6 @@
 package superAlone40k.ecs;
 
-import superAlone40k.util.Easing;
-import superAlone40k.util.Ray;
-import superAlone40k.util.TweenEngine;
-import superAlone40k.util.Vector2;
+import superAlone40k.util.*;
 import superAlone40k.window.WindowWithFlattenedECS;
 
 import java.awt.Color;
@@ -13,6 +10,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.TreeSet;
 
 public class FlattenedEngine {
@@ -76,17 +74,18 @@ public class FlattenedEngine {
     }
 
     private void updateSystems(double deltaTime){
-        //general update
         totalTime += deltaTime;
 
-        //individual entity iterating approach
+        //individual entity update
         for(int i = 0; i < systemViews.length; i++){
             for(int j = 0; j < systemViews[i].size(); j++){
                 systemMethods[i].execute(this, systemViews[i].get(j), deltaTime);
             }
         }
 
+        //general update
         performCollisionDetection();
+        rainSystem(deltaTime*currentTimeScale*currentTimeScale);
     }
 
 	public void addEntity(float[] entity){
@@ -300,7 +299,7 @@ public class FlattenedEngine {
     public AffineTransform getCamera(){
         return camera;
     }
-    //endregion
+    //endregion)
 
     //region Lighting System
 
@@ -538,19 +537,21 @@ public class FlattenedEngine {
                 //if raindrop and other entity
                 if(isBitmaskValid(EntityType.RAIN_DROP.getEntityType(), entity1Id) && 
                 		!isBitmaskValid(EntityType.RAIN_DROP.getEntityType(), entity2Id)) {
-                	WindowWithFlattenedECS.getRainParticleSystem().burstEmit(
-                			(int) (entity1[EntityIndex.POSITION_X.getIndex()]),
-                			(int) (entity1[EntityIndex.POSITION_Y.getIndex()] + entity1[EntityIndex.EXTENT_Y.getIndex()]*0.9f), 2);
+
+                    emitRainSplatterParticles(new Vector2(entity1[EntityIndex.POSITION_X.getIndex()],
+                                entity1[EntityIndex.POSITION_Y.getIndex()] + entity1[EntityIndex.EXTENT_Y.getIndex()]*0.9f), 2);
+
                 	removeEntity(entity1);
                 	return;
                 }
 
                 if(isBitmaskValid(EntityType.RAIN_DROP.getEntityType(), entity2Id) && 
                 		!isBitmaskValid(EntityType.RAIN_DROP.getEntityType(), entity1Id)) {
-                	WindowWithFlattenedECS.getRainParticleSystem().burstEmit(
-                			(int) (entity2[EntityIndex.POSITION_X.getIndex()]),
-                			(int) (entity2[EntityIndex.POSITION_Y.getIndex()] + entity2[EntityIndex.EXTENT_Y.getIndex()]*0.9f), 2);
-                	removeEntity(entity2);
+
+                    emitRainSplatterParticles(new Vector2(entity2[EntityIndex.POSITION_X.getIndex()],
+                            entity2[EntityIndex.POSITION_Y.getIndex()] + entity2[EntityIndex.EXTENT_Y.getIndex()]*0.9f), 2);
+
+                    removeEntity(entity2);
                 	return;
                 }
 
@@ -702,5 +703,49 @@ public class FlattenedEngine {
     }
     //endregion
 
+    //region Rain System
+
+    //rain particle constants
+    private double RAIN_PARTICLE_SPAWN_HEIGHT = -100.0d;
+    private double RAIN_PARTICLE_SPAWN_RANGE_BEGIN = -200.0d;
+    private double RAIN_PARTICLE_SPAWN_RANGE = 1680.0d;
+
+    private static double RAIN_WINDFORCE = 0.0d;
+    private static double RAIN_DOWNFORCE = 50.0d;
+
+    private static double RAIN_SPLATTER_FORCE = 500.0d;
+
+    private Random random = new Random();
+
+
+    //control parameters
+    private boolean shouldEmit = true;
+    private double remainingTime = 0.0d;
+    private double emitRate = 1.0f / 75.0d;
+
+    private void rainSystem(double deltaTime){
+        if(shouldEmit){
+            remainingTime += deltaTime;
+
+            while(remainingTime > emitRate){
+                remainingTime -= emitRate;
+                emitRainParticle();
+            }
+        }
+    }
+
+    private void emitRainParticle(){
+        final Vector2 position = new Vector2(RAIN_PARTICLE_SPAWN_RANGE * random.nextFloat() + RAIN_PARTICLE_SPAWN_RANGE_BEGIN - camera.getTranslateX(), RAIN_PARTICLE_SPAWN_HEIGHT - random.nextFloat() * 50.0f - camera.getTranslateY());
+        final Vector2 velocity = new Vector2(RAIN_WINDFORCE, random.nextFloat() * RAIN_DOWNFORCE);
+        addEntity(Entities.createRainParticle(position, velocity));
+    }
+
+    private void emitRainSplatterParticles(Vector2 position, int amount){
+        for(int i = 0; i < amount; i++){
+            final Vector2 velocity = new Vector2((-0.5f + random.nextFloat()) * RAIN_SPLATTER_FORCE, random.nextFloat() * -RAIN_SPLATTER_FORCE);
+            addEntity(Entities.createSplatterParticle(position, velocity));
+        }
+    }
+    //endregion
 
 }

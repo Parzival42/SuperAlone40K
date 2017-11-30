@@ -5,6 +5,7 @@ import superAlone40k.ecs.FlattenedEngine;
 import superAlone40k.ecs.SystemBitmask;
 import superAlone40k.particleSystem.*;
 import superAlone40k.renderer.Renderer;
+import superAlone40k.util.Entities;
 import superAlone40k.util.EntityCreator;
 import superAlone40k.util.TweenEngine;
 import superAlone40k.util.Vector2;
@@ -40,9 +41,6 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
     //ecs
     private FlattenedEngine engine;
 
-    //rain particles
-    private static RainParticleSystem rainParticleSystem;
-
     //time scale
     private static float timeScale = 1.0f;
     private static float uneasedTimeScale = 1.0f;
@@ -50,10 +48,6 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
 
     public static void setTimeScale(float newTimeScale){
         uneasedTimeScale = newTimeScale;
-    }
-
-    public static RainParticleSystem getRainParticleSystem(){
-        return rainParticleSystem;
     }
 
     public WindowWithFlattenedECS(String name, int width, int height){
@@ -80,28 +74,27 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
         renderer = new Renderer();
 
         engine = new FlattenedEngine();
-        rainParticleSystem = new RainParticleSystem(engine, -100,  -200, 1480);
 
         //setUpTestEntities();
         createSampleFloorEntities();
         createSampleBulletEntities();
         createCheckpointEntity();
         createCheckpointParticles();
-        engine.addEntity(createPlayerEntity());
+        engine.addEntity(Entities.createPlayer());
         
 		// Left top to Bottom left
-        engine.addEntity(createScreenBorder(new Vector2(0, 0), new Vector2(0, 1)));
+        engine.addEntity(Entities.createScreenBorder(new Vector2(0, 0), new Vector2(0, 1)));
         
         // Bottom left to Bottom right
-        engine.addEntity(createScreenBorder(new Vector2(0, height), new Vector2(1, 0)));
+        engine.addEntity(Entities.createScreenBorder(new Vector2(0, height), new Vector2(1, 0)));
         
         // Bottom right to Top right
-        engine.addEntity(createScreenBorder(new Vector2(width, height), new Vector2(0, -1)));
+        engine.addEntity(Entities.createScreenBorder(new Vector2(width, height), new Vector2(0, -1)));
         
         // Top right to Top left
-        engine.addEntity(createScreenBorder(new Vector2(width, 0), new Vector2(-1, 0)));
+        engine.addEntity(Entities.createScreenBorder(new Vector2(width, 0), new Vector2(-1, 0)));
         
-        engine.addEntity(createLight());
+        engine.addEntity(Entities.createLight());
     }
 
     private void createCheckpointParticles(){
@@ -160,46 +153,6 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
         }
     }
 
-    private float[] createLight() {
-        float[] light = EntityCreator.getInstance()
-                .setEntityTypeID(EntityType.LIGHT.getEntityType())
-                .setSystemMask(SystemBitmask.LIGHT_SYSTEM.getSystemMask())
-                .setPosition(new Vector2(-100, 100))
-                .create();
-        return light;
-    }
-
-    private float[] createScreenBorder(Vector2 origin, Vector2 direction) {
-        float[] screenBorder = EntityCreator.getInstance()
-                .setEntityTypeID(EntityType.SCREEN_BORDER.getEntityType())
-                .setBorderOrigin(origin)
-                .setBorderDirection(direction)
-                .create();
-
-        return screenBorder;
-    }
-
-    private float[] createPlayerEntity(){
-        Vector2 extent = new Vector2(20,40);
-
-        float[] player = EntityCreator.getInstance()
-                .setEntityTypeID(EntityType.BOX_SHADOW.getEntityType() | EntityType.PLAYER.getEntityType())
-                .setSystemMask(SystemBitmask.INPUT.getSystemMask() | SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.TRIGGER_SYSTEM.getSystemMask())
-                .setPosition(new Vector2(250,650))
-                .setExtent(extent)
-                .setColor(new Color(218/255.0f, 94/255.0f, 92/255.0f, 1.0f))
-                .setAABBExtent(extent)
-                .setCollisionType(1.0f)
-                .setGravitationInfluence(1.0f)
-                .setDrag(0.975f)
-                .setTriggerPosition(new Vector2(0, extent.y))
-                .setTriggerExtent(new Vector2(10,5))
-                .setTriggerCollisionType(0.0f)
-                .create();
-
-        return player;
-    }
-
     private void createSampleFloorEntities() {
         Color platformColor = new Color(24/255.0f, 32/255.0f, 44/255.0f, 1.0f);
         Vector2 extent = new Vector2(1500, 15);
@@ -250,8 +203,6 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
 
         double deltaTime;
 
-        rainParticleSystem.emit(75);
-
         while (running) {
             preUpdateTime = System.nanoTime();
             deltaTime = (preUpdateTime - lastTime) / 1e9;
@@ -299,8 +250,6 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
 
     private void update(double deltaTime){
         engine.update(deltaTime, timeScale);
-        rainParticleSystem.setCamera(engine.getCamera());
-        rainParticleSystem.update(deltaTime*timeScale*timeScale);
         TweenEngine.getInstance().update(deltaTime);
     }
 
