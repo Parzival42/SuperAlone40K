@@ -279,6 +279,11 @@ public class FlattenedEngine {
         if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_ESCAPE)) {
             System.exit(42);
         }
+        
+        // Activate/Deactivate lighting debug mode.
+        if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_L)) {
+        	DEBUG_SHADOWS = !DEBUG_SHADOWS;
+        }
     }
 
     //camera control parameters
