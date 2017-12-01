@@ -285,7 +285,7 @@ public class FlattenedEngine {
     private float minPosX = 200.0f;
     private float maxPosX = 1000.0f;
 
-    private AffineTransform camera = new AffineTransform();
+    private final AffineTransform camera = new AffineTransform();
 
     private void cameraControl(float[] player, double deltaTime){
         float xChange = 0.0f;

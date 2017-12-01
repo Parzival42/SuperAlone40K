@@ -64,8 +64,8 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
         canvas.createBufferStrategy(2);
         bufferStrategy = canvas.getBufferStrategy();
 
-        renderer = new Renderer();
         engine = new FlattenedEngine();
+        renderer = new Renderer(engine.getCamera());
         level = new Level(engine, canvas);
     }
 
