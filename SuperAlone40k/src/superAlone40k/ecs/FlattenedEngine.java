@@ -310,7 +310,7 @@ public class FlattenedEngine {
 
     private void lightingSystem(float[] lightSource, double deltaTime) {
     	final float[] player = Entities.getFirstPlayer();
-    	final Vector2 playerPosition = new Vector2(player[EntityIndex.POSITION_X.getIndex()], player[EntityIndex.POSITION_Y.getIndex()]);
+    	final Vector2 playerPosition = Entities.getPositionFor(player);
     	
     	// Set light position to player position
     	Entities.setPositionFor(lightSource, (float) playerPosition.x, (float) playerPosition.y);
@@ -410,7 +410,7 @@ public class FlattenedEngine {
     }
 
     private void calculateShadows(float[] lightEntity, Graphics2D graphics) {
-    	final Vector2 lightPosition = new Vector2(lightEntity[EntityIndex.POSITION_X.getIndex()], lightEntity[EntityIndex.POSITION_Y.getIndex()]);
+    	final Vector2 lightPosition = Entities.getPositionFor(lightEntity);
     	final Path2D.Double path = new Path2D.Double();
     	addRaysOfEntities(lightPosition);
     	
@@ -623,8 +623,7 @@ public class FlattenedEngine {
 
     private void respawn(float[] player){
         camera.setToTranslation(0.0d, 0.0d);
-        player[EntityIndex.POSITION_X.getIndex()] = 250;
-        player[EntityIndex.POSITION_Y.getIndex()] = 650;
+        Entities.setPositionFor(player, 250, 650);
         minPosX = 200.0f;
         maxPosX = 1000.0f;
     }

@@ -32,56 +32,57 @@ public class EntityCreator {
     private double triggerCollisionType;
     private double lifetime;
 
-    static{
+    static {
         entityBuffer = new float[2][EntityIndex.values().length];
         index = 0;
     }
 
-    public static EntityCreator getInstance(){
-        if(instance == null){
+    public static EntityCreator getInstance() {
+        if(instance == null) {
             instance = new EntityCreator();
         }
 
         return instance;
     }
 
-    private EntityCreator(){
+    private EntityCreator() {
         clear();
     }
 
-    public EntityCreator setEntityTypeID(int entityTypeID){
+    public EntityCreator setEntityTypeID(int entityTypeID) {
         this.entityTypeID = entityTypeID;
         return this;
     }
 
-    public EntityCreator setSystemMask(int systemMask){
+    public EntityCreator setSystemMask(int systemMask) {
         this.systemMask = systemMask;
         return this;
     }
 
-    public EntityCreator setPosition(Vector2 position){
+    public EntityCreator setPosition(Vector2 position) {
         return setPosition(position.x, position.y);
     }
 
-    public EntityCreator setPosition(double x, double y){
-        position.set(x,y);
+    public EntityCreator setPosition(double x, double y) {
+        position.set(x, y);
         return this;
     }
 
-    public EntityCreator setExtent(Vector2 extent){
+    public EntityCreator setExtent(Vector2 extent) {
         return setExtent(extent.x, extent.y);
     }
 
-    public EntityCreator setExtent(double x, double y){
-        extent.set(x,y);
+    public EntityCreator setExtent(double x, double y) {
+        extent.set(x, y);
         return this;
     }
 
-    public EntityCreator setColor(Color color){
-        return setColor(color.getRed()/255.0d, color.getGreen()/255.0d, color.getBlue()/255.0d, color.getAlpha()/255.0d);
+    public EntityCreator setColor(Color color) {
+		return setColor(color.getRed() / 255.0d, color.getGreen() / 255.0d, color.getBlue() / 255.0d,
+				color.getAlpha() / 255.0d);
     }
 
-    public EntityCreator setColor(double r, double g, double b, double a){
+    public EntityCreator setColor(double r, double g, double b, double a) {
         color[0] = (float) r;
         color[1] = (float) g;
         color[2] = (float) b;
@@ -89,101 +90,102 @@ public class EntityCreator {
         return this;
     }
 
-    public EntityCreator setAABBPosition(Vector2 aabbPosition){
+    public EntityCreator setAABBPosition(Vector2 aabbPosition) {
         return setAABBPosition(aabbPosition.x, aabbPosition.y);
     }
 
-    public EntityCreator setAABBPosition(double x, double y){
+    public EntityCreator setAABBPosition(double x, double y) {
         aabbPosition.set(x,y);
         return this;
     }
 
-    public EntityCreator setAABBExtent(Vector2 aabbExtent){
+    public EntityCreator setAABBExtent(Vector2 aabbExtent) {
         return setAABBExtent(aabbExtent.x, aabbExtent.y);
     }
 
-    public EntityCreator setAABBExtent(double x, double y){
+    public EntityCreator setAABBExtent(double x, double y) {
         aabbExtent.set(x,y);
         return this;
     }
 
-    public EntityCreator setCollisionType(double collisionType){
+    public EntityCreator setCollisionType(double collisionType) {
         this.collisionType = collisionType;
         return this;
     }
 
-    public EntityCreator setVelocity(Vector2 velocity){
+    public EntityCreator setVelocity(Vector2 velocity) {
         return setVelocity(velocity.x, velocity.y);
     }
 
-    public EntityCreator setVelocity(double x, double y){
+    public EntityCreator setVelocity(double x, double y) {
         velocity.set(x,y);
         return this;
     }
 
-    public EntityCreator setGravitationInfluence(double gravitationInfluence){
+    public EntityCreator setGravitationInfluence(double gravitationInfluence) {
         this.gravitationInfluence = gravitationInfluence;
         return this;
     }
 
-    public EntityCreator setDrag(double drag){
+    public EntityCreator setDrag(double drag) {
         this.drag = drag;
         return this;
     }
 
-    public EntityCreator setBorderOrigin(Vector2 borderOrigin){
+    public EntityCreator setBorderOrigin(Vector2 borderOrigin) {
         return setBorderOrigin(borderOrigin.x, borderOrigin.y);
     }
 
-    public EntityCreator setBorderOrigin(double x, double y){
+    public EntityCreator setBorderOrigin(double x, double y) {
         borderOrigin.set(x,y);
         return this;
     }
 
-    public EntityCreator setBorderDirection(Vector2 borderDirection){
+    public EntityCreator setBorderDirection(Vector2 borderDirection) {
         return setBorderDirection(borderDirection.x, borderDirection.y);
     }
 
-    public EntityCreator setBorderDirection(double x, double y){
+    public EntityCreator setBorderDirection(double x, double y) {
         borderDirection.set(x,y);
         return this;
     }
 
-    public EntityCreator setTriggerPosition(Vector2 triggerPosition){
+    public EntityCreator setTriggerPosition(Vector2 triggerPosition) {
         return setTriggerPosition(triggerPosition.x, triggerPosition.y);
     }
 
-    public EntityCreator setTriggerPosition(double x, double y){
+    public EntityCreator setTriggerPosition(double x, double y) {
         triggerPosition.set(x,y);
         return this;
     }
 
-    public EntityCreator setTriggerExtent(Vector2 triggerExtent){
+    public EntityCreator setTriggerExtent(Vector2 triggerExtent) {
         return setTriggerExtent(triggerExtent.x, triggerExtent.y);
     }
 
-    public EntityCreator setTriggerExtent(double x, double y){
-        triggerExtent.set(x,y);
+    public EntityCreator setTriggerExtent(double x, double y) {
+        triggerExtent.set(x, y);
         return this;
     }
 
-    public EntityCreator setTriggerCollisionType(double collisionType){
+    public EntityCreator setTriggerCollisionType(double collisionType) {
         this.triggerCollisionType = collisionType;
         return this;
     }
 
-    public EntityCreator setLifetime(double lifetime){
+    public EntityCreator setLifetime(double lifetime) {
         this.lifetime = lifetime;
         return this;
     }
 
-    public float[] create(){
+    public float[] create() {
         float[] entity = new float[EntityIndex.values().length];
 
         entity[EntityIndex.ENTITY_TYPE_ID.getIndex()] = entityTypeID;
         entity[EntityIndex.SYSTEM_MASK.getIndex()] = systemMask;
-        entity[EntityIndex.POSITION_X.getIndex()] = (float) position.x;
-        entity[EntityIndex.POSITION_Y.getIndex()] = (float) position.y;
+        Entities.setPositionFor(entity, (float) position.x, (float) position.y);
+//        entity[EntityIndex.POSITION_X.getIndex()] = (float) position.x;
+//        entity[EntityIndex.POSITION_Y.getIndex()] = (float) position.y;
         entity[EntityIndex.EXTENT_X.getIndex()] = (float) extent.x;
         entity[EntityIndex.EXTENT_Y.getIndex()] = (float) extent.y;
         entity[EntityIndex.COLOR_R.getIndex()] = color[0];
@@ -215,8 +217,6 @@ public class EntityCreator {
         return entity;
     }
 
-
-
     private void clear(){
         entityTypeID = -1;
         systemMask = 0b0;
@@ -235,6 +235,5 @@ public class EntityCreator {
         triggerExtent = new Vector2();
         triggerCollisionType = 0.0f;
         lifetime = 0.0f;
-
     }
 }
