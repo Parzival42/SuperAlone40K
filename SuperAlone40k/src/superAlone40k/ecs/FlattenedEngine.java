@@ -24,8 +24,8 @@ public class FlattenedEngine {
     private ArrayList<float[]> entitiesToAdd = new ArrayList<>();
     private ArrayList<float[]> entitiesToDelete = new ArrayList<>();
 
-    private int[] systemBitmasks = new int[] { SystemBitmask.HORIZONTAL_MOVEMENT.getSystemMask(), SystemBitmask.VERTICAL_MOVEMENT.getSystemMask(), SystemBitmask.INPUT.getSystemMask(), SystemBitmask.COLLIDER_SORTING.getSystemMask(), SystemBitmask.MOVEMENT_SYSTEM.getSystemMask(), SystemBitmask.LIGHT_SYSTEM.getSystemMask(), SystemBitmask.TRIGGER_SYSTEM.getSystemMask(), SystemBitmask.LIFETIME_SYSTEM.getSystemMask(), SystemBitmask.CHECKPOINT_SYSTEM.getSystemMask() };
-    private SystemMethod[] systemMethods = new SystemMethod[]{FlattenedEngine::simpleHorizontalMovement,  FlattenedEngine::simpleVerticalMovement, FlattenedEngine::inputProcessing, FlattenedEngine::colliderSorting, FlattenedEngine::movementSystem, FlattenedEngine::lightingSystem, FlattenedEngine::triggerSystem, FlattenedEngine::lifetimeSystem, FlattenedEngine::checkpointSystem};
+    private int[] systemBitmasks = new int[] { SystemBitmask.HORIZONTAL_MOVEMENT.getSystemMask(), SystemBitmask.VERTICAL_MOVEMENT.getSystemMask(), SystemBitmask.INPUT.getSystemMask(), SystemBitmask.COLLIDER_SORTING.getSystemMask(), SystemBitmask.MOVEMENT_SYSTEM.getSystemMask(), SystemBitmask.LIGHT_SYSTEM.getSystemMask(), SystemBitmask.TRIGGER_SYSTEM.getSystemMask(), SystemBitmask.LIFETIME_SYSTEM.getSystemMask(), SystemBitmask.CHECKPOINT_SYSTEM.getSystemMask(), SystemBitmask.CLEANUP_SYSTEM.getSystemMask() };
+    private SystemMethod[] systemMethods = new SystemMethod[]{FlattenedEngine::simpleHorizontalMovement,  FlattenedEngine::simpleVerticalMovement, FlattenedEngine::inputProcessing, FlattenedEngine::colliderSorting, FlattenedEngine::movementSystem, FlattenedEngine::lightingSystem, FlattenedEngine::triggerSystem, FlattenedEngine::lifetimeSystem, FlattenedEngine::checkpointSystem, FlattenedEngine::cleanupSystem};
 
     private final TreeSet<Ray> angleSortedRays = new TreeSet<>();
     
@@ -90,7 +90,6 @@ public class FlattenedEngine {
         //general update
         performCollisionDetection();
         rainSystem(deltaTime*currentTimeScale*currentTimeScale);
-        cleanupSystem();
     }
 
 	public void addEntity(float[] entity){
@@ -768,18 +767,10 @@ public class FlattenedEngine {
     //endregion
 
     //region Cleanup System
-    private void cleanupSystem(){
+    private void cleanupSystem(float[] entity, double deltaTime){
         double tolerance = camera.getTranslateX();
-        System.out.println("camera x: " + tolerance);
-        for(int i = 0; i < entities.size(); i++){
-            final float[] entity = entities.get(i);
-            
-            // Don't delete screen borders!
-            if(!isBitmaskValid(EntityType.SCREEN_BORDER.getEntityType(), (int) entity[EntityIndex.ENTITY_TYPE_ID.getIndex()])) {
-            	if(entity[EntityIndex.POSITION_X.getIndex()] + entity[EntityIndex.EXTENT_X.getIndex()] < -tolerance){
-            		removeEntity(entity);
-            	}
-            }
+        if(entity[EntityIndex.POSITION_X.getIndex()] + entity[EntityIndex.EXTENT_X.getIndex()] < -tolerance){
+            removeEntity(entity);
         }
     }
     //endregion

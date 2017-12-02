@@ -100,7 +100,7 @@ public class Entities {
 
         final float[] entity = EntityCreator.getInstance()
                 .setEntityTypeID(EntityType.RAIN_DROP.getEntityType())
-                .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.MOVEMENT_SYSTEM.getSystemMask())
+                .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.MOVEMENT_SYSTEM.getSystemMask() | SystemBitmask.CLEANUP_SYSTEM.getSystemMask())
                 .setPosition(position)
                 .setExtent(extent)
                 .setColor(new Color(89 / 255.0f, 106 / 255.0f, 126 / 255.0f, 0.12f + (float) random.nextDouble() * 0.12f))
@@ -120,7 +120,7 @@ public class Entities {
     public static float[] createSplatterParticle(Vector2 position, Vector2 velocity){
         float[] entity = EntityCreator.getInstance()
                 .setEntityTypeID(EntityType.RAIN_DROP_SPLATTER.getEntityType())
-                .setSystemMask(SystemBitmask.MOVEMENT_SYSTEM.getSystemMask() | SystemBitmask.COLLIDER_SORTING.getSystemMask())
+                .setSystemMask(SystemBitmask.MOVEMENT_SYSTEM.getSystemMask() | SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.CLEANUP_SYSTEM.getSystemMask())
                 .setPosition(position)
                 .setExtent(RAIN_SPLATTER_EXTENT)
                 .setColor(new Color(89 / 255.0f, 106 / 255.0f, 128 / 255.0f, 0.12f + (float) random.nextDouble() * 0.09f))
@@ -140,7 +140,7 @@ public class Entities {
     public static float[] createPlatform(Vector2 position, Vector2 extent){
         float[] entity = EntityCreator.getInstance()
                 .setEntityTypeID(EntityType.BOX_SHADOW.getEntityType())
-                .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask())
+                .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.CLEANUP_SYSTEM.getSystemMask())
                 .setPosition(position)
                 .setExtent(extent)
                 .setColor(new Color(24/255.0f, 32/255.0f, 44/255.0f, 1.0f))
@@ -158,7 +158,7 @@ public class Entities {
 
         float[] entity = EntityCreator.getInstance()
                 .setEntityTypeID(EntityType.BULLET.getEntityType() | EntityType.BOX_SHADOW.getEntityType())
-                .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.MOVEMENT_SYSTEM.getSystemMask() | SystemBitmask.LIFETIME_SYSTEM.getSystemMask())
+                .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.MOVEMENT_SYSTEM.getSystemMask() | SystemBitmask.LIFETIME_SYSTEM.getSystemMask() | SystemBitmask.CLEANUP_SYSTEM.getSystemMask())
                 .setPosition(position)
                 .setExtent(extent)
                 .setColor(new Color(1.0f, 1.0f, 1.0f,1.0f))
@@ -177,7 +177,7 @@ public class Entities {
     public static float[] createHorizontalMovingParticle(Vector2 position){
         float[] entity = EntityCreator.getInstance()
                 .setEntityTypeID(EntityType.NONE.getEntityType())
-                .setSystemMask(SystemBitmask.HORIZONTAL_MOVEMENT.getSystemMask())
+                .setSystemMask(SystemBitmask.HORIZONTAL_MOVEMENT.getSystemMask() | SystemBitmask.CLEANUP_SYSTEM.getSystemMask())
                 .setPosition(position)
                 .setExtent(new Vector2(5,5))
                 .setColor(new Color(1.0f,1.0f,1.0f, 0.05f))
@@ -193,7 +193,7 @@ public class Entities {
 
         float[] entity = EntityCreator.getInstance()
                 .setEntityTypeID(EntityType.CHECKPOINT.getEntityType())
-                .setSystemMask(SystemBitmask.TRIGGER_SYSTEM.getSystemMask() | SystemBitmask.CHECKPOINT_SYSTEM.getSystemMask())
+                .setSystemMask(SystemBitmask.TRIGGER_SYSTEM.getSystemMask() | SystemBitmask.CHECKPOINT_SYSTEM.getSystemMask() | SystemBitmask.CLEANUP_SYSTEM.getSystemMask())
                 .setPosition(position)
                 .setExtent(extent)
                 .setColor(new Color(1.0f,1.0f,1.0f, 0.05f))
