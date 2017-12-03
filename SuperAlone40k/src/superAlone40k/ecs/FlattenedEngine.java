@@ -225,18 +225,20 @@ public class FlattenedEngine {
         //first jump
         if(isGrounded && isJumpRequested){
             //TODO: uncomment to see easeing in action
-           /*ArrayList<float[]> playerList = new ArrayList<>();
+            ArrayList<float[]> playerList = new ArrayList<>();
             playerList.add(player);
 
-            TweenEngine.getInstance().tween(playerList.get(0), EntityIndex.EXTENT_X.getIndex(), 40, 0.3f, Easing.Type.ElasticEaseOut, false);
-            TweenEngine.getInstance().tween(playerList.get(0), EntityIndex.EXTENT_Y.getIndex(), 80, 0.3f, Easing.Type.ElasticEaseOut, false);
-
-            TweenEngine.getInstance().tween(playerList.get(0), EntityIndex.AABB_EXTENT_X.getIndex(), 40, 0.3f, Easing.Type.ElasticEaseOut, false);
-            TweenEngine.getInstance().tween(playerList.get(0), EntityIndex.AABB_EXTENT_Y.getIndex(), 80, 0.3f, Easing.Type.ElasticEaseOut, false);*/
+            TweenEngine.getInstance()
+                    .tween(playerList.get(0), EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),35, 0.2f, Easing.Type.SineEaseInOut)
+                    .notifyTweenFinished(() -> { System.out.println("Player jumped"); /*TODO: make player jump at this exact time*/ })
+                    .tween(playerList.get(0), EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),45, 0.2f, Easing.Type.SineEaseInOut)
+                    .tween(playerList.get(0), EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),40, 0.2f, Easing.Type.SineEaseInOut)
+                    .start();
 
             player[EntityIndex.VELOCITY_Y.getIndex()] = -jumpStrength;
             isJumping = true;
             isJumpRequested = false;
+
         }
 
         //second jump
