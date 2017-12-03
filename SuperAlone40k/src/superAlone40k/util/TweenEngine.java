@@ -6,6 +6,7 @@ public class TweenEngine {
 
     public class TweenObject {
         private boolean set;
+        private boolean delay;
         private float[] entity;
         private int indexToTween;
         private int boundingBoxToTween;
@@ -48,6 +49,11 @@ public class TweenEngine {
 
         public TweenObject reverse() {
             return this.tween(prevTweenObject.entity, prevTweenObject.indexToTween, prevTweenObject.boundingBoxToTween, prevTweenObject.beginning, prevTweenObject.duration, prevTweenObject.easingType);
+        }
+
+        public TweenObject delay(float duration) {
+            this.delay = true;
+            return this.tween(prevTweenObject.entity, prevTweenObject.indexToTween, prevTweenObject.boundingBoxToTween, prevTweenObject.beginning, duration, prevTweenObject.easingType);
         }
 
         /*public TweenObject reverse(float duration, Easing.Type type) {
@@ -94,9 +100,11 @@ public class TweenEngine {
         for (int i = 0; i < tweenObjects.size(); i++) {
             TweenObject tweenObject = tweenObjects.get(i);
 
-            tweenObject.entity[tweenObject.indexToTween] = Easing.updateEasing(tweenObject.easingType, tweenObject.time, tweenObject.beginning, tweenObject.end, tweenObject.duration);
-            if (tweenObject.boundingBoxToTween != -1) {
-                tweenObject.entity[tweenObject.boundingBoxToTween] = tweenObject.entity[tweenObject.indexToTween];
+            if (!tweenObject.delay) {
+                tweenObject.entity[tweenObject.indexToTween] = Easing.updateEasing(tweenObject.easingType, tweenObject.time, tweenObject.beginning, tweenObject.end, tweenObject.duration);
+                if (tweenObject.boundingBoxToTween != -1) {
+                    tweenObject.entity[tweenObject.boundingBoxToTween] = tweenObject.entity[tweenObject.indexToTween];
+                }
             }
 
             if (tweenObject.time + deltaTime > tweenObject.duration) {
