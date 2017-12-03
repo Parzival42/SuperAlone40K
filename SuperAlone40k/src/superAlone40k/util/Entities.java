@@ -34,7 +34,7 @@ public class Entities {
         float[] player = EntityCreator.getInstance()
                 .setEntityTypeID(/*EntityType.BOX_SHADOW.getEntityType() | */EntityType.PLAYER.getEntityType())
                 .setSystemMask(SystemBitmask.INPUT.getSystemMask() | SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.TRIGGER_SYSTEM.getSystemMask())
-                .setPosition(new Vector2(250,650))
+                .setPosition(new Vector2(450,300))
                 .setExtent(extent)
                 .setColor(new Color(218/255.0f, 94/255.0f, 92/255.0f, 1.0f))
                 .setAABBExtent(extent)
@@ -158,7 +158,7 @@ public class Entities {
 
         float[] entity = EntityCreator.getInstance()
                 .setEntityTypeID(EntityType.BULLET.getEntityType() | EntityType.BOX_SHADOW.getEntityType())
-                .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.MOVEMENT_SYSTEM.getSystemMask() | SystemBitmask.LIFETIME_SYSTEM.getSystemMask() | SystemBitmask.CLEANUP_SYSTEM.getSystemMask())
+                .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.MOVEMENT_SYSTEM.getSystemMask() | SystemBitmask.CLEANUP_SYSTEM.getSystemMask())
                 .setPosition(position)
                 .setExtent(extent)
                 .setColor(new Color(1.0f, 1.0f, 1.0f,1.0f))
