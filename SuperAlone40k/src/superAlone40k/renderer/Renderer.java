@@ -37,7 +37,7 @@ public class Renderer {
     			new Point2D.Float(radialWidth / 2, radialHeight / 2),
     			650f,
     			new float[] {0.2f, 0.9f},
-    			new Color[] {new Color(42, 57, 76), new Color(34, 46, 61)});
+    			new Color[] {new Color(37, 51, 67), new Color(46, 61, 83)});
     	
     	backgroundRadial = createGradientImage(radialWidth, radialHeight, radialGradient);
     }
