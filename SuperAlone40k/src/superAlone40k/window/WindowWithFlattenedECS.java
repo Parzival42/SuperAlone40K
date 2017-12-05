@@ -174,17 +174,20 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
 
     @Override
     public void keyTyped(KeyEvent e) {
+    	e.consume();
         //pff
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
         keys[e.getKeyCode()] = true;
+        e.consume();
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
         keys[e.getKeyCode()] = false;
+        e.consume();
     }
 
     private float quadEase(float t){
