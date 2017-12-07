@@ -518,7 +518,7 @@ public class FlattenedEngine {
     //region Collision Check AABB
 
     //death zone height
-    double deathZoneHeight = 1500;
+    double deathZoneHeight = 1000;
 
     private void collisionCheckAABB(float[] entity1, float[] entity2) {
     	float xOverlap = 
@@ -624,7 +624,11 @@ public class FlattenedEngine {
                 removeEntity(toDelete);
             }
         }else if(entity1[EntityIndex.POSITION_Y.getIndex()] > deathZoneHeight){
-    	    removeEntity(entity1);
+    	    if(isBitmaskValid(EntityType.PLAYER.getEntityType(), (int) entity1[EntityIndex.ENTITY_TYPE_ID.getIndex()])){
+                respawnPlayer(entity1);
+            }else{
+                removeEntity(entity1);
+            }
         }
     }
     //endregion
