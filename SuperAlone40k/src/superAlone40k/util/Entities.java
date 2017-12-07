@@ -105,7 +105,7 @@ public class Entities {
                 .setExtent(extent)
                 .setColor(new Color(89 / 255.0f, 106 / 255.0f, 126 / 255.0f, 0.12f + (float) random.nextDouble() * 0.12f))
                 .setAABBPosition(new Vector2(0, extent.y/2.0f))
-                .setAABBExtent(extent.x, extent.y/2.0f)
+                .setAABBExtent(new Vector2(extent.x, extent.y/2.0f))
                 .setCollisionType(1.0d)
                 .setVelocity(velocity)
                 .setGravitationInfluence(1.0f)
@@ -206,7 +206,27 @@ public class Entities {
         return entity;
     }
     //endregion
-    
+
+    //region moving platforms
+    public static float[] createMovingPlatform(Vector2 position, Vector2 extent, Vector2 velocity, Vector2 movementRangeMin, Vector2 movementRangeMax){
+        float[] entity = EntityCreator.getInstance()
+                .setEntityTypeID(EntityType.BOX_SHADOW.getEntityType())
+                .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.PLATFORM_MOVEMENT_SYSTEM.getSystemMask() | SystemBitmask.MOVEMENT_SYSTEM.getSystemMask())
+                .setPosition(position)
+                .setExtent(extent)
+                .setColor(new Color(24/255.0f, 32/255.0f, 44/255.0f, 1.0f))
+                .setAABBExtent(extent)
+                .setCollisionType(0.0f)
+                .setVelocity(velocity)
+                .setDrag(1.0f)
+                .setPlatformRangeMin(movementRangeMin)
+                .setPlatformRangeMax(movementRangeMax)
+                .create();
+
+        return entity;
+    }
+    //endregion
+
     //region Entity specific util methods
     /**
      * Sets the position for the given entity.

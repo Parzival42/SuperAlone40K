@@ -38,6 +38,8 @@ public class Level {
 
         engine.addEntity(Entities.createLight());
 
+        engine.addEntity(Entities.createMovingPlatform(new Vector2(400.0f, 500.0f), new Vector2(50,10), new Vector2(200.0f,0.0f), new Vector2(200.0f,500.0f), new Vector2(600.0f, 500.0f)));
+
     }
 
     public void update(double deltaTime){

@@ -38,7 +38,12 @@ public enum EntityIndex {
 	TRIGGER_EXIT(30),
 	TRIGGER_OBJECT_TYPE(31),
 
-	LIFETIME(32);
+	LIFETIME(32),
+
+	PLATFORM_RANGE_MIN_X(33),
+	PLATFORM_RANGE_MIN_Y(34),
+	PLATFORM_RANGE_MAX_X(35),
+	PLATFORM_RANGE_MAX_Y(36);
 
 	private final int index;
 	EntityIndex(final int index) {

@@ -24,8 +24,8 @@ public class FlattenedEngine {
     private ArrayList<float[]> entitiesToAdd = new ArrayList<>();
     private ArrayList<float[]> entitiesToDelete = new ArrayList<>();
 
-    private int[] systemBitmasks = new int[] { SystemBitmask.HORIZONTAL_MOVEMENT.getSystemMask(), SystemBitmask.VERTICAL_MOVEMENT.getSystemMask(), SystemBitmask.INPUT.getSystemMask(), SystemBitmask.COLLIDER_SORTING.getSystemMask(), SystemBitmask.MOVEMENT_SYSTEM.getSystemMask(), SystemBitmask.LIGHT_SYSTEM.getSystemMask(), SystemBitmask.TRIGGER_SYSTEM.getSystemMask(), SystemBitmask.LIFETIME_SYSTEM.getSystemMask(), SystemBitmask.CHECKPOINT_SYSTEM.getSystemMask(), SystemBitmask.CLEANUP_SYSTEM.getSystemMask() };
-    private SystemMethod[] systemMethods = new SystemMethod[]{FlattenedEngine::simpleHorizontalMovement,  FlattenedEngine::simpleVerticalMovement, FlattenedEngine::inputProcessing, FlattenedEngine::colliderSorting, FlattenedEngine::movementSystem, FlattenedEngine::lightingSystem, FlattenedEngine::triggerSystem, FlattenedEngine::lifetimeSystem, FlattenedEngine::checkpointSystem, FlattenedEngine::cleanupSystem};
+    private int[] systemBitmasks = new int[] { SystemBitmask.HORIZONTAL_MOVEMENT.getSystemMask(), SystemBitmask.VERTICAL_MOVEMENT.getSystemMask(), SystemBitmask.INPUT.getSystemMask(), SystemBitmask.COLLIDER_SORTING.getSystemMask(), SystemBitmask.MOVEMENT_SYSTEM.getSystemMask(), SystemBitmask.LIGHT_SYSTEM.getSystemMask(), SystemBitmask.TRIGGER_SYSTEM.getSystemMask(), SystemBitmask.LIFETIME_SYSTEM.getSystemMask(), SystemBitmask.CHECKPOINT_SYSTEM.getSystemMask(), SystemBitmask.CLEANUP_SYSTEM.getSystemMask(), SystemBitmask.PLATFORM_MOVEMENT_SYSTEM.getSystemMask() };
+    private SystemMethod[] systemMethods = new SystemMethod[]{FlattenedEngine::simpleHorizontalMovement,  FlattenedEngine::simpleVerticalMovement, FlattenedEngine::inputProcessing, FlattenedEngine::colliderSorting, FlattenedEngine::movementSystem, FlattenedEngine::lightingSystem, FlattenedEngine::triggerSystem, FlattenedEngine::lifetimeSystem, FlattenedEngine::checkpointSystem, FlattenedEngine::cleanupSystem, FlattenedEngine::platformMovementSystem};
 
     private final TreeSet<Ray> angleSortedRays = new TreeSet<>();
     
@@ -799,6 +799,28 @@ public class FlattenedEngine {
         double tolerance = camera.getTranslateX();
         if(entity[EntityIndex.POSITION_X.getIndex()] + entity[EntityIndex.EXTENT_X.getIndex()] < -tolerance){
             removeEntity(entity);
+        }
+    }
+    //endregion
+
+    //region Platform Movement System
+    private void platformMovementSystem(float[] entity, double deltaTime){
+        float tolerance = 0.55f;
+
+        if(entity[EntityIndex.POSITION_X.getIndex()] < entity[EntityIndex.PLATFORM_RANGE_MIN_X.getIndex()] - tolerance){
+            entity[EntityIndex.POSITION_X.getIndex()] = entity[EntityIndex.PLATFORM_RANGE_MIN_X.getIndex()];
+            entity[EntityIndex.VELOCITY_X.getIndex()] = -entity[EntityIndex.VELOCITY_X.getIndex()];
+        }else if(entity[EntityIndex.POSITION_X.getIndex()] > entity[EntityIndex.PLATFORM_RANGE_MAX_X.getIndex()] + tolerance){
+            entity[EntityIndex.POSITION_X.getIndex()] = entity[EntityIndex.PLATFORM_RANGE_MAX_X.getIndex()];
+            entity[EntityIndex.VELOCITY_X.getIndex()] = -entity[EntityIndex.VELOCITY_X.getIndex()];
+        }
+
+        if(entity[EntityIndex.POSITION_Y.getIndex()] < entity[EntityIndex.PLATFORM_RANGE_MIN_Y.getIndex()] - tolerance){
+            entity[EntityIndex.POSITION_Y.getIndex()] = entity[EntityIndex.PLATFORM_RANGE_MIN_Y.getIndex()];
+            entity[EntityIndex.VELOCITY_Y.getIndex()] = -entity[EntityIndex.VELOCITY_Y.getIndex()];
+        }else if(entity[EntityIndex.POSITION_Y.getIndex()] > entity[EntityIndex.PLATFORM_RANGE_MAX_Y.getIndex()] + tolerance){
+            entity[EntityIndex.POSITION_Y.getIndex()] = entity[EntityIndex.PLATFORM_RANGE_MAX_Y.getIndex()];
+            entity[EntityIndex.VELOCITY_Y.getIndex()] = -entity[EntityIndex.VELOCITY_Y.getIndex()];
         }
     }
     //endregion
