@@ -211,12 +211,15 @@ public class Entities {
     public static float[] createMovingPlatform(Vector2 position, Vector2 extent, Vector2 velocity, Vector2 movementRangeMin, Vector2 movementRangeMax){
         float[] entity = EntityCreator.getInstance()
                 .setEntityTypeID(EntityType.BOX_SHADOW.getEntityType())
-                .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.PLATFORM_MOVEMENT_SYSTEM.getSystemMask() | SystemBitmask.MOVEMENT_SYSTEM.getSystemMask())
+                .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.PLATFORM_MOVEMENT_SYSTEM.getSystemMask() | SystemBitmask.MOVEMENT_SYSTEM.getSystemMask() | SystemBitmask.TRIGGER_SYSTEM.getSystemMask())
                 .setPosition(position)
                 .setExtent(extent)
                 .setColor(new Color(24/255.0f, 32/255.0f, 44/255.0f, 1.0f))
                 .setAABBExtent(extent)
                 .setCollisionType(0.0f)
+                .setTriggerPosition(new Vector2(0.0f, -extent.y/2.0f))
+                .setTriggerExtent(extent)
+                .setTriggerCollisionType(2.0f) //triggered only by player entity
                 .setVelocity(velocity)
                 .setDrag(1.0f)
                 .setPlatformRangeMin(movementRangeMin)

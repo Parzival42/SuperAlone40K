@@ -24,9 +24,10 @@ public class Level {
     private float cameraOffset;
 
     private ArrayList<Integer> indexHistory = new ArrayList<>();
-    private ArrayList<float[]> entityHistory = new ArrayList<>();
+    private ArrayList<Float> sectorWidthHistory = new ArrayList<>();
 
-    private int heightGridSteps;
+    private int cellHeight;
+    private int cellAmount = 24;
 
     private int windowWidth;
     private int windowHeight;
@@ -38,17 +39,15 @@ public class Level {
         windowWidth = canvas.getWidth();
         windowHeight = canvas.getHeight();
 
-        cameraOffset = -1.5f * windowWidth;
-        heightGridSteps = windowHeight/8;
+        cameraOffset = -3.0f * windowWidth;
+        cellHeight = windowHeight/cellAmount;
 
         init();
     }
 
     private void init() {
 
-        createSampleFloorEntities();
-        //createSampleBulletEntities();
-        createCheckpoint();
+        //createCheckpoint();
         engine.addEntity(Entities.createPlayer());
 
         // Left top to Bottom left
@@ -65,7 +64,7 @@ public class Level {
 
         engine.addEntity(Entities.createLight());
 
-        engine.addEntity(Entities.createMovingPlatform(new Vector2(400.0f, 500.0f), new Vector2(50,10), new Vector2(200.0f,0.0f), new Vector2(200.0f,500.0f), new Vector2(600.0f, 500.0f)));
+        //engine.addEntity(Entities.createMovingPlatform(new Vector2(400.0f, 500.0f), new Vector2(50,10), new Vector2(200.0f,0.0f), new Vector2(200.0f,500.0f), new Vector2(600.0f, 500.0f)));
 
 
         for(int i = 0; i < sectorProbability.length; i++){
@@ -86,7 +85,13 @@ public class Level {
         //TODO: do useful stuff
     }
 
+
+
+
     private void refineSectors(FlattenedEngine engine) {
+
+
+
     }
 
     private void generateNextSector(FlattenedEngine engine) {
@@ -106,7 +111,7 @@ public class Level {
             }
         }
 
-        System.out.println("Index: " + index);
+        //System.out.println("Index: " + index);
 
         switch(index){
             case 0: createPlatformSector(engine, sectorWidth); break;
@@ -121,6 +126,8 @@ public class Level {
                 if(count > 3){
                     System.out.println("Index change requested");
                     createPlatformSector(engine, sectorWidth);
+                    index = 0;
+                    addMovingPlatform(new Vector2(currentSectorPosition- (3*sectorWidth),500), new Vector2(currentSectorPosition, 500));
                 }
                 break;
 
@@ -128,17 +135,25 @@ public class Level {
         }
 
 
-        if(indexHistory.size() > 4){
+        if(indexHistory.size() > 3){
             indexHistory.remove(0);
+            sectorWidthHistory.remove(0);
         }
         indexHistory.add(index);
+        sectorWidthHistory.add(sectorWidth);
 
         currentSectorPosition += sectorWidth;
     }
 
+    private void addMovingPlatform(Vector2 min, Vector2 max){
+        engine.addEntity(Entities.createMovingPlatform(min, new Vector2(75,15), new Vector2(200,0), min, max));
+    }
+
 
     private void createPlatformSector(FlattenedEngine engine, float sectorWidth){
-        engine.addEntity(Entities.createPlatform(new Vector2(currentSectorPosition+sectorWidth/2, (int)(windowHeight*0.9f+random.nextFloat()*windowHeight*0.2f)/heightGridSteps * heightGridSteps), new Vector2(sectorWidth/2, 15)));
+        int step = Math.min(Math.round((windowHeight*0.9f+random.nextFloat()*windowHeight*0.2f)/ cellHeight)-1, cellAmount-1);
+        int height = (cellAmount - step) * cellHeight;
+        engine.addEntity(Entities.createPlatform(new Vector2(currentSectorPosition+sectorWidth/2.0f,(step * cellHeight )+  (height/2.0f)), new Vector2(sectorWidth/2.0f+1.5f, height)));
     }
 
 
@@ -164,15 +179,5 @@ public class Level {
         }
     }
 
-    private void createSampleFloorEntities() {
-		final Vector2 position = new Vector2(600, canvas.getHeight() - 15);
-        final Vector2 extent = new Vector2(500, 15);
-        engine.addEntity(Entities.createPlatform(position, extent));
 
-		final Vector2 platformExtent = new Vector2(100, 10);
-		for (int j = 0; j < 6; j++) {
-			Vector2 platformPosition = new Vector2((175.0f) + j * 450.0f, canvas.getHeight() - 305);
-			engine.addEntity(Entities.createPlatform(platformPosition, platformExtent));
-		}
-    }
 }

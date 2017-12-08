@@ -296,23 +296,27 @@ public class FlattenedEngine {
     }
 
     //camera control parameters
-    private float minPosX = 200.0f;
-    private float maxPosX = 1000.0f;
+    private float minPosX = 0.0f;
+    private float maxPosX = 700.0f;
+
+    private float previousX = 500.0f;
 
     private final AffineTransform camera = new AffineTransform();
 
     private void cameraControl(float[] player, double deltaTime){
         float xChange = 0.0f;
-        if(player[EntityIndex.POSITION_X.getIndex()] < minPosX && player[EntityIndex.VELOCITY_X.getIndex()] < 0.05f){
-            xChange = (float) (player[EntityIndex.VELOCITY_X.getIndex()] * deltaTime);
+        if(player[EntityIndex.POSITION_X.getIndex()] - player[EntityIndex.EXTENT_X.getIndex()] < minPosX){
+            player[EntityIndex.POSITION_X.getIndex()] = minPosX + player[EntityIndex.EXTENT_X.getIndex()];
 
-        }else if(player[EntityIndex.POSITION_X.getIndex()] > maxPosX && player[EntityIndex.VELOCITY_X.getIndex()] > 0.05f){
-            xChange = (float) (player[EntityIndex.VELOCITY_X.getIndex()]*deltaTime);
+        }else if(player[EntityIndex.POSITION_X.getIndex()] > maxPosX && player[EntityIndex.POSITION_X.getIndex()] > previousX){
+            xChange = player[EntityIndex.POSITION_X.getIndex()] - previousX;
         }
 
         camera.setToTranslation(camera.getTranslateX() - xChange, camera.getTranslateY());
         minPosX += xChange;
         maxPosX += xChange;
+
+        previousX = player[EntityIndex.POSITION_X.getIndex()];
     }
 
     public AffineTransform getCamera(){
@@ -704,7 +708,12 @@ public class FlattenedEngine {
     }
 
     private void triggerSystem(float[] trigger, double deltaTime){
-        ArrayList<float[]> colliders = trigger[EntityIndex.TRIGGER_COLLISION_TYPE.getIndex()] > 0.5f ? dynamicColliders : staticColliders;
+        ArrayList<float[]> colliders = (trigger[EntityIndex.TRIGGER_COLLISION_TYPE.getIndex()] > 0.5f) ? dynamicColliders : staticColliders;
+
+        if(trigger[EntityIndex.TRIGGER_COLLISION_TYPE.getIndex()] > 1.5f){
+            colliders.clear();
+            colliders.add(Entities.getFirstPlayer());
+        }
 
         for(int i = 0; i < colliders.size(); i++){
             if(colliders.get(i)!= trigger && checkForTriggerOverlap(trigger, colliders.get(i))){
@@ -809,7 +818,7 @@ public class FlattenedEngine {
 
     //region Platform Movement System
     private void platformMovementSystem(float[] entity, double deltaTime){
-        float tolerance = 0.55f;
+        float tolerance = 0.5f;
 
         if(entity[EntityIndex.POSITION_X.getIndex()] < entity[EntityIndex.PLATFORM_RANGE_MIN_X.getIndex()] - tolerance){
             entity[EntityIndex.POSITION_X.getIndex()] = entity[EntityIndex.PLATFORM_RANGE_MIN_X.getIndex()];
@@ -826,6 +835,15 @@ public class FlattenedEngine {
             entity[EntityIndex.POSITION_Y.getIndex()] = entity[EntityIndex.PLATFORM_RANGE_MAX_Y.getIndex()];
             entity[EntityIndex.VELOCITY_Y.getIndex()] = -entity[EntityIndex.VELOCITY_Y.getIndex()];
         }
+
+        if(entity[EntityIndex.TRIGGER_OBJECT_TYPE.getIndex()] == EntityType.PLAYER.entityType){
+            double scaledDeltaTime = deltaTime * currentTimeScale;
+            float[] player = Entities.getFirstPlayer();
+            player[EntityIndex.POSITION_X.getIndex()] += entity[EntityIndex.VELOCITY_X.getIndex()] * scaledDeltaTime;
+            player[EntityIndex.POSITION_Y.getIndex()] += entity[EntityIndex.VELOCITY_Y.getIndex()] * scaledDeltaTime;
+            System.out.println("player moved with platform");
+        }
+
     }
     //endregion
 }
