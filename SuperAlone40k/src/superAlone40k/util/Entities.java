@@ -123,7 +123,7 @@ public class Entities {
                 .setSystemMask(SystemBitmask.MOVEMENT_SYSTEM.getSystemMask() | SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.CLEANUP_SYSTEM.getSystemMask())
                 .setPosition(position)
                 .setExtent(RAIN_SPLATTER_EXTENT)
-                .setColor(new Color(89 / 255.0f, 106 / 255.0f, 128 / 255.0f, 0.12f + (float) random.nextDouble() * 0.09f))
+                .setColor(new Color(89 / 255.0f, 106 / 255.0f, 128 / 255.0f, 0.16f + (float) random.nextDouble() * 0.12f))
                 .setAABBPosition(new Vector2(0, 0))
                 .setAABBExtent(RAIN_SPLATTER_EXTENT)
                 .setCollisionType(1.0d)
@@ -181,26 +181,6 @@ public class Entities {
                 .setPosition(position)
                 .setExtent(new Vector2(5,5))
                 .setColor(new Color(1.0f,1.0f,1.0f, 0.05f))
-                .create();
-
-        return entity;
-    }
-    //endregion
-
-    //region Checkpoint
-    public static float[] createCheckpoint(Vector2 position){
-        Vector2 extent = new Vector2(50,120);
-
-        float[] entity = EntityCreator.getInstance()
-                .setEntityTypeID(EntityType.CHECKPOINT.getEntityType())
-                .setSystemMask(SystemBitmask.TRIGGER_SYSTEM.getSystemMask() | SystemBitmask.CHECKPOINT_SYSTEM.getSystemMask() | SystemBitmask.CLEANUP_SYSTEM.getSystemMask())
-                .setPosition(position)
-                .setExtent(extent)
-                .setColor(new Color(1.0f,1.0f,1.0f, 0.05f))
-                .setAABBExtent(new Vector2())
-                .setCollisionType(1.0f)
-                .setTriggerExtent(extent)
-                .setTriggerCollisionType(1.0f)
                 .create();
 
         return entity;

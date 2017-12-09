@@ -23,8 +23,8 @@ public class FlattenedEngine {
     private ArrayList<float[]> entitiesToAdd = new ArrayList<>();
     private ArrayList<float[]> entitiesToDelete = new ArrayList<>();
 
-    private int[] systemBitmasks = new int[] { SystemBitmask.HORIZONTAL_MOVEMENT.getSystemMask(), SystemBitmask.VERTICAL_MOVEMENT.getSystemMask(), SystemBitmask.INPUT.getSystemMask(), SystemBitmask.COLLIDER_SORTING.getSystemMask(), SystemBitmask.MOVEMENT_SYSTEM.getSystemMask(), SystemBitmask.LIGHT_SYSTEM.getSystemMask(), SystemBitmask.TRIGGER_SYSTEM.getSystemMask(), SystemBitmask.LIFETIME_SYSTEM.getSystemMask(), SystemBitmask.CHECKPOINT_SYSTEM.getSystemMask(), SystemBitmask.CLEANUP_SYSTEM.getSystemMask(), SystemBitmask.PLATFORM_MOVEMENT_SYSTEM.getSystemMask() };
-    private SystemMethod[] systemMethods = new SystemMethod[]{FlattenedEngine::simpleHorizontalMovement,  FlattenedEngine::simpleVerticalMovement, FlattenedEngine::inputProcessing, FlattenedEngine::colliderSorting, FlattenedEngine::movementSystem, FlattenedEngine::lightingSystem, FlattenedEngine::triggerSystem, FlattenedEngine::lifetimeSystem, FlattenedEngine::checkpointSystem, FlattenedEngine::cleanupSystem, FlattenedEngine::platformMovementSystem};
+    private int[] systemBitmasks = new int[] { SystemBitmask.HORIZONTAL_MOVEMENT.getSystemMask(), SystemBitmask.VERTICAL_MOVEMENT.getSystemMask(), SystemBitmask.INPUT.getSystemMask(), SystemBitmask.COLLIDER_SORTING.getSystemMask(), SystemBitmask.MOVEMENT_SYSTEM.getSystemMask(), SystemBitmask.LIGHT_SYSTEM.getSystemMask(), SystemBitmask.TRIGGER_SYSTEM.getSystemMask(), SystemBitmask.LIFETIME_SYSTEM.getSystemMask(), SystemBitmask.CLEANUP_SYSTEM.getSystemMask(), SystemBitmask.PLATFORM_MOVEMENT_SYSTEM.getSystemMask() };
+    private SystemMethod[] systemMethods = new SystemMethod[]{FlattenedEngine::simpleHorizontalMovement,  FlattenedEngine::simpleVerticalMovement, FlattenedEngine::inputProcessing, FlattenedEngine::colliderSorting, FlattenedEngine::movementSystem, FlattenedEngine::lightingSystem, FlattenedEngine::triggerSystem, FlattenedEngine::lifetimeSystem, FlattenedEngine::cleanupSystem, FlattenedEngine::platformMovementSystem};
 
     private final TreeSet<Ray> angleSortedRays = new TreeSet<>();
     
@@ -801,14 +801,6 @@ public class FlattenedEngine {
     }
     //endregion
 
-    //region Checkpoint System
-    private void checkpointSystem(float[] entity, double deltaTime){
-        if(isBitmaskValid(EntityType.PLAYER.getEntityType(), (int) entity[EntityIndex.TRIGGER_OBJECT_TYPE.getIndex()])){
-            System.out.println("Game Won!!! ");
-        }
-    }
-    //endregion
-
     //region Rain System
 
     //rain particle constants
@@ -827,7 +819,7 @@ public class FlattenedEngine {
     //control parameters
     private boolean shouldEmit = true;
     private double remainingTime = 0.0d;
-    private double emitRate = 1.0f / 75.0d;
+    private double emitRate = 1.0f / 100.0d;
 
     private void rainSystem(double deltaTime){
         if(shouldEmit){

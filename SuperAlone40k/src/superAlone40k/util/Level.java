@@ -18,7 +18,7 @@ public class Level {
 
 
     // 0 - fixed platforms - 1 nothing
-    private int[] sectorProbability = new int[]{15,5};
+    private int[] sectorProbability = new int[]{15,50};
     private int totalPropability = 0;
 
     private float currentSectorPosition = 0.0f;
@@ -258,6 +258,10 @@ public class Level {
             }
         }
 
+        if(currentSectorPosition < windowWidth){
+            index = 0;
+        }
+
         switch(index){
             case 0: createPlatformSector(engine, sectorWidth); break;
             case 1:
@@ -272,7 +276,7 @@ public class Level {
                     System.out.println("Index change requested");
                     createPlatformSector(engine, sectorWidth);
                     index = 0;
-                    addMovingPlatform(new Vector2(currentSectorPosition- (3*sectorWidth),500), new Vector2(currentSectorPosition, 500));
+                    addMovingPlatform(new Vector2(currentSectorPosition- (2.5f*sectorWidth),500), new Vector2(currentSectorPosition-0.5f*sectorWidth, 500));
                 }
                 break;
 
@@ -300,29 +304,4 @@ public class Level {
         int height = (cellAmount - step) * cellHeight;
         engine.addEntity(Entities.createPlatform(new Vector2(currentSectorPosition+sectorWidth/2.0f,(step * cellHeight )+  (height/2.0f)), new Vector2(sectorWidth/2.0f+1.5f, height)));
     }
-
-
-    private void createCheckpointParticles(){
-        for(int i = 0; i < 10; i++){
-            Vector2 position = new Vector2(2435, canvas.getHeight() - 40 - 25 * i);
-            engine.addEntity(Entities.createHorizontalMovingParticle(position));
-        }
-    }
-
-    private void createCheckpoint(){
-        final Vector2 position = new Vector2(2450, canvas.getHeight() - 150);
-        engine.addEntity(Entities.createCheckpoint(position));
-
-        createCheckpointParticles();
-    }
-
-    private void createSampleBulletEntities() {
-        for(int i = 0; i < 20; i++){
-            final Vector2 position = new Vector2(1500 + i * 200, random.nextFloat() * 720);
-			final Vector2 velocity = new Vector2(-500 + 100 * random.nextFloat(), 0);
-            engine.addEntity(Entities.createBullet(position,velocity));
-        }
-    }
-
-
 }

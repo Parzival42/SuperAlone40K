@@ -60,6 +60,7 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
         pack();
         setVisible(true);
         setLocationRelativeTo(null);
+        canvas.requestFocus();
 
         canvas.createBufferStrategy(2);
         bufferStrategy = canvas.getBufferStrategy();
