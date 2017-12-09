@@ -34,7 +34,7 @@ public class Entities {
         float[] player = EntityCreator.getInstance()
                 .setEntityTypeID(/*EntityType.BOX_SHADOW.getEntityType() | */EntityType.PLAYER.getEntityType())
                 .setSystemMask(SystemBitmask.INPUT.getSystemMask() | SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.TRIGGER_SYSTEM.getSystemMask())
-                .setPosition(new Vector2(450,300))
+                .setPosition(new Vector2(400,-1000))
                 .setExtent(extent)
                 .setColor(new Color(218/255.0f, 94/255.0f, 92/255.0f, 1.0f))
                 .setAABBExtent(extent)
