@@ -15,6 +15,23 @@ import java.awt.image.BufferedImage;
 public class Renderer {
 	private static final int PRE_CALCULATED_RAINDROP_HEIGHT = 30;
     private final Color backgroundColor = new Color(42, 57, 76);
+
+	//For the new look see: https://tinyurl.com/y9alxmfq
+
+	//Color constants
+	public static Color PLAYER_COLOR = new Color(242, 71, 56, 255);
+	public static Color BULLET_TOPWATER_COLOR = new Color(255, 255, 255, 255);
+	public static Color OBSTACLE_COLOR = new Color(0, 6, 13, 255);
+	public static Color WATER_COLOR = new Color(0, 92, 135, 255);
+	public static Color SCORE_COLOR = new Color(255, 255, 255, 13);
+	public static Color BACKGROUND_GRADIENT_LIGHT = new Color(0, 82, 122, 255);
+	public static Color BACKGROUND_GRADIENT_DARK = new Color(0, 31, 46, 255);
+	public static Color SHADOW_GRADIENT_LIGHT = new Color(0, 60, 89, 255);
+	public static Color SHADOW_GRADIENT_DARK = new Color(0, 31, 46, 255);
+	public static Color BULLETTRAIL_GRADIENT_LIGHT = new Color(255, 255, 255, 255);
+	public static Color BULLETTRAIL_GRADIENT_DARK = new Color(255, 255, 255, 0);
+	public static Color RAIN_GRADIENT_LIGHT = new Color(255, 255, 255, 64);
+	public static Color RAIN_GRADIENT_DARK = new Color(255, 255, 255, 0);
     
     // Pre-calculated raindrop
     private final BufferedImage rainDrop;
