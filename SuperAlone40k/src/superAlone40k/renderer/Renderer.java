@@ -9,6 +9,7 @@ import superAlone40k.util.Vector2;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 
 
@@ -60,7 +61,7 @@ public class Renderer {
     }
 
     public void renderBackground(Graphics2D g) {
-        g.setColor(backgroundColor);
+        g.setColor(Color.black);
 		g.fillRect(0, 0, 1280, 720);
 		
 		Vector2 playerPosition = Entities.getPositionFor(Entities.getFirstPlayer())
@@ -80,10 +81,10 @@ public class Renderer {
 				entity[EntityIndex.COLOR_B.getIndex()], entity[EntityIndex.COLOR_A.getIndex()]));
 
         g.setTransform(camera);
-		g.fillRect((int) (entity[EntityIndex.POSITION_X.getIndex()] - entity[EntityIndex.EXTENT_X.getIndex()]),
+		g.fillRoundRect((int) (entity[EntityIndex.POSITION_X.getIndex()] - entity[EntityIndex.EXTENT_X.getIndex()]),
 				(int) (entity[EntityIndex.POSITION_Y.getIndex()] - entity[EntityIndex.EXTENT_Y.getIndex()]),
 				(int) (2 * entity[EntityIndex.EXTENT_X.getIndex()]),
-				(int) (2 * entity[EntityIndex.EXTENT_Y.getIndex()]));
+				(int) (2 * entity[EntityIndex.EXTENT_Y.getIndex()]), 10, 10);
     }
 
     private void renderRainDropEntity(Graphics2D g, AffineTransform camera, float[] entity) {
