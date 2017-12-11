@@ -56,12 +56,8 @@ public class TweenEngine {
             return this.tween(prevTweenObject.entity, prevTweenObject.indexToTween, prevTweenObject.boundingBoxToTween, prevTweenObject.beginning, duration, prevTweenObject.easingType);
         }
 
-        /*public TweenObject reverse(float duration, Easing.Type type) {
-            return this.tween(prevTweenObject.entity, prevTweenObject.indexToTween, prevTweenObject.boundingBoxToTween, prevTweenObject.beginning, duration, type);
-        }*/
-
         public TweenObject notifyTweenFinished(TweenListener tl) {
-            this.tweenListener = tl;
+            this.prevTweenObject.tweenListener = tl;
             return this;
         }
 
@@ -130,6 +126,12 @@ public class TweenEngine {
             }
         }
 
+    }
+
+    public void cancelAllTweens() {
+        for (int i = 0; i < tweenObjects.size(); i++) {
+            tweenObjects.get(i).finished = true;
+        }
     }
 
 }
