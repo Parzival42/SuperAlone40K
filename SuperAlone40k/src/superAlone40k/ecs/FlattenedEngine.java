@@ -1,6 +1,7 @@
 package superAlone40k.ecs;
 
 import superAlone40k.Main;
+import superAlone40k.renderer.Renderer;
 import superAlone40k.util.*;
 import superAlone40k.window.WindowWithFlattenedECS;
 
@@ -34,6 +35,12 @@ public class FlattenedEngine {
 
     private double currentTimeScale = 1.0f;
 
+    private int highScore = 0;
+
+    private Font brandonBig = new Font("BrandonGrotesque-Black", Font.PLAIN, 350);
+    private Font brandonSmall = new Font("BrandonGrotesque-Black", Font.PLAIN, 150);
+    private Font brandonTiny = new Font("BrandonGrotesque-Black", Font.PLAIN, 30);
+
     public FlattenedEngine() {
         systemViews = new ArrayList[systemMethods.length];
         for(int i = 0; i < systemViews.length; i++){
@@ -61,16 +68,33 @@ public class FlattenedEngine {
     		calculateShadows(lightEntity, graphics);
     	}
 
+    	int score = (int)(-camera.getTranslateX() / (Main.WIDTH / 8));
+
+    	if (score > highScore) {
+    	    highScore = score;
+        }
+
     	if(Level.getGameState()==0){
-    	    graphics.setColor(Color.BLACK);
-    	    graphics.drawString("Press space to start", 450, 600);
+    	    highScore = 0;
+            drawCenteredString(graphics,"SUPER ALONE", Main.WIDTH / 2, Main.HEIGHT / 2, brandonSmall, Renderer.SCORE_COLOR);
+            drawCenteredString(graphics,"PRESS SPACE TO START", Main.WIDTH / 2, Main.HEIGHT / 2, brandonTiny, Renderer.BULLET_TOPWATER_COLOR);
+        }
+
+        if (Level.getGameState() == 1) {
+            drawCenteredString(graphics, highScore + "", (int)(Main.WIDTH / 2 - camera.getTranslateX()), (int)(Main.HEIGHT / 2 - camera.getTranslateY()), brandonBig, Renderer.SCORE_COLOR);
         }
 
         if(Level.getGameState()==2){
-            graphics.setColor(Color.BLACK);
-            graphics.drawString("Score: 999999999", 450, 600);
-            graphics.drawString("Press n to continue", 450, 620);
+            drawCenteredString(graphics,"SCORE " + highScore, Main.WIDTH / 2, Main.HEIGHT / 2, brandonSmall, Renderer.SCORE_COLOR);
+            drawCenteredString(graphics,"PRESS N TO CONTINUE", Main.WIDTH / 2, Main.HEIGHT / 2, brandonTiny, Renderer.BULLET_TOPWATER_COLOR);
         }
+    }
+
+    public void drawCenteredString(Graphics g, String text, int x, int y, Font font, Color color) {
+        FontMetrics metrics = g.getFontMetrics(font);
+        g.setColor(color);
+        g.setFont(font);
+        g.drawString(text, x - metrics.stringWidth(text) / 2, y + metrics.getHeight() / 4);
     }
 
     private void updateEntities(){
@@ -239,19 +263,11 @@ public class FlattenedEngine {
 
             //first jump
             if(isGrounded && isJumpRequested){
-                //TODO: uncomment to see easing in action
 
                 TweenEngine.getInstance()
-                        .tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),35, 0.2f, Easing.Type.SineEaseInOut)
-                        .notifyTweenFinished(() -> { System.out.println("Player jumped"); /*TODO: make player jump at this exact time*/ })
-                        .tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),45, 0.2f, Easing.Type.SineEaseInOut)
+                        .tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),20, 0.0f, Easing.Type.SineEaseInOut)
+                        .notifyTweenFinished(() -> { System.out.println("Player jumped");System.out.println(player[EntityIndex.EXTENT_Y.getIndex()]); })
                         .tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),40, 0.2f, Easing.Type.SineEaseInOut)
-                        .start();
-
-                TweenEngine.getInstance()
-                        .tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),25, 0.2f, Easing.Type.SineEaseInOut)
-                        .tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),15, 0.2f, Easing.Type.SineEaseInOut)
-                        .tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),20, 0.2f, Easing.Type.SineEaseInOut)
                         .start();
 
                 player[EntityIndex.VELOCITY_Y.getIndex()] = -jumpStrength;
@@ -263,18 +279,10 @@ public class FlattenedEngine {
             //second jump
             if(isJumping && !isDoubleJumping && isJumpRequested){
 
-                //TODO: uncomment to see easeing in action
                 TweenEngine.getInstance()
-                        .tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),35, 0.2f, Easing.Type.SineEaseInOut)
-                        .notifyTweenFinished(() -> { System.out.println("Player double jumped"); /*TODO: make player jump at this exact time*/ })
-                        .tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),45, 0.2f, Easing.Type.SineEaseInOut)
+                        .tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),20, 0.0f, Easing.Type.SineEaseInOut)
+                        .notifyTweenFinished(() -> { System.out.println("Player double jumped"); })
                         .tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),40, 0.2f, Easing.Type.SineEaseInOut)
-                        .start();
-
-                TweenEngine.getInstance()
-                        .tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),25, 0.2f, Easing.Type.SineEaseInOut)
-                        .tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),15, 0.2f, Easing.Type.SineEaseInOut)
-                        .tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),20, 0.2f, Easing.Type.SineEaseInOut)
                         .start();
 
                 player[EntityIndex.VELOCITY_Y.getIndex()] = -jumpStrength;
@@ -363,11 +371,7 @@ public class FlattenedEngine {
     //region Lighting System
 
     private void lightingSystem(float[] lightSource, double deltaTime) {
-    	final float[] player = Entities.getFirstPlayer();
-    	final Vector2 playerPosition = Entities.getPositionFor(player);
-    	
-    	// Set light position to player position
-    	Entities.setPositionFor(lightSource, (float) playerPosition.x, (float) playerPosition.y);
+        Entities.setPositionFor(lightSource,(float)(Main.WIDTH - camera.getTranslateX()), Main.HEIGHT/2);
     }
 
     private Ray[] getCornerRays(Vector2 lightPosition, float[] entity) {
@@ -487,8 +491,9 @@ public class FlattenedEngine {
     			}
     		}
     	}
+
+        graphics.setPaint(new GradientPaint((float)-camera.getTranslateX(), 0, Renderer.BACKGROUND_GRADIENT_DARK, (float)(Main.WIDTH -camera.getTranslateX()), 0, Renderer.BACKGROUND_GRADIENT_LIGHT));
     	
-    	graphics.setColor(new Color(49, 65, 88));
 		path.closePath();
 		if(!DEBUG_SHADOWS) {	// TODO: Remove this in finished code
 			graphics.fill(path);
@@ -707,8 +712,8 @@ public class FlattenedEngine {
         player[EntityIndex.AABB_EXTENT_X.getIndex()] = 5;
         player[EntityIndex.AABB_EXTENT_Y.getIndex()] = 10;
 
-        TweenEngine.getInstance().tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(), 20, 1.2f, Easing.Type.BounceEaseOut).start();
-        TweenEngine.getInstance().tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(), 40, 1.2f, Easing.Type.BounceEaseOut).start();
+        TweenEngine.getInstance().tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(), 20, 1.2f, Easing.Type.BounceEaseOut).reverse().start();
+        //TweenEngine.getInstance().tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(), 40, 1.2f, Easing.Type.BounceEaseOut).start();
 
 
         minPosX = 200.0f;

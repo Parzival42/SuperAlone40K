@@ -9,13 +9,11 @@ import superAlone40k.util.Vector2;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 
 
 public class Renderer {
 	private static final int PRE_CALCULATED_RAINDROP_HEIGHT = 30;
-    private final Color backgroundColor = new Color(42, 57, 76);
 
 	//For the new look see: https://tinyurl.com/y9alxmfq
 
@@ -31,13 +29,13 @@ public class Renderer {
 	public static Color SHADOW_GRADIENT_DARK = new Color(0, 31, 46, 255);
 	public static Color BULLETTRAIL_GRADIENT_LIGHT = new Color(255, 255, 255, 255);
 	public static Color BULLETTRAIL_GRADIENT_DARK = new Color(255, 255, 255, 0);
-	public static Color RAIN_GRADIENT_LIGHT = new Color(255, 255, 255, 64);
+	public static Color RAIN_GRADIENT_LIGHT = new Color(255, 255, 255, 10);
 	public static Color RAIN_GRADIENT_DARK = new Color(255, 255, 255, 0);
     
     // Pre-calculated raindrop
     private final BufferedImage rainDrop;
-    
-    private final BufferedImage backgroundRadial;
+
+    private final BufferedImage background;
     
     private final AffineTransform camera;
     
@@ -47,7 +45,7 @@ public class Renderer {
     	rainDrop = createGradientImage(
     			(int) Entities.RAIN_PARTICLE_WIDTH,
     			PRE_CALCULATED_RAINDROP_HEIGHT, 
-    			new GradientPaint(0, 0, Entities.RAIN_PARTICLE_COLOR_START, 0, PRE_CALCULATED_RAINDROP_HEIGHT, Entities.RAIN_PARTICLE_COLOR_END));
+    			new GradientPaint(0, 0, Renderer.RAIN_GRADIENT_DARK, 0, PRE_CALCULATED_RAINDROP_HEIGHT, Renderer.RAIN_GRADIENT_LIGHT));
     	
     	final int radialWidth = (int) (Main.WIDTH * 2.5);
     	final int radialHeight = (int) (Main.HEIGHT * 2.5);
@@ -56,18 +54,22 @@ public class Renderer {
     			650f,
     			new float[] {0.2f, 0.9f},
     			new Color[] {new Color(37, 51, 67), new Color(46, 61, 83)});
-    	
-    	backgroundRadial = createGradientImage(radialWidth, radialHeight, radialGradient);
-    }
+
+    	background = createGradientImage(
+				Main.WIDTH,
+				Main.HEIGHT,
+				new GradientPaint(0, 0, Renderer.SHADOW_GRADIENT_DARK, Main.WIDTH, 0, Renderer.SHADOW_GRADIENT_LIGHT));
+
+	}
 
     public void renderBackground(Graphics2D g) {
-        g.setColor(Color.black);
-		g.fillRect(0, 0, 1280, 720);
+    	//g.drawImage(background, 0,0,null);
+        /*g.setColor(Color.BLACK);
+		g.fillRect(0, 0, 1280, 720);*/
 		
-		Vector2 playerPosition = Entities.getPositionFor(Entities.getFirstPlayer())
-				.sub(new Vector2(backgroundRadial.getWidth() * 0.5 - camera.getTranslateX(), backgroundRadial.getHeight() * 0.5));
+		//Vector2 playerPosition = Entities.getPositionFor(Entities.getFirstPlayer()).sub(new Vector2(background.getWidth() * 0.5 - camera.getTranslateX(), background.getHeight() * 0.5));
 		
-		g.drawImage(backgroundRadial, (int) playerPosition.x, (int) playerPosition.y, null);
+		g.drawImage(background, 0, 0, null);
     }
 
 

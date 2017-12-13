@@ -3,6 +3,7 @@ package superAlone40k.util;
 import superAlone40k.ecs.EntityIndex;
 import superAlone40k.ecs.EntityType;
 import superAlone40k.ecs.SystemBitmask;
+import superAlone40k.renderer.Renderer;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -15,8 +16,6 @@ public class Entities {
     public static double RAIN_PARTICLE_WIDTH = 3.0d;
     public static double RAIN_PARTICLE_BASE_HEIGHT = 45.0d;
     public static double RAIN_PARTICLE_HEIGHT_VARIANCE = 50.0d;
-    public static Color RAIN_PARTICLE_COLOR_START = new Color(49 / 255f, 65 / 255f, 88 / 255f);
-    public static Color RAIN_PARTICLE_COLOR_END = new Color(60 / 255f, 80 / 255f, 108 / 255f);
 
     //rain splatter particle constants
     public static Vector2 RAIN_SPLATTER_EXTENT = new Vector2(2.0d, 2.0d);
@@ -36,7 +35,7 @@ public class Entities {
                 .setSystemMask(SystemBitmask.INPUT.getSystemMask() | SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.TRIGGER_SYSTEM.getSystemMask())
                 .setPosition(new Vector2(400,-1000))
                 .setExtent(extent)
-                .setColor(new Color(218/255.0f, 94/255.0f, 92/255.0f, 1.0f))
+                .setColor(Renderer.PLAYER_COLOR)
                 .setAABBExtent(extent)
                 .setCollisionType(1.0f)
                 .setGravitationInfluence(1.0f)
@@ -48,6 +47,27 @@ public class Entities {
         
         PLAYERS.add(player);
         return player;
+    }
+
+    public static float[] createSeaPartTop(Vector2 position, Vector2 extent) {
+        float[] entity = EntityCreator.getInstance()
+                .setEntityTypeID(EntityType.BOX_SHADOW.getEntityType())
+                .setPosition(position)
+                .setExtent(extent)
+                .setColor(Renderer.BULLET_TOPWATER_COLOR)
+                .create();
+        return entity;
+    }
+
+    public static float[] createSeaPartBottom(Vector2 position, Vector2 extent) {
+        float[] entity = EntityCreator.getInstance()
+                .setEntityTypeID(EntityType.BOX_SHADOW.getEntityType())
+                .setPosition(position)
+                .setExtent(extent)
+                .setColor(Renderer.WATER_COLOR)
+                .create();
+
+        return entity;
     }
     
     /**
@@ -103,7 +123,7 @@ public class Entities {
                 .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.MOVEMENT_SYSTEM.getSystemMask() | SystemBitmask.CLEANUP_SYSTEM.getSystemMask())
                 .setPosition(position)
                 .setExtent(extent)
-                .setColor(new Color(89 / 255.0f, 106 / 255.0f, 126 / 255.0f, 0.12f + (float) random.nextDouble() * 0.12f))
+                .setColor(Renderer.RAIN_GRADIENT_LIGHT)
                 .setAABBPosition(new Vector2(0, extent.y/2.0f))
                 .setAABBExtent(new Vector2(extent.x, extent.y/2.0f))
                 .setCollisionType(1.0d)
@@ -123,7 +143,7 @@ public class Entities {
                 .setSystemMask(SystemBitmask.MOVEMENT_SYSTEM.getSystemMask() | SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.CLEANUP_SYSTEM.getSystemMask())
                 .setPosition(position)
                 .setExtent(RAIN_SPLATTER_EXTENT)
-                .setColor(new Color(89 / 255.0f, 106 / 255.0f, 128 / 255.0f, 0.16f + (float) random.nextDouble() * 0.12f))
+                .setColor(Renderer.RAIN_GRADIENT_LIGHT)
                 .setAABBPosition(new Vector2(0, 0))
                 .setAABBExtent(RAIN_SPLATTER_EXTENT)
                 .setCollisionType(1.0d)
@@ -143,7 +163,7 @@ public class Entities {
                 .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.CLEANUP_SYSTEM.getSystemMask())
                 .setPosition(position)
                 .setExtent(extent)
-                .setColor(new Color(24/255.0f, 32/255.0f, 44/255.0f, 1.0f))
+                .setColor(Renderer.OBSTACLE_COLOR)
                 .setAABBExtent(extent)
                 .setCollisionType(0.0f)
                 .create();
@@ -161,7 +181,7 @@ public class Entities {
                 .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.MOVEMENT_SYSTEM.getSystemMask() | SystemBitmask.CLEANUP_SYSTEM.getSystemMask())
                 .setPosition(position)
                 .setExtent(extent)
-                .setColor(new Color(1.0f, 1.0f, 1.0f,1.0f))
+                .setColor(Renderer.BULLET_TOPWATER_COLOR)
                 .setAABBExtent(extent)
                 .setCollisionType(1.0f)
                 .setVelocity(velocity)
@@ -194,7 +214,7 @@ public class Entities {
                 .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.PLATFORM_MOVEMENT_SYSTEM.getSystemMask() | SystemBitmask.MOVEMENT_SYSTEM.getSystemMask() | SystemBitmask.TRIGGER_SYSTEM.getSystemMask())
                 .setPosition(position)
                 .setExtent(extent)
-                .setColor(new Color(24/255.0f, 32/255.0f, 44/255.0f, 1.0f))
+                .setColor(Renderer.OBSTACLE_COLOR)
                 .setAABBExtent(extent)
                 .setCollisionType(0.0f)
                 .setTriggerPosition(new Vector2(0.0f, -extent.y/2.0f))
