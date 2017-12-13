@@ -130,6 +130,8 @@ public class Level {
 
         }else if(gameState == 2){
             if(gameStateChanged){
+                Entities.setPositionFor(seaTopEntity, 0, seaTopEntity[EntityIndex.POSITION_Y.getIndex()]);
+                Entities.setPositionFor(seaBottomEntity, 0, seaBottomEntity[EntityIndex.POSITION_Y.getIndex()]);
                 currentSectorPosition = -3.0f * windowWidth;
             }
             createScoreScene();

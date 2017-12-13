@@ -699,7 +699,7 @@ public class FlattenedEngine {
 
     //region Collision Response
 
-    private final float tolerance = 0.75f;
+    private final float tolerance = 1.1f;
     private void resolvePlayerCollision(float[] player, float[] other, float xOverlap, float yOverlap){
         boolean xResolve = (xOverlap > yOverlap) && (xOverlap-yOverlap > tolerance);
         if(xResolve) {
