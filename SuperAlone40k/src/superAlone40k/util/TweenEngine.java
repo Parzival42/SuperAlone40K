@@ -1,5 +1,7 @@
 package superAlone40k.util;
 
+import javax.swing.*;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 public class TweenEngine {
@@ -21,7 +23,7 @@ public class TweenEngine {
         private TweenObject prevTweenObject;
         private TweenObject head;
 
-        private TweenListener tweenListener;
+        private ActionListener actionListener;
 
         TweenObject() {
             this.head = this;
@@ -56,14 +58,14 @@ public class TweenEngine {
             return this.tween(prevTweenObject.entity, prevTweenObject.indexToTween, prevTweenObject.boundingBoxToTween, prevTweenObject.beginning, duration, prevTweenObject.easingType);
         }
 
-        public TweenObject notifyTweenFinished(TweenListener tl) {
-            this.prevTweenObject.tweenListener = tl;
+        public TweenObject notifyTweenFinished(ActionListener actionListener) {
+            this.prevTweenObject.actionListener = actionListener;
             return this;
         }
 
         private void tweenFinished () {
-            if (tweenListener != null) {
-                this.tweenListener.tweenIsFinished();
+            if (actionListener != null) {
+                this.actionListener.actionPerformed(null);
             }
         }
 

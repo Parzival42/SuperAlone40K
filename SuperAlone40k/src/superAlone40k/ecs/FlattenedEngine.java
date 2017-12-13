@@ -266,8 +266,14 @@ public class FlattenedEngine {
 
                 TweenEngine.getInstance()
                         .tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),20, 0.0f, Easing.Type.SineEaseInOut)
-                        .notifyTweenFinished(() -> { System.out.println("Player jumped");System.out.println(player[EntityIndex.EXTENT_Y.getIndex()]); })
+                        .notifyTweenFinished((e) -> { System.out.println("Player jumped"); })
                         .tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),40, 0.2f, Easing.Type.SineEaseInOut)
+                        .start();
+
+                TweenEngine.getInstance()
+                        .tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),25, 0.0f, Easing.Type.SineEaseInOut)
+                        .notifyTweenFinished((e) -> { System.out.println("Player jumped"); })
+                        .tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),20, 0.2f, Easing.Type.SineEaseInOut)
                         .start();
 
                 player[EntityIndex.VELOCITY_Y.getIndex()] = -jumpStrength;
@@ -281,8 +287,14 @@ public class FlattenedEngine {
 
                 TweenEngine.getInstance()
                         .tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),20, 0.0f, Easing.Type.SineEaseInOut)
-                        .notifyTweenFinished(() -> { System.out.println("Player double jumped"); })
+                        .notifyTweenFinished((e) -> { System.out.println("Player double jumped"); })
                         .tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),40, 0.2f, Easing.Type.SineEaseInOut)
+                        .start();
+
+                TweenEngine.getInstance()
+                        .tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),25, 0.0f, Easing.Type.SineEaseInOut)
+                        .notifyTweenFinished((e) -> { System.out.println("Player jumped"); })
+                        .tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),20, 0.2f, Easing.Type.SineEaseInOut)
                         .start();
 
                 player[EntityIndex.VELOCITY_Y.getIndex()] = -jumpStrength;
