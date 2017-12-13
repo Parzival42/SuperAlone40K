@@ -31,7 +31,7 @@ public class Entities {
         final Vector2 extent = new Vector2(20, 40);
 
         float[] player = EntityCreator.getInstance()
-                .setEntityTypeID(/*EntityType.BOX_SHADOW.getEntityType() | */EntityType.PLAYER.getEntityType())
+                .setEntityTypeID(EntityType.BOX_SHADOW.getEntityType() | EntityType.PLAYER.getEntityType())
                 .setSystemMask(SystemBitmask.INPUT.getSystemMask() | SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.TRIGGER_SYSTEM.getSystemMask())
                 .setPosition(new Vector2(400,-1000))
                 .setExtent(extent)
@@ -159,7 +159,7 @@ public class Entities {
     //region Platform
     public static float[] createPlatform(Vector2 position, Vector2 extent){
         float[] entity = EntityCreator.getInstance()
-                .setEntityTypeID(EntityType.BOX_SHADOW.getEntityType())
+                .setEntityTypeID(EntityType.BOX_SHADOW.getEntityType() | EntityType.PLATFORM.getEntityType())
                 .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.CLEANUP_SYSTEM.getSystemMask())
                 .setPosition(position)
                 .setExtent(extent)
@@ -210,7 +210,7 @@ public class Entities {
     //region moving platforms
     public static float[] createMovingPlatform(Vector2 position, Vector2 extent, Vector2 velocity, Vector2 movementRangeMin, Vector2 movementRangeMax){
         float[] entity = EntityCreator.getInstance()
-                .setEntityTypeID(EntityType.BOX_SHADOW.getEntityType())
+                .setEntityTypeID(EntityType.BOX_SHADOW.getEntityType() | EntityType.PLATFORM.getEntityType())
                 .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.PLATFORM_MOVEMENT_SYSTEM.getSystemMask() | SystemBitmask.MOVEMENT_SYSTEM.getSystemMask() | SystemBitmask.TRIGGER_SYSTEM.getSystemMask())
                 .setPosition(position)
                 .setExtent(extent)

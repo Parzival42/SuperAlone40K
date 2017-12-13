@@ -10,7 +10,8 @@ public enum EntityType {
 	RAIN_DROP(16),
 	PLAYER(32),
 	BULLET(64),
-	CHECKPOINT(128);
+	PLATFORM(128);
+
 	
 	final int entityType;
 	private EntityType(final int entityType) {

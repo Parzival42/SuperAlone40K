@@ -174,10 +174,6 @@ public class FlattenedEngine {
         return entities;
     }
 
-    public void removePendingEntities() {
-        entitiesToAdd.clear();
-    }
-
 
     private interface SystemMethod{
         void execute(FlattenedEngine engine, float[] entity, double deltaTime);
@@ -702,8 +698,11 @@ public class FlattenedEngine {
     //endregion
 
     //region Collision Response
+
+    private final float tolerance = 0.75f;
     private void resolvePlayerCollision(float[] player, float[] other, float xOverlap, float yOverlap){
-        if(xOverlap > yOverlap){
+        boolean xResolve = (xOverlap > yOverlap) && (xOverlap-yOverlap > tolerance);
+        if(xResolve) {
             float xOffset = player[EntityIndex.POSITION_X.getIndex()] < other[EntityIndex.POSITION_X.getIndex()] ? xOverlap : -xOverlap;
             player[EntityIndex.POSITION_X.getIndex()] += xOffset;
             player[EntityIndex.VELOCITY_X.getIndex()] = 0.0f;

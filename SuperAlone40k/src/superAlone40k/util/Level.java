@@ -44,6 +44,9 @@ public class Level {
 
     private ArrayList<float[]> sceneEntities = new ArrayList<>();
 
+    private float[] seaTopEntity;
+    private float[] seaBottomEntity;
+
     public Level(FlattenedEngine engine, Canvas canvas){
         this.engine = engine;
         this.canvas = canvas;
@@ -81,6 +84,15 @@ public class Level {
 
         engine.addEntity(Entities.createLight());
 
+        //sea
+        //engine.addEntity(Entities.createSeaPartBottom(new Vector2(0,Main.HEIGHT - 20), new Vector2(Main.WIDTH, 20)));
+        //engine.addEntity(Entities.createSeaPartTop(new Vector2(0,Main.HEIGHT - 39), new Vector2(Main.WIDTH + 10, 2)));
+        seaTopEntity = Entities.createSeaPartBottom(new Vector2(0,Main.HEIGHT - 20), new Vector2(Main.WIDTH, 20));
+        engine.addEntity(seaTopEntity);
+        seaBottomEntity = Entities.createSeaPartTop(new Vector2(0,Main.HEIGHT - 39), new Vector2(Main.WIDTH + 10, 2));
+        engine.addEntity(seaBottomEntity);
+
+
         for(int i = 0; i < sectorProbability.length; i++){
             totalPropability+= sectorProbability[i];
         }
@@ -89,13 +101,13 @@ public class Level {
     public void update(FlattenedEngine engine, AffineTransform camera, double deltaTime){
         if(gameState == 0 && gameStateChanged){
             //createMenuScene();
-            createSea();
+            //createSea();
         }else if(gameState == 1){
             if(gameStateChanged){
-                for(int i = 0; i < sceneEntities.size(); i++){
+                /*for(int i = 0; i < sceneEntities.size(); i++){
                     engine.removeEntity(sceneEntities.get(i));
                 }
-                sceneEntities.clear();
+                sceneEntities.clear();*/
 
                 //Entities.getFirstPlayer()[EntityIndex.COLOR_A.getIndex()] = 1.0f;
                 Entities.getFirstPlayer()[EntityIndex.GRAVITATION_INFLUENCE.getIndex()] = 1.0f;
@@ -104,6 +116,8 @@ public class Level {
 
             }
 
+            Entities.setPositionFor(seaTopEntity, (float) -camera.getTranslateX(), seaTopEntity[EntityIndex.POSITION_Y.getIndex()]);
+            Entities.setPositionFor(seaBottomEntity, (float) - camera.getTranslateX(), seaBottomEntity[EntityIndex.POSITION_Y.getIndex()]);
             float cameraX = (float) camera.getTranslateX() + cameraOffset;
 
             movement = -cameraX - currentSectorPosition;
@@ -124,118 +138,10 @@ public class Level {
     }
 
     private void createScoreScene() {
-        int i = 0;
-        while(i < engine.getEntities().size()){
-            if(!FlattenedEngine.isBitmaskValid(EntityType.PLAYER.getEntityType(), (int) engine.getEntities().get(i)[EntityIndex.ENTITY_TYPE_ID.getIndex()])){
-                if(!FlattenedEngine.isBitmaskValid(EntityType.SCREEN_BORDER.getEntityType(), (int) engine.getEntities().get(i)[EntityIndex.ENTITY_TYPE_ID.getIndex()])){
-                    if(!FlattenedEngine.isBitmaskValid(EntityType.LIGHT.getEntityType(), (int) engine.getEntities().get(i)[EntityIndex.ENTITY_TYPE_ID.getIndex()])){
-                        engine.removeEntity(engine.getEntities().get(i));
-                        break;
-                    }
-                }
+        for(int i = 0; i < engine.getEntities().size(); i++){
+            if(FlattenedEngine.isBitmaskValid(EntityType.PLATFORM.getEntityType(), (int) engine.getEntities().get(i)[EntityIndex.ENTITY_TYPE_ID.getIndex()])){
+                engine.removeEntity(engine.getEntities().get(i));
             }
-            i++;
-        }
-        /*for(int i = 0; i < engine.getEntities().size(); i++){
-            if(!FlattenedEngine.isBitmaskValid(EntityType.PLAYER.getEntityType(), (int) engine.getEntities().get(i)[EntityIndex.ENTITY_TYPE_ID.getIndex()])){
-                if(!FlattenedEngine.isBitmaskValid(EntityType.SCREEN_BORDER.getEntityType(), (int) engine.getEntities().get(i)[EntityIndex.ENTITY_TYPE_ID.getIndex()])){
-                    if(!FlattenedEngine.isBitmaskValid(EntityType.LIGHT.getEntityType(), (int) engine.getEntities().get(i)[EntityIndex.ENTITY_TYPE_ID.getIndex()])){
-                        engine.removeEntity(engine.getEntities().get(i));
-                    }
-                }
-            }
-        }*/
-    }
-
-    private void createMenuScene() {
-        float horizontalWidth = windowWidth/42.0f;
-        float horizontalHeight = horizontalWidth/4.0f;
-        Vector2 horizontalExtent = new Vector2(horizontalWidth, horizontalHeight);
-        Vector2 verticalExtent = new Vector2(horizontalHeight, horizontalWidth);
-        Vector2 offset = new Vector2(windowWidth/6.0f, windowHeight/3.0f);
-
-       //--- S
-        sceneEntities.add(Entities.createPlatform(new Vector2(2.0f*horizontalWidth, Math.round(2.0f*horizontalHeight)).add(offset), horizontalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(2.0f*horizontalWidth, Math.round(8.0f*horizontalHeight)).add(offset), horizontalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(2.0f*horizontalWidth, Math.round(14.0f*horizontalHeight)).add(offset), horizontalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(2.0f*horizontalWidth- (3f*horizontalHeight), Math.round(5f*horizontalHeight)).add(offset), verticalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(2.0f*horizontalWidth+ (3f*horizontalHeight), Math.round(11f*horizontalHeight)).add(offset), verticalExtent));
-        //sceneEntities.add(Entities.createPlatform(new Vector2(2*horizontalWidth, 2*horizontalHeight), verticalExtent));
-
-        //--- U
-
-        sceneEntities.add(Entities.createPlatform(new Vector2(4.5f*horizontalWidth- (3f*horizontalHeight), 5f*horizontalHeight).add(offset), verticalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(4.5f*horizontalWidth- (3f*horizontalHeight), 11f*horizontalHeight).add(offset), verticalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(4.5f*horizontalWidth, Math.round(14.0f*horizontalHeight)).add(offset), horizontalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(4.5f*horizontalWidth+ (3f*horizontalHeight), 5f*horizontalHeight).add(offset), verticalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(4.5f*horizontalWidth+ (3f*horizontalHeight), 11f*horizontalHeight).add(offset), verticalExtent));
-
-        //--- P
-        sceneEntities.add(Entities.createPlatform(new Vector2(7.0f*horizontalWidth, Math.round(2.0f*horizontalHeight)).add(offset), horizontalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(7.0f*horizontalWidth, Math.round(8.0f*horizontalHeight)).add(offset), horizontalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(7.0f*horizontalWidth- (3f*horizontalHeight), Math.round(5f*horizontalHeight)).add(offset), verticalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(7.0f*horizontalWidth+ (3f*horizontalHeight), Math.round(5f*horizontalHeight)).add(offset), verticalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(7.0f*horizontalWidth- (3f*horizontalHeight), Math.round(11f*horizontalHeight)).add(offset), verticalExtent));
-
-        //--- E
-        sceneEntities.add(Entities.createPlatform(new Vector2(9.5f*horizontalWidth, Math.round(2.0f*horizontalHeight)).add(offset), horizontalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(9.5f*horizontalWidth, Math.round(8.0f*horizontalHeight)).add(offset), horizontalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(9.5f*horizontalWidth, Math.round(14.0f*horizontalHeight)).add(offset), horizontalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(9.5f*horizontalWidth- (3f*horizontalHeight), Math.round(5f*horizontalHeight)).add(offset), verticalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(9.5f*horizontalWidth- (3f*horizontalHeight), Math.round(11f*horizontalHeight)).add(offset), verticalExtent));
-
-
-        //--- R
-        sceneEntities.add(Entities.createPlatform(new Vector2(12.0f*horizontalWidth, Math.round(2.0f*horizontalHeight)).add(offset), horizontalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(12.0f*horizontalWidth, Math.round(8.0f*horizontalHeight)).add(offset), horizontalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(12.0f*horizontalWidth- (3f*horizontalHeight), Math.round(11f*horizontalHeight)).add(offset), verticalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(12.0f*horizontalWidth- (3f*horizontalHeight), Math.round(5f*horizontalHeight)).add(offset), verticalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(12.0f*horizontalWidth+ (2f*horizontalHeight), Math.round(11f*horizontalHeight)).add(offset), verticalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(12.0f*horizontalWidth+ (3f*horizontalHeight), Math.round(5f*horizontalHeight)).add(offset), verticalExtent));
-
-        //--- A
-        offset.set(offset.x+1.5f*horizontalWidth, offset.y);
-        sceneEntities.add(Entities.createPlatform(new Vector2(14.5f*horizontalWidth, Math.round(2.0f*horizontalHeight)).add(offset), horizontalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(14.5f*horizontalWidth, Math.round(8.0f*horizontalHeight)).add(offset), horizontalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(14.5f*horizontalWidth- (3f*horizontalHeight), Math.round(5f*horizontalHeight)).add(offset), verticalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(14.5f*horizontalWidth+ (3f*horizontalHeight), Math.round(5f*horizontalHeight)).add(offset), verticalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(14.5f*horizontalWidth- (3f*horizontalHeight), Math.round(11f*horizontalHeight)).add(offset), verticalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(14.5f*horizontalWidth+ (3f*horizontalHeight), Math.round(11f*horizontalHeight)).add(offset), verticalExtent));
-
-        //--- L
-        sceneEntities.add(Entities.createPlatform(new Vector2(17.0f*horizontalWidth, Math.round(14.0f*horizontalHeight)).add(offset), horizontalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(17.0f*horizontalWidth- (3f*horizontalHeight), Math.round(5f*horizontalHeight)).add(offset), verticalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(17.0f*horizontalWidth- (3f*horizontalHeight), Math.round(11f*horizontalHeight)).add(offset), verticalExtent));
-
-        //--- O
-        sceneEntities.add(Entities.createPlatform(new Vector2(19.5f*horizontalWidth, Math.round(2.0f*horizontalHeight)).add(offset), horizontalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(19.5f*horizontalWidth, Math.round(14.0f*horizontalHeight)).add(offset), horizontalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(19.5f*horizontalWidth- (3f*horizontalHeight), Math.round(11f*horizontalHeight)).add(offset), verticalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(19.5f*horizontalWidth+ (3f*horizontalHeight), Math.round(11f*horizontalHeight)).add(offset), verticalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(19.5f*horizontalWidth- (3f*horizontalHeight), Math.round(5f*horizontalHeight)).add(offset), verticalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(19.5f*horizontalWidth+ (3f*horizontalHeight), Math.round(5f*horizontalHeight)).add(offset), verticalExtent));
-
-        //--- N
-        //sceneEntities.add(Entities.createPlatform(new Vector2(22.0f*horizontalWidth, Math.round(8.0f*horizontalHeight)).add(offset), horizontalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(22.0f*horizontalWidth- (3f*horizontalHeight), Math.round(11f*horizontalHeight)).add(offset), verticalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(22.0f*horizontalWidth+ (3f*horizontalHeight), Math.round(11f*horizontalHeight)).add(offset), verticalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(22.0f*horizontalWidth- (3f*horizontalHeight), Math.round(5f*horizontalHeight)).add(offset), verticalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(22.0f*horizontalWidth+ (3f*horizontalHeight), Math.round(5f*horizontalHeight)).add(offset), verticalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(22.0f*horizontalWidth+ (0f*horizontalHeight), Math.round(11f*horizontalHeight)).add(offset), verticalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(22.0f*horizontalWidth- (0f*horizontalHeight), Math.round(5f*horizontalHeight)).add(offset), verticalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(21.5f*horizontalWidth, Math.round(2.0f*horizontalHeight)).add(offset), new Vector2(horizontalExtent.x/2.0f, horizontalExtent.y)));
-        sceneEntities.add(Entities.createPlatform(new Vector2(22.5f*horizontalWidth, Math.round(14.0f*horizontalHeight)).add(offset), new Vector2(horizontalExtent.x/2.0f, horizontalExtent.y)));
-
-        //--- E
-        sceneEntities.add(Entities.createPlatform(new Vector2(24.5f*horizontalWidth, Math.round(2.0f*horizontalHeight)).add(offset), horizontalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(24.5f*horizontalWidth, Math.round(8.0f*horizontalHeight)).add(offset), horizontalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(24.5f*horizontalWidth, Math.round(14.0f*horizontalHeight)).add(offset), horizontalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(24.5f*horizontalWidth- (3f*horizontalHeight), Math.round(5f*horizontalHeight)).add(offset), verticalExtent));
-        sceneEntities.add(Entities.createPlatform(new Vector2(24.5f*horizontalWidth- (3f*horizontalHeight), Math.round(11f*horizontalHeight)).add(offset), verticalExtent));
-
-
-        for(int i  = 0; i < sceneEntities.size(); i++){
-            engine.addEntity(sceneEntities.get(i));
         }
     }
 
