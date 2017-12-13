@@ -21,7 +21,7 @@ public class Renderer {
 	public static Color PLAYER_COLOR = new Color(242, 71, 56, 255);
 	public static Color BULLET_TOPWATER_COLOR = new Color(255, 255, 255, 255);
 	public static Color OBSTACLE_COLOR = new Color(0, 6, 13, 255);
-	public static Color WATER_COLOR = new Color(0, 92, 135, 255);
+	public static Color WATER_COLOR = new Color(0, 136, 204, 102);
 	public static Color SCORE_COLOR = new Color(255, 255, 255, 13);
 	public static Color BACKGROUND_GRADIENT_LIGHT = new Color(0, 82, 122, 255);
 	public static Color BACKGROUND_GRADIENT_DARK = new Color(0, 31, 46, 255);
