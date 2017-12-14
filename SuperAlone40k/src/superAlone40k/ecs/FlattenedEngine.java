@@ -98,17 +98,17 @@ public class FlattenedEngine {
     }
 
     private void updateEntities(){
-        //add pending entities
-        for(int i = 0; i < entitiesToAdd.size(); i++){
-            addEntityInternal(entitiesToAdd.get(i));
-        }
-        entitiesToAdd.clear();
-
         //remove pending entities
         for(int i = entitiesToDelete.size() - 1 ; i >= 0; i--){
             removeEntityInternal(entitiesToDelete.get(i));
         }
         entitiesToDelete.clear();
+
+        //add pending entities
+        for(int i = 0; i < entitiesToAdd.size(); i++){
+            addEntityInternal(entitiesToAdd.get(i));
+        }
+        entitiesToAdd.clear();
     }
 
     private void updateSystems(double deltaTime){
@@ -122,6 +122,7 @@ public class FlattenedEngine {
         }
 
         //general update
+        bulletSystem(deltaTime*currentTimeScale*currentTimeScale);
         performCollisionDetection();
         rainSystem(deltaTime*currentTimeScale*currentTimeScale);
     }
@@ -538,9 +539,11 @@ public class FlattenedEngine {
     private ArrayList<float[]> staticColliders = new ArrayList<>();
     private ArrayList<float[]> dynamicColliders = new ArrayList<>();
 
+    private int count = 0;
     private void colliderSorting(float[] entity, double deltaTime){
         if(entity[EntityIndex.COLLISION_TYPE.getIndex()] > 0.5f){
             dynamicColliders.add(entity);
+            count++;
         }else{
             staticColliders.add(entity);
         }
@@ -774,7 +777,7 @@ public class FlattenedEngine {
         ArrayList<float[]> colliders = (trigger[EntityIndex.TRIGGER_COLLISION_TYPE.getIndex()] > 0.5f) ? dynamicColliders : staticColliders;
 
         if(trigger[EntityIndex.TRIGGER_COLLISION_TYPE.getIndex()] > 1.5f){
-            colliders.clear();
+            colliders = new ArrayList<>();
             colliders.add(Entities.getFirstPlayer());
         }
 
@@ -900,5 +903,36 @@ public class FlattenedEngine {
         }
 
     }
+    //endregion
+
+    //region Bullet System
+
+    private float minHeight = -50.0f;
+    private float maxHeight =  Main.HEIGHT * 0.85f;
+
+    private float initialRateOfFire = 2.0f;
+    private float rateOfFire = 1.0f/initialRateOfFire;
+    private float spawnPosX = Main.WIDTH * 1.5f;
+
+    private float elapsedTime = 0.0f;
+
+    private float initialBulletSpeed = -500.f;
+    private float currentBulletSpeed = initialBulletSpeed;
+
+    private void bulletSystem(double deltaTime){
+        elapsedTime += deltaTime;
+
+        if(elapsedTime > rateOfFire){
+            elapsedTime -= rateOfFire;
+            spawnBullet();
+        }
+    }
+
+    private void spawnBullet(){
+        Vector2 position = new Vector2(spawnPosX - camera.getTranslateX(), minHeight+random.nextFloat() * (maxHeight - minHeight) );
+        Vector2 velocity = new Vector2(currentBulletSpeed,0 );
+        addEntity(Entities.createBullet(position, velocity));
+    }
+
     //endregion
 }

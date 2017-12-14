@@ -134,6 +134,7 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
         level.update(engine, engine.getCamera(), deltaTime);
         engine.update(deltaTime, timeScale);
 
+
         TweenEngine.getInstance().update(deltaTime);
     }
 

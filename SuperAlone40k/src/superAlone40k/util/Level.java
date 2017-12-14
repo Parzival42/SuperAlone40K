@@ -84,9 +84,6 @@ public class Level {
 
         engine.addEntity(Entities.createLight());
 
-        //sea
-        //engine.addEntity(Entities.createSeaPartBottom(new Vector2(0,Main.HEIGHT - 20), new Vector2(Main.WIDTH, 20)));
-        //engine.addEntity(Entities.createSeaPartTop(new Vector2(0,Main.HEIGHT - 39), new Vector2(Main.WIDTH + 10, 2)));
         seaTopEntity = Entities.createSeaPartBottom(new Vector2(0,Main.HEIGHT - 20), new Vector2(Main.WIDTH, 20));
         engine.addEntity(seaTopEntity);
         seaBottomEntity = Entities.createSeaPartTop(new Vector2(0,Main.HEIGHT - 39), new Vector2(Main.WIDTH + 10, 2));
@@ -99,21 +96,10 @@ public class Level {
     }
 
     public void update(FlattenedEngine engine, AffineTransform camera, double deltaTime){
-        if(gameState == 0 && gameStateChanged){
-            //createMenuScene();
-            //createSea();
-        }else if(gameState == 1){
+        if(gameState == 1){
             if(gameStateChanged){
-                /*for(int i = 0; i < sceneEntities.size(); i++){
-                    engine.removeEntity(sceneEntities.get(i));
-                }
-                sceneEntities.clear();*/
-
-                //Entities.getFirstPlayer()[EntityIndex.COLOR_A.getIndex()] = 1.0f;
                 Entities.getFirstPlayer()[EntityIndex.GRAVITATION_INFLUENCE.getIndex()] = 1.0f;
-
                 Entities.setPositionFor(Entities.getFirstPlayer(), 400, -1000);
-
             }
 
             Entities.setPositionFor(seaTopEntity, (float) -camera.getTranslateX(), seaTopEntity[EntityIndex.POSITION_Y.getIndex()]);
@@ -121,9 +107,7 @@ public class Level {
             float cameraX = (float) camera.getTranslateX() + cameraOffset;
 
             movement = -cameraX - currentSectorPosition;
-
             if(movement > minSectorWidth){
-
                 generateNextSector(engine);
                 refineSectors(engine);
             }
@@ -135,6 +119,7 @@ public class Level {
                 currentSectorPosition = -3.0f * windowWidth;
             }
             createScoreScene();
+
         }
         gameStateChanged = false;
     }
@@ -186,10 +171,10 @@ public class Level {
                 }
 
                 if(count > 3){
-                    System.out.println("Index change requested");
                     createPlatformSector(engine, sectorWidth);
                     index = 0;
                     addMovingPlatform(new Vector2(currentSectorPosition- (2.5f*sectorWidth),500), new Vector2(currentSectorPosition-0.5f*sectorWidth, 500));
+
                 }
                 break;
 
@@ -216,10 +201,5 @@ public class Level {
         int step = Math.min(Math.round((windowHeight*0.9f+random.nextFloat()*windowHeight*0.2f)/ cellHeight)-1, cellAmount-1);
         int height = (cellAmount - step) * cellHeight;
         engine.addEntity(Entities.createPlatform(new Vector2(currentSectorPosition+sectorWidth/2.0f,(step * cellHeight )+  (height/2.0f)), new Vector2(sectorWidth/2.0f+1.5f, height)));
-    }
-
-    private void createSea() {
-        engine.addEntity(Entities.createSeaPartBottom(new Vector2(0,Main.HEIGHT - 20), new Vector2(Main.WIDTH, 20)));
-        engine.addEntity(Entities.createSeaPartTop(new Vector2(0,Main.HEIGHT - 39), new Vector2(Main.WIDTH + 10, 2)));
     }
 }
