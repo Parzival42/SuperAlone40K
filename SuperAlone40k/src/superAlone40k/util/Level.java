@@ -12,23 +12,19 @@ import java.util.Random;
 
 public class Level {
     private Random random = new Random();
-    private FlattenedEngine engine;
     private Canvas canvas;
 
     private float movement = 0.0f;
-
 
     // 0 - fixed platforms - 1 nothing
     private int[] sectorProbability = new int[]{15,50};
     private int totalPropability = 0;
 
     private float currentSectorPosition = 0.0f;
-    private float minSectorWidth = 250;
+    private float minSectorWidth = 200;
     private float cameraOffset;
 
     private ArrayList<Integer> indexHistory = new ArrayList<>();
-    private ArrayList<Float> sectorWidthHistory = new ArrayList<>();
-
 
     private int cellHeight;
     private int cellAmount = 24;
@@ -36,19 +32,16 @@ public class Level {
     private int windowWidth;
     private int windowHeight;
 
-
     //game state
     // 0 - menu, 1 - game, 2 - score
     private static int gameState = 0;
     private static boolean gameStateChanged = true;
 
-    private ArrayList<float[]> sceneEntities = new ArrayList<>();
-
     private float[] seaTopEntity;
     private float[] seaBottomEntity;
 
     public Level(FlattenedEngine engine, Canvas canvas){
-        this.engine = engine;
+
         this.canvas = canvas;
 
         windowWidth = canvas.getWidth();
@@ -57,7 +50,7 @@ public class Level {
         cameraOffset = -3.0f * windowWidth;
         cellHeight = windowHeight/cellAmount;
 
-        init();
+        init(engine);
     }
 
     public static int getGameState(){
@@ -71,7 +64,7 @@ public class Level {
         }
     }
 
-    private void init() {
+    private void init(FlattenedEngine engine) {
         engine.addEntity(Entities.createPlayer());
         // Left top to Bottom left
         engine.addEntity(Entities.createScreenBorder(new Vector2(0, 0), new Vector2(0, 1)));
@@ -86,6 +79,7 @@ public class Level {
 
         seaTopEntity = Entities.createSeaPartBottom(new Vector2(0,Main.HEIGHT - 20), new Vector2(Main.WIDTH, 20));
         engine.addEntity(seaTopEntity);
+
         seaBottomEntity = Entities.createSeaPartTop(new Vector2(0,Main.HEIGHT - 39), new Vector2(Main.WIDTH + 10, 2));
         engine.addEntity(seaBottomEntity);
 
@@ -95,7 +89,7 @@ public class Level {
         }
     }
 
-    public void update(FlattenedEngine engine, AffineTransform camera, double deltaTime){
+    public void update(FlattenedEngine engine, AffineTransform camera){
         if(gameState == 1){
             if(gameStateChanged){
                 Entities.getFirstPlayer()[EntityIndex.GRAVITATION_INFLUENCE.getIndex()] = 1.0f;
@@ -109,7 +103,6 @@ public class Level {
             movement = -cameraX - currentSectorPosition;
             if(movement > minSectorWidth){
                 generateNextSector(engine);
-                refineSectors(engine);
             }
 
         }else if(gameState == 2){
@@ -117,36 +110,42 @@ public class Level {
                 Entities.setPositionFor(seaTopEntity, 0, seaTopEntity[EntityIndex.POSITION_Y.getIndex()]);
                 Entities.setPositionFor(seaBottomEntity, 0, seaBottomEntity[EntityIndex.POSITION_Y.getIndex()]);
                 currentSectorPosition = -3.0f * windowWidth;
+
             }
-            createScoreScene();
+            createScoreScene(engine);
 
         }
         gameStateChanged = false;
     }
 
-    private void createScoreScene() {
+    private void createScoreScene(FlattenedEngine engine) {
         for(int i = 0; i < engine.getEntities().size(); i++){
-            if(FlattenedEngine.isBitmaskValid(EntityType.PLATFORM.getEntityType(), (int) engine.getEntities().get(i)[EntityIndex.ENTITY_TYPE_ID.getIndex()])){
+            if(FlattenedEngine.isBitmaskValid(EntityType.PLATFORM.getEntityType(), (int) engine.getEntities().get(i)[EntityIndex.ENTITY_TYPE_ID.getIndex()]) ||
+                    FlattenedEngine.isBitmaskValid(EntityType.BULLET.getEntityType(), (int) engine.getEntities().get(i)[EntityIndex.ENTITY_TYPE_ID.getIndex()]) ){
                 engine.removeEntity(engine.getEntities().get(i));
                 continue;
-            }
-
-            if(FlattenedEngine.isBitmaskValid(EntityType.BULLET.getEntityType(), (int) engine.getEntities().get(i)[EntityIndex.ENTITY_TYPE_ID.getIndex()])){
-                engine.removeEntity(engine.getEntities().get(i));
             }
         }
     }
 
 
-    private void refineSectors(FlattenedEngine engine) {
+    private void refineSectors(FlattenedEngine engine, int oneSequence) {
+        if(oneSequence>2){
+            Vector2 min = new Vector2(currentSectorPosition- (2.5f*minSectorWidth),canvas.getHeight()*0.7f);
+            Vector2 max = new Vector2(currentSectorPosition-0.5f*minSectorWidth, canvas.getHeight()*0.7f);
+            engine.addEntity(Entities.createMovingPlatform(min, new Vector2(75,15), new Vector2(200,0), min, max));
+        }else if(oneSequence ==1){
+            Vector2 min = new Vector2(currentSectorPosition-0.5f*minSectorWidth,canvas.getHeight()*0.4f);
+            Vector2 max = new Vector2(currentSectorPosition-0.5f*minSectorWidth, canvas.getHeight()*0.8f);
+            engine.addEntity(Entities.createMovingPlatform(min, new Vector2(32.5f,15), new Vector2(0,200), min, max));
 
+        }
 
 
     }
 
     private void generateNextSector(FlattenedEngine engine) {
-        float sectorWidth = 250 + random.nextFloat() * 50;
-
+        float sectorWidth = minSectorWidth + random.nextFloat() * 50;
 
         int value = (int) (random.nextFloat() * totalPropability);
 
@@ -165,40 +164,39 @@ public class Level {
             index = 0;
         }
 
-        switch(index){
-            case 0: createPlatformSector(engine, sectorWidth); break;
-            case 1:
-                int count = 0;
-                for(int i = 0; i < indexHistory.size(); i++){
-                    if(indexHistory.get(i) == 1){
-                        count++;
-                    }
-                }
+        int oneSequence = getOneSequenceAmount();
 
-                if(count > 2){
-                    createPlatformSector(engine, sectorWidth);
-                    index = 0;
-                    addMovingPlatform(new Vector2(currentSectorPosition- (2.5f*sectorWidth),500), new Vector2(currentSectorPosition-0.5f*sectorWidth, 500));
-
-                }
-                break;
-
-            default: break;
+        if(index == 0){
+            createPlatformSector(engine, sectorWidth);
+        }else{
+            if(oneSequence > 2){
+                createPlatformSector(engine, sectorWidth);
+                index = 0;
+            }
         }
 
+        refineSectors(engine, oneSequence);
 
+        indexHistory.add(index);
         if(indexHistory.size() > 3){
             indexHistory.remove(0);
-            sectorWidthHistory.remove(0);
         }
-        indexHistory.add(index);
-        sectorWidthHistory.add(sectorWidth);
+
 
         currentSectorPosition += sectorWidth;
     }
 
-    private void addMovingPlatform(Vector2 min, Vector2 max){
-        engine.addEntity(Entities.createMovingPlatform(min, new Vector2(75,15), new Vector2(200,0), min, max));
+    private int getOneSequenceAmount() {
+        int ones = 0;
+        for (int i = 0; i < indexHistory.size(); i++){
+            if(indexHistory.get(i) == 1){
+                ones++;
+            }else{
+                ones = 0;
+            }
+        }
+
+        return ones;
     }
 
 
