@@ -25,8 +25,8 @@ public class FlattenedEngine {
     private ArrayList<float[]> entitiesToAdd = new ArrayList<>();
     private ArrayList<float[]> entitiesToDelete = new ArrayList<>();
 
-    private int[] systemBitmasks = new int[] { SystemBitmask.HORIZONTAL_MOVEMENT.getSystemMask(), SystemBitmask.VERTICAL_MOVEMENT.getSystemMask(), SystemBitmask.INPUT.getSystemMask(), SystemBitmask.COLLIDER_SORTING.getSystemMask(), SystemBitmask.MOVEMENT_SYSTEM.getSystemMask(), SystemBitmask.LIGHT_SYSTEM.getSystemMask(), SystemBitmask.TRIGGER_SYSTEM.getSystemMask(), SystemBitmask.LIFETIME_SYSTEM.getSystemMask(), SystemBitmask.CLEANUP_SYSTEM.getSystemMask(), SystemBitmask.PLATFORM_MOVEMENT_SYSTEM.getSystemMask() };
-    private SystemMethod[] systemMethods = new SystemMethod[]{FlattenedEngine::simpleHorizontalMovement,  FlattenedEngine::simpleVerticalMovement, FlattenedEngine::inputProcessing, FlattenedEngine::colliderSorting, FlattenedEngine::movementSystem, FlattenedEngine::lightingSystem, FlattenedEngine::triggerSystem, FlattenedEngine::lifetimeSystem, FlattenedEngine::cleanupSystem, FlattenedEngine::platformMovementSystem};
+    private int[] systemBitmasks = new int[] {SystemBitmask.INPUT.getSystemMask(), SystemBitmask.COLLIDER_SORTING.getSystemMask(), SystemBitmask.MOVEMENT_SYSTEM.getSystemMask(), SystemBitmask.LIGHT_SYSTEM.getSystemMask(), SystemBitmask.TRIGGER_SYSTEM.getSystemMask(), SystemBitmask.LIFETIME_SYSTEM.getSystemMask(), SystemBitmask.CLEANUP_SYSTEM.getSystemMask(), SystemBitmask.PLATFORM_MOVEMENT_SYSTEM.getSystemMask() };
+    private SystemMethod[] systemMethods = new SystemMethod[]{FlattenedEngine::inputProcessing, FlattenedEngine::colliderSorting, FlattenedEngine::movementSystem, FlattenedEngine::lightingSystem, FlattenedEngine::triggerSystem, FlattenedEngine::lifetimeSystem, FlattenedEngine::cleanupSystem, FlattenedEngine::platformMovementSystem};
 
     private final TreeSet<Ray> angleSortedRays = new TreeSet<>();
     
@@ -190,18 +190,6 @@ public class FlattenedEngine {
 
     // ---- ENTITY SYSTEM METHODS
 
-    //region Horizontal and Vertical Movement Systems
-    private void simpleHorizontalMovement(float[] entity, double deltaTime){
-		entity[EntityIndex.POSITION_X.getIndex()] = (float) (entity[2]
-				+ Math.sin((totalTime + entity[3]) * 3) * deltaTime  * 100);
-    }
-
-    private void simpleVerticalMovement(float[] entity, double deltaTime){
-		entity[EntityIndex.POSITION_Y.getIndex()] = (float) (entity[3]
-				+ Math.sin((totalTime + entity[2]) * 3) * deltaTime  * 100);
-    }
-    //endregion
-
     //region Input System (player, camera, menu, timescale
     private void inputProcessing(float[] entity, double deltaTime){
         //player movement
@@ -303,7 +291,7 @@ public class FlattenedEngine {
                         .tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),20, 0.2f, Easing.Type.SineEaseInOut)
                         .start();
 
-                player[EntityIndex.VELOCITY_Y.getIndex()] = -jumpStrength;
+                player[EntityIndex.VELOCITY_Y.getIndex()] = -jumpStrength*0.8f;
                 isDoubleJumping = true;
                 isJumpRequested = false;
             }
