@@ -668,6 +668,17 @@ public class FlattenedEngine {
                 //player and environment
                 if(isBitmaskValid(EntityType.PLAYER.getEntityType(), entity1Id)) {
                 	resolvePlayerCollision(entity1, entity2, xOverlap, yOverlap);
+                    if ((int)entity1[EntityIndex.TRIGGER_ENTER.getIndex()] == 1) {
+                        TweenEngine.getInstance()
+                                .tween(entity1, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),35, 0.0f, Easing.Type.SineEaseInOut)
+                                .tween(entity1, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),40, 0.2f, Easing.Type.SineEaseInOut)
+                                .start();
+
+                        TweenEngine.getInstance()
+                                .tween(entity1, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),23, 0.0f, Easing.Type.SineEaseInOut)
+                                .tween(entity1, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),20, 0.2f, Easing.Type.SineEaseInOut)
+                                .start();
+                    }
                 	return;
                 }
                 if(isBitmaskValid(EntityType.PLAYER.getEntityType(), entity2Id)) {
