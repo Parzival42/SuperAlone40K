@@ -128,6 +128,11 @@ public class Level {
         for(int i = 0; i < engine.getEntities().size(); i++){
             if(FlattenedEngine.isBitmaskValid(EntityType.PLATFORM.getEntityType(), (int) engine.getEntities().get(i)[EntityIndex.ENTITY_TYPE_ID.getIndex()])){
                 engine.removeEntity(engine.getEntities().get(i));
+                continue;
+            }
+
+            if(FlattenedEngine.isBitmaskValid(EntityType.BULLET.getEntityType(), (int) engine.getEntities().get(i)[EntityIndex.ENTITY_TYPE_ID.getIndex()])){
+                engine.removeEntity(engine.getEntities().get(i));
             }
         }
     }
@@ -170,7 +175,7 @@ public class Level {
                     }
                 }
 
-                if(count > 3){
+                if(count > 2){
                     createPlatformSector(engine, sectorWidth);
                     index = 0;
                     addMovingPlatform(new Vector2(currentSectorPosition- (2.5f*sectorWidth),500), new Vector2(currentSectorPosition-0.5f*sectorWidth, 500));
