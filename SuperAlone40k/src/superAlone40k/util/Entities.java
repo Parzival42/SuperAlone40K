@@ -41,7 +41,7 @@ public class Entities {
                 .setGravitationInfluence(1.0f)
                 .setDrag(0.975f)
                 .setTriggerPosition(new Vector2(0, extent.y))
-                .setTriggerExtent(new Vector2(10,8))
+                .setTriggerExtent(new Vector2(10,3))
                 .setTriggerCollisionType(0.0f)
                 .create();
         
@@ -187,20 +187,6 @@ public class Entities {
                 .setVelocity(velocity)
                 .setDrag(1.0f)
                 .setLifetime(10.0f + random.nextDouble() * 10.0f)
-                .create();
-
-        return entity;
-    }
-    //endregion
-
-    //region Horizontal Moving Particle
-    public static float[] createHorizontalMovingParticle(Vector2 position){
-        float[] entity = EntityCreator.getInstance()
-                .setEntityTypeID(EntityType.NONE.getEntityType())
-                .setSystemMask(SystemBitmask.HORIZONTAL_MOVEMENT.getSystemMask() | SystemBitmask.CLEANUP_SYSTEM.getSystemMask())
-                .setPosition(position)
-                .setExtent(new Vector2(5,5))
-                .setColor(new Color(1.0f,1.0f,1.0f, 0.05f))
                 .create();
 
         return entity;

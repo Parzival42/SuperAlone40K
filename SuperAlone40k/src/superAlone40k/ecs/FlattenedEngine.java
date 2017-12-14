@@ -49,10 +49,8 @@ public class FlattenedEngine {
         }
     }
 
-    public void update(double deltaTime, double timeScale){
+    public void update(double deltaTime){
         updating = true;
-
-        currentTimeScale = timeScale;
 
         updateSystems(deltaTime);
 
@@ -230,7 +228,6 @@ public class FlattenedEngine {
     private boolean jumpRequestValid = true;
     private boolean isJumpRequested = false;
     private boolean isCrouched = false;
-    private boolean crouchStateChangePossible = true;
 
     private void playerControl(float[] player, double deltaTime){
         if(Level.getGameState()==1){
@@ -314,42 +311,32 @@ public class FlattenedEngine {
             //crouch
 
             if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_S) && isGrounded && !isCrouched){
-                //player[EntityIndex.EXTENT_Y.getIndex()] += 20;
                 isCrouched = true;
-                crouchStateChangePossible = false;
 
-                System.out.println("crouch");
                 TweenEngine.getInstance()
-                        //.tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),40, 0.0f, Easing.Type.SineEaseInOut)
                         .tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),20, 0.2f, Easing.Type.SineEaseInOut)
-                        .notifyTweenFinished((e) -> { crouchStateChangePossible = true; })
                         .start();
 
                 TweenEngine.getInstance()
-                        //.tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),20, 0.0f, Easing.Type.SineEaseInOut)
+
                         .tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),30, 0.2f, Easing.Type.SineEaseInOut)
                         .start();
             }
 
-            if(!WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_S) && isCrouched){
+            if(isCrouched){
+                if(!WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_S)){
+                    isCrouched = false;
+                    TweenEngine.getInstance()
+                            .tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),40, 0.2f, Easing.Type.SineEaseInOut)
+                            .start();
 
-                System.out.println("uncrouch");
-                isCrouched = false;
-                TweenEngine.getInstance()
-                        .tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),40, 0.2f, Easing.Type.SineEaseInOut)
-                        .start();
-
-                TweenEngine.getInstance()
-                        .tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),20, 0.2f, Easing.Type.SineEaseInOut)
-                        .start();
+                    TweenEngine.getInstance()
+                            .tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),20, 0.2f, Easing.Type.SineEaseInOut)
+                            .start();
+                }else if(!isGrounded){
+                    isCrouched = false;
+                }
             }
-
-            if(!isGrounded && isCrouched){
-                crouchStateChangePossible = true;
-                isCrouched = false;
-            }
-
-
 
             player[EntityIndex.VELOCITY_X.getIndex()] *= player[EntityIndex.DRAG.getIndex()];
             player[EntityIndex.VELOCITY_Y.getIndex()] *= player[EntityIndex.DRAG.getIndex()];
@@ -364,14 +351,8 @@ public class FlattenedEngine {
 
     private void timeScaleControl(float[] player, double deltaTime){
         float relativeHorizontalSpeed = Math.abs(player[EntityIndex.VELOCITY_X.getIndex()]/maxMovementSpeed);
-        /*float verticalSpeed = player[EntityIndex.VELOCITY_Y.getIndex()] > 0.0f ? 0.0f : player[EntityIndex.VELOCITY_Y.getIndex()];
-        float relativeVerticalSpeed = Math.abs(verticalSpeed/maxJumpStrength);
-        */
-
-        /*
-        float timeScale = relativeHorizontalSpeed < relativeVerticalSpeed ? relativeVerticalSpeed : relativeHorizontalSpeed;*/
-
-        WindowWithFlattenedECS.setTimeScale(relativeHorizontalSpeed < 0.25f ? 0.25f : relativeHorizontalSpeed);
+        float value = relativeHorizontalSpeed < 0.25f ? 0.25f : relativeHorizontalSpeed;
+        currentTimeScale = Easing.updateEasing(Easing.Type.CubicEaseInOut, value,0.0f,1.0f,1.0f);
     }
 
     private void menuControl(){
@@ -439,7 +420,7 @@ public class FlattenedEngine {
     //region Lighting System
 
     private void lightingSystem(float[] lightSource, double deltaTime) {
-        Entities.setPositionFor(lightSource,(float)(Main.WIDTH - camera.getTranslateX()), Main.HEIGHT/2);
+        Entities.setPositionFor(lightSource,(float)(Main.WIDTH - camera.getTranslateX()), Main.HEIGHT/6);
     }
 
     private Ray[] getCornerRays(Vector2 lightPosition, float[] entity) {
@@ -935,7 +916,7 @@ public class FlattenedEngine {
 
     //region Bullet System
 
-    private float minHeight = -50.0f;
+    private float minHeight =  Main.HEIGHT / 5.0f;
     private float maxHeight =  Main.HEIGHT * 0.85f;
 
     private float initialRateOfFire = 2.0f;

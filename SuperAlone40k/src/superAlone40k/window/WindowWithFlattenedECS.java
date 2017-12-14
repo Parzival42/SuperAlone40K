@@ -36,15 +36,6 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
     private FlattenedEngine engine;
     private Level level;
 
-    //time scale
-    private static float timeScale = 1.0f;
-    private static float uneasedTimeScale = 1.0f;
-
-
-    public static void setTimeScale(float newTimeScale){
-        uneasedTimeScale = newTimeScale;
-    }
-
     public WindowWithFlattenedECS(String name, int width, int height){
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -70,8 +61,6 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
         level = new Level(engine, canvas);
     }
 
-
-
     public void start(int targetFrameRate){
         targetFrameTimeNano = (long) 1e9 / targetFrameRate;
         loop();
@@ -93,8 +82,6 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
             //FPS
             frames++;
             elapsedTime += deltaTime;
-
-            timeScale = quadEase(uneasedTimeScale);
 
             //update
             long updateStartTime = System.nanoTime();
@@ -126,15 +113,9 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
         }
     }
 
-    public void stop(){
-        running = false;
-    }
-
     private void update(double deltaTime){
-
-        engine.update(deltaTime, timeScale);
+        engine.update(deltaTime);
         level.update(engine, engine.getCamera(), deltaTime);
-
         TweenEngine.getInstance().update(deltaTime);
     }
 
@@ -178,7 +159,6 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
     @Override
     public void keyTyped(KeyEvent e) {
     	e.consume();
-        //pff
     }
 
     @Override
@@ -191,9 +171,5 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
     public void keyReleased(KeyEvent e) {
         keys[e.getKeyCode()] = false;
         e.consume();
-    }
-
-    private float quadEase(float t){
-		return t < .5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
     }
 }
