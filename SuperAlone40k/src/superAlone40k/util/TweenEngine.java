@@ -1,15 +1,14 @@
 package superAlone40k.util;
 
-import javax.swing.*;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 public class TweenEngine {
 
     public class TweenObject {
+        private float[] entity;
         private boolean set;
         private boolean delay;
-        private float[] entity;
         private int indexToTween;
         private int boundingBoxToTween;
         private float time;
@@ -42,20 +41,21 @@ public class TweenEngine {
             this.beginning = entity[indexToTween];
             this.end = tweenTo;
             this.duration = duration;
-            this.time = 0;
-            this.finished = false;
             this.easingType = type;
+            nextTweenObject = new TweenObject(this.head, this);
+            return nextTweenObject;
+        }
+
+        public TweenObject delay(float duration) {
+            this.set = true;
+            this.delay = true;
+            this.duration = duration;
             nextTweenObject = new TweenObject(this.head, this);
             return nextTweenObject;
         }
 
         public TweenObject reverse() {
             return this.tween(prevTweenObject.entity, prevTweenObject.indexToTween, prevTweenObject.boundingBoxToTween, prevTweenObject.beginning, prevTweenObject.duration, prevTweenObject.easingType);
-        }
-
-        public TweenObject delay(float duration) {
-            this.delay = true;
-            return this.tween(prevTweenObject.entity, prevTweenObject.indexToTween, prevTweenObject.boundingBoxToTween, prevTweenObject.beginning, duration, prevTweenObject.easingType);
         }
 
         public TweenObject notifyTweenFinished(ActionListener actionListener) {
@@ -92,9 +92,9 @@ public class TweenEngine {
     public TweenObject tween(float[] entity, int indexToTween, int boundingBoxToTween, float tweenTo, float duration, Easing.Type type) {
         return new TweenObject().tween(entity, indexToTween, boundingBoxToTween, tweenTo , duration, type);
     }
-    
-    public TweenObject tween() {
-    	return new TweenObject();
+
+    public TweenObject delay (float duration){
+        return new TweenObject().delay(duration);
     }
 
     public void update(double deltaTime) {
@@ -110,7 +110,9 @@ public class TweenEngine {
             }
 
             if (tweenObject.time + deltaTime > tweenObject.duration) {
-                tweenObject.entity[tweenObject.indexToTween] = tweenObject.end;
+                if (!tweenObject.delay) {
+                    tweenObject.entity[tweenObject.indexToTween] = tweenObject.end;
+                }
                 tweenObject.time = tweenObject.duration;
                 tweenObject.finished = true;
             } else {
@@ -119,25 +121,24 @@ public class TweenEngine {
 
             if (tweenObject.finished) {
 
-                tweenObject.entity[tweenObject.indexToTween] = tweenObject.end;
-                tweenObject.entity[tweenObject.boundingBoxToTween]  = tweenObject.end;
-                tweenObject.nextTweenObject.beginning = tweenObject.end;
+                if (!tweenObject.delay) {
+                    tweenObject.entity[tweenObject.indexToTween] = tweenObject.end;
+                    if (tweenObject.boundingBoxToTween != -1) {
+                        tweenObject.entity[tweenObject.boundingBoxToTween] = tweenObject.end;
+                    }
+                    tweenObject.nextTweenObject.beginning = tweenObject.end;
+                }
 
                 if (tweenObject.nextTweenObject.set) {
                     tweenObjects.add(tweenObject.nextTweenObject);
                 }
+
 
                 tweenObject.tweenFinished();
                 tweenObjects.remove(i);
             }
         }
 
-    }
-
-    public void cancelAllTweens() {
-        for (int i = 0; i < tweenObjects.size(); i++) {
-            tweenObjects.get(i).finished = true;
-        }
     }
 
 }
