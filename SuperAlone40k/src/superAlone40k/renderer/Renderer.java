@@ -4,7 +4,6 @@ import superAlone40k.Main;
 import superAlone40k.ecs.EntityIndex;
 import superAlone40k.ecs.EntityType;
 import superAlone40k.util.Entities;
-import superAlone40k.util.Vector2;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;

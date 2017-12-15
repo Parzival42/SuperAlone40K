@@ -48,6 +48,10 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
     	Sound.addChannel(Sound.PLAYER_COLLIDE);
     	Sound.changeInstrumentFor(Sound.getChannelBy(Sound.PLAYER_COLLIDE), 116 - 1);
     	
+    	// Player death
+    	Sound.addChannel(Sound.PLAYER_DEATH);
+    	Sound.changeInstrumentFor(Sound.getChannelBy(Sound.PLAYER_DEATH), 113 - 1);
+    	
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         setFocusable(true);

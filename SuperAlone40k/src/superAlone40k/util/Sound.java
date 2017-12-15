@@ -30,6 +30,7 @@ import javax.sound.midi.Synthesizer;
 public class Sound {
 	public static int PLAYER_JUMP = 1;
 	public static int PLAYER_COLLIDE = 2;
+	public static int PLAYER_DEATH = 3;
 	
 	// Max. of 16 channels is possible!
 	private static Map<Integer, MidiChannel> channelById = new HashMap<>();

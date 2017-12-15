@@ -6,7 +6,6 @@ import superAlone40k.util.*;
 import superAlone40k.window.WindowWithFlattenedECS;
 
 import javax.sound.midi.MidiChannel;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
@@ -45,6 +44,7 @@ public class FlattenedEngine {
     
     private MidiChannel playerJumpChannel = Sound.getChannelBy(Sound.PLAYER_JUMP);
     private MidiChannel playerCollisionChannel = Sound.getChannelBy(Sound.PLAYER_COLLIDE);
+    private MidiChannel playerDeathChannel = Sound.getChannelBy(Sound.PLAYER_DEATH);
 
     public FlattenedEngine() {
         systemViews = new ArrayList[systemMethods.length];
@@ -53,7 +53,7 @@ public class FlattenedEngine {
         }
     }
 
-    public void update(double deltaTime){
+    public void update(double deltaTime) {
         updating = true;
 
         updateSystems(deltaTime);
@@ -71,25 +71,25 @@ public class FlattenedEngine {
     		calculateShadows(lightEntity, graphics);
     	}
 
-    	int score = (int)(-camera.getTranslateX() / (Main.WIDTH / 8));
+    	int score = (int) (-camera.getTranslateX() / (Main.WIDTH / 8));
 
     	if (score > highScore) {
     	    highScore = score;
         }
 
-    	if(Level.getGameState()==0){
+		if (Level.getGameState() == 0) {
     	    highScore = 0;
             drawCenteredString(graphics,"SUPER ALONE", Main.WIDTH / 2, Main.HEIGHT / 2, brandonSmall, Renderer.SCORE_COLOR);
             drawCenteredString(graphics,"PRESS SPACE TO START", Main.WIDTH / 2, Main.HEIGHT / 2, brandonTiny, Renderer.BULLET_TOPWATER_COLOR);
         }
 
         if (Level.getGameState() == 1) {
-            drawCenteredString(graphics, highScore + "", (int)(Main.WIDTH / 2 - camera.getTranslateX()), (int)(Main.HEIGHT / 2 - camera.getTranslateY()), brandonBig, Renderer.SCORE_COLOR);
+            drawCenteredString(graphics, highScore + "", (int) (Main.WIDTH / 2 - camera.getTranslateX()), (int) (Main.HEIGHT / 2 - camera.getTranslateY()), brandonBig, Renderer.SCORE_COLOR);
         }
 
-        if(Level.getGameState()==2){
-            drawCenteredString(graphics,"SCORE " + highScore, Main.WIDTH / 2, Main.HEIGHT / 2, brandonSmall, Renderer.SCORE_COLOR);
-            drawCenteredString(graphics,"PRESS N TO CONTINUE", Main.WIDTH / 2, Main.HEIGHT / 2, brandonTiny, Renderer.BULLET_TOPWATER_COLOR);
+		if (Level.getGameState() == 2) {
+            drawCenteredString(graphics, "SCORE " + highScore, Main.WIDTH / 2, Main.HEIGHT / 2, brandonSmall, Renderer.SCORE_COLOR);
+            drawCenteredString(graphics, "PRESS N TO CONTINUE", Main.WIDTH / 2, Main.HEIGHT / 2, brandonTiny, Renderer.BULLET_TOPWATER_COLOR);
         }
     }
 
@@ -100,26 +100,26 @@ public class FlattenedEngine {
         g.drawString(text, x - metrics.stringWidth(text) / 2, y + metrics.getHeight() / 4);
     }
 
-    private void updateEntities(){
+    private void updateEntities() {
         //remove pending entities
-        for(int i = entitiesToDelete.size() - 1 ; i >= 0; i--){
+        for(int i = entitiesToDelete.size() - 1 ; i >= 0; i--) {
             removeEntityInternal(entitiesToDelete.get(i));
         }
         entitiesToDelete.clear();
 
         //add pending entities
-        for(int i = 0; i < entitiesToAdd.size(); i++){
+        for(int i = 0; i < entitiesToAdd.size(); i++) {
             addEntityInternal(entitiesToAdd.get(i));
         }
         entitiesToAdd.clear();
     }
 
-    private void updateSystems(double deltaTime){
+    private void updateSystems(double deltaTime) {
         totalTime += deltaTime;
 
         //individual entity update
-        for(int i = 0; i < systemViews.length; i++){
-            for(int j = 0; j < systemViews[i].size(); j++){
+        for(int i = 0; i < systemViews.length; i++) {
+            for(int j = 0; j < systemViews[i].size(); j++) {
                 systemMethods[i].execute(this, systemViews[i].get(j), deltaTime);
             }
         }
@@ -131,7 +131,7 @@ public class FlattenedEngine {
 		rainSystem(deltaTime * currentTimeScale * currentTimeScale);
     }
 
-	public void addEntity(float[] entity){
+	public void addEntity(float[] entity) {
         assert entity.length > 1;
 
         if(updating){
@@ -141,13 +141,13 @@ public class FlattenedEngine {
         }
     }
 
-    private void addEntityInternal(float[] entity){
+    private void addEntityInternal(float[] entity) {
         entities.add(entity);
         addEntityToViews(entity);
     }
 
     //adds an entity to the proper views
-    private void addEntityToViews(float[] entity){
+    private void addEntityToViews(float[] entity) {
         int entityMask = (int) entity[EntityIndex.SYSTEM_MASK.getIndex()];
         for(int i = 0; i < systemViews.length; i++){
             if((entityMask & systemBitmasks[i]) == systemBitmasks[i]) {
@@ -156,7 +156,7 @@ public class FlattenedEngine {
         }
     }
 
-    public void removeEntity(float[] entity){
+    public void removeEntity(float[] entity) {
         if(updating){
             entitiesToDelete.add(entity);
         }else{
@@ -164,12 +164,12 @@ public class FlattenedEngine {
         }
     }
 
-    private void removeEntityInternal(float[] entity){
+    private void removeEntityInternal(float[] entity) {
         removeEntityFromViews(entity);
         entities.remove(entity);
     }
 
-    private void removeEntityFromViews(float[] entity){
+    private void removeEntityFromViews(float[] entity) {
         for(int i = 0; i < systemViews.length; i++){
             systemViews[i].remove(entity);
         }
@@ -180,7 +180,7 @@ public class FlattenedEngine {
     }
 
 
-    private interface SystemMethod{
+    private interface SystemMethod {
         void execute(FlattenedEngine engine, float[] entity, double deltaTime);
     }
 
@@ -196,7 +196,7 @@ public class FlattenedEngine {
     // ---- ENTITY SYSTEM METHODS
 
     //region Input System (player, camera, menu, timescale
-    private void inputProcessing(float[] entity, double deltaTime){
+    private void inputProcessing(float[] entity, double deltaTime) {
         //player movement
         playerControl(entity, deltaTime);
 
@@ -222,7 +222,7 @@ public class FlattenedEngine {
     private boolean isJumpRequested = false;
     private boolean isCrouched = false;
 
-    private void playerControl(float[] player, double deltaTime){
+    private void playerControl(float[] player, double deltaTime) {
 		if (Level.getGameState() == 1) {
             if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_A)) {
                 player[EntityIndex.VELOCITY_X.getIndex()] -= movementSpeed * deltaTime;
@@ -241,13 +241,15 @@ public class FlattenedEngine {
                 TweenEngine.getInstance()
 						.tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(), 35, 0.0f,
 								Easing.Type.SineEaseInOut)
-						.tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),40, 0.2f, Easing.Type.SineEaseInOut)
+						.tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(), 40, 0.2f,
+								Easing.Type.SineEaseInOut)
                         .start();
 
                 TweenEngine.getInstance()
 						.tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(), 23, 0.0f,
 								Easing.Type.SineEaseInOut)
-						.tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),20, 0.2f, Easing.Type.SineEaseInOut)
+						.tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(), 20, 0.2f,
+								Easing.Type.SineEaseInOut)
                         .start();
             }
 
@@ -276,13 +278,15 @@ public class FlattenedEngine {
             	Sound.stopNoteFor(playerJumpChannel, 45, 60);
 
                 TweenEngine.getInstance()
-                        .tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),20, 0.0f, Easing.Type.SineEaseInOut)
-                        .tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),40, 0.2f, Easing.Type.SineEaseInOut)
+						.tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(), 20, 0.0f,
+								Easing.Type.SineEaseInOut)
+						.tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),40, 0.2f, Easing.Type.SineEaseInOut)
                         .start();
 
                 TweenEngine.getInstance()
-                        .tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),25, 0.0f, Easing.Type.SineEaseInOut)
-                        .tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),20, 0.2f, Easing.Type.SineEaseInOut)
+						.tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(), 25, 0.0f,
+								Easing.Type.SineEaseInOut)
+						.tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),20, 0.2f, Easing.Type.SineEaseInOut)
                         .start();
 
                 player[EntityIndex.VELOCITY_Y.getIndex()] = -jumpStrength;
@@ -292,18 +296,20 @@ public class FlattenedEngine {
             }
 
             //second jump
-            if(isJumping && !isDoubleJumping && isJumpRequested){
+            if(isJumping && !isDoubleJumping && isJumpRequested) {
             	Sound.playNoteFor(playerJumpChannel, 50, 1000);
             	Sound.stopNoteFor(playerJumpChannel, 50, 60);
 
                 TweenEngine.getInstance()
-                        .tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),30, 0.0f, Easing.Type.SineEaseInOut)
-                        .tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),40, 0.2f, Easing.Type.SineEaseInOut)
+						.tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(), 30, 0.0f,
+								Easing.Type.SineEaseInOut)
+						.tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),40, 0.2f, Easing.Type.SineEaseInOut)
                         .start();
 
                 TweenEngine.getInstance()
-                        .tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),25, 0.0f, Easing.Type.SineEaseInOut)
-                        .tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),20, 0.2f, Easing.Type.SineEaseInOut)
+						.tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(), 25, 0.0f,
+								Easing.Type.SineEaseInOut)
+						.tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),20, 0.2f, Easing.Type.SineEaseInOut)
                         .start();
 
 				player[EntityIndex.VELOCITY_Y.getIndex()] = -jumpStrength * 0.8f;
@@ -313,30 +319,33 @@ public class FlattenedEngine {
 
             //crouch
 
-            if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_S) && isGrounded && !isCrouched){
+            if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_S) && isGrounded && !isCrouched) {
                 isCrouched = true;
 
                 TweenEngine.getInstance()
-                        .tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),20, 0.2f, Easing.Type.SineEaseInOut)
+						.tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(), 20, 0.2f,
+								Easing.Type.SineEaseInOut)
                         .start();
 
                 TweenEngine.getInstance()
-
-                        .tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),30, 0.2f, Easing.Type.SineEaseInOut)
+						.tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(), 30, 0.2f,
+								Easing.Type.SineEaseInOut)
                         .start();
             }
 
             if(isCrouched) {
-                if(!WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_S)){
+                if(!WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_S)) {
                     isCrouched = false;
                     TweenEngine.getInstance()
-                            .tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),40, 0.2f, Easing.Type.SineEaseInOut)
+							.tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(), 40,
+									0.2f, Easing.Type.SineEaseInOut)
                             .start();
 
                     TweenEngine.getInstance()
-                            .tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),20, 0.2f, Easing.Type.SineEaseInOut)
+							.tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(), 20,
+									0.2f, Easing.Type.SineEaseInOut)
                             .start();
-                } else if(!isGrounded){
+                } else if(!isGrounded) {
                     isCrouched = false;
                 }
             }
@@ -352,10 +361,10 @@ public class FlattenedEngine {
 
     }
 
-    private void timeScaleControl(float[] player, double deltaTime){
-        float relativeHorizontalSpeed = Math.abs(player[EntityIndex.VELOCITY_X.getIndex()]/maxMovementSpeed);
-        float value = relativeHorizontalSpeed < 0.25f ? 0.25f : relativeHorizontalSpeed;
-        currentTimeScale = Easing.updateEasing(Easing.Type.CubicEaseInOut, value,0.0f,1.0f,1.0f);
+    private void timeScaleControl(float[] player, double deltaTime) {
+		final float relativeHorizontalSpeed = Math.abs(player[EntityIndex.VELOCITY_X.getIndex()] / maxMovementSpeed);
+        final float value = relativeHorizontalSpeed < 0.25f ? 0.25f : relativeHorizontalSpeed;
+		currentTimeScale = Easing.updateEasing(Easing.Type.CubicEaseInOut, value, 0.0f, 1.0f, 1.0f);
     }
 
     private void menuControl() {
@@ -367,7 +376,7 @@ public class FlattenedEngine {
             emitBullets = false;
             suspendPlayer(Entities.getFirstPlayer());
             currentTimeScale = 1.0f;
-            if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_SPACE)){
+            if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_SPACE)) {
                 emitBullets = true;
                 Level.setGameState(1);
                 minPosX = 0;
@@ -375,14 +384,13 @@ public class FlattenedEngine {
             }
         }
 
-        if(Level.getGameState() == 2){
+        if(Level.getGameState() == 2) {
             emitBullets = false;
             suspendPlayer(Entities.getFirstPlayer());
             currentTimeScale = 1.0f;
-            if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_N)){
+            if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_N)) {
                 Level.setGameState(0);
             }
-
         }
         
         // Activate/Deactivate lighting debug mode.
@@ -399,15 +407,14 @@ public class FlattenedEngine {
 
     private final AffineTransform camera = new AffineTransform();
 
-    private void cameraControl(float[] player, double deltaTime){
+    private void cameraControl(float[] player, double deltaTime) {
         float xChange = 0.0f;
-        if(player[EntityIndex.POSITION_X.getIndex()] - player[EntityIndex.EXTENT_X.getIndex()] < minPosX){
+        if(player[EntityIndex.POSITION_X.getIndex()] - player[EntityIndex.EXTENT_X.getIndex()] < minPosX) {
             player[EntityIndex.POSITION_X.getIndex()] = minPosX + player[EntityIndex.EXTENT_X.getIndex()];
 
-        }else if(player[EntityIndex.POSITION_X.getIndex()] > maxPosX && player[EntityIndex.POSITION_X.getIndex()] > previousX){
+        } else if(player[EntityIndex.POSITION_X.getIndex()] > maxPosX && player[EntityIndex.POSITION_X.getIndex()] > previousX) {
             xChange = player[EntityIndex.POSITION_X.getIndex()] - previousX;
         }
-
         camera.setToTranslation(camera.getTranslateX() - xChange, camera.getTranslateY());
         minPosX += xChange;
         maxPosX += xChange;
@@ -415,7 +422,7 @@ public class FlattenedEngine {
         previousX = player[EntityIndex.POSITION_X.getIndex()];
     }
 
-    public AffineTransform getCamera(){
+    public AffineTransform getCamera() {
         return camera;
     }
     //endregion)
@@ -423,7 +430,7 @@ public class FlattenedEngine {
     //region Lighting System
 
     private void lightingSystem(float[] lightSource, double deltaTime) {
-        Entities.setPositionFor(lightSource,(float)(Main.WIDTH - camera.getTranslateX()), Main.HEIGHT/6);
+		Entities.setPositionFor(lightSource, (float) (Main.WIDTH - camera.getTranslateX()), Main.HEIGHT / 6);
     }
 
     private Ray[] getCornerRays(Vector2 lightPosition, float[] entity) {
@@ -582,29 +589,28 @@ public class FlattenedEngine {
     private ArrayList<float[]> staticColliders = new ArrayList<>();
     private ArrayList<float[]> dynamicColliders = new ArrayList<>();
 
-    private void colliderSorting(float[] entity, double deltaTime){
-        if(entity[EntityIndex.COLLISION_TYPE.getIndex()] > 0.5f){
+    private void colliderSorting(float[] entity, double deltaTime) {
+        if(entity[EntityIndex.COLLISION_TYPE.getIndex()] > 0.5f) {
             dynamicColliders.add(entity);
-        }else{
+        } else {
             staticColliders.add(entity);
         }
     }
 
-    private void performCollisionDetection(){
-        for(int i = 0; i < dynamicColliders.size(); i++){
-            float[] entity = dynamicColliders.get(i);
-            for(int j = 0; j < staticColliders.size(); j++){
+    private void performCollisionDetection() {
+        for(int i = 0; i < dynamicColliders.size(); i++) {
+            final float[] entity = dynamicColliders.get(i);
+            for(int j = 0; j < staticColliders.size(); j++) {
                 collisionCheckAABB(entity, staticColliders.get(j));
             }
         }
 
-        for(int i= 0; i < dynamicColliders.size(); i++){
-            float[] entity = dynamicColliders.get(i);
-            for(int j = i + 1; j < dynamicColliders.size(); j++){
+        for(int i= 0; i < dynamicColliders.size(); i++) {
+            final float[] entity = dynamicColliders.get(i);
+            for(int j = i + 1; j < dynamicColliders.size(); j++) {
                 collisionCheckAABB(entity, dynamicColliders.get(j));
             }
         }
-
         staticColliders.clear();
         dynamicColliders.clear();
     }
@@ -668,7 +674,7 @@ public class FlattenedEngine {
                 		!isBitmaskValid(EntityType.RAIN_DROP.getEntityType(), entity1Id)) {
 
                     emitRainSplatterParticles(new Vector2(entity2[EntityIndex.POSITION_X.getIndex()],
-                            entity2[EntityIndex.POSITION_Y.getIndex()] + entity2[EntityIndex.EXTENT_Y.getIndex()]*0.9f), 2);
+                            entity2[EntityIndex.POSITION_Y.getIndex()] + entity2[EntityIndex.EXTENT_Y.getIndex()] * 0.9f), 2);
 
                     removeEntity(entity2);
                 	return;
@@ -683,7 +689,7 @@ public class FlattenedEngine {
                 }
 
                 if(isBitmaskValid(EntityType.BULLET.getEntityType(), entity2Id) &&
-                        isBitmaskValid(EntityType.PLAYER.getEntityType(), entity1Id) && entity1[EntityIndex.LIFE.getIndex()]>0.5f) {
+                        isBitmaskValid(EntityType.PLAYER.getEntityType(), entity1Id) && entity1[EntityIndex.LIFE.getIndex()] > 0.5f) {
                     removeEntity(entity2);
                     deathAnimation(entity1);
                     return;
@@ -698,27 +704,30 @@ public class FlattenedEngine {
                 	resolvePlayerCollision(entity2, entity1, xOverlap, yOverlap);
                 	return;
                 }
-
                 /*float[] toDelete = entity1[EntityIndex.COLLISION_TYPE.getIndex()] > 0.5f ? entity1 : entity2;
                 removeEntity(toDelete);*/
             }
         }
     }
 
-    private void deathAnimation(float[] player){
+    private void deathAnimation(float[] player) {
+    	// Death sound
+    	Sound.playNoteFor(playerDeathChannel, 50, 1000);
+    	Sound.stopNoteFor(playerDeathChannel, 50, 1000);
+    	
         player[EntityIndex.GRAVITATION_INFLUENCE.getIndex()] = 0;
         player[EntityIndex.LIFE.getIndex()] = 0;
         player[EntityIndex.VELOCITY_X.getIndex()] = 0.0f;
         player[EntityIndex.VELOCITY_Y.getIndex()] = 0.0f;
         TweenEngine.getInstance()
-                .tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),50, 0.1f, Easing.Type.SineEaseInOut)
-                .tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),0, 0.5f, Easing.Type.SineEaseInOut)
-                .notifyTweenFinished((e) -> {suspendPlayer(player);Level.setGameState(2);})
+				.tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(), 50, 0.1f, Easing.Type.SineEaseInOut)
+				.tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),0, 0.5f, Easing.Type.SineEaseInOut)
+                .notifyTweenFinished((e) -> {suspendPlayer(player); Level.setGameState(2);})
                 .start();
 
         TweenEngine.getInstance()
-                .tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),30, 0.1f, Easing.Type.SineEaseInOut)
-                .tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),0, 0.5f, Easing.Type.SineEaseInOut)
+				.tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(), 30, 0.1f, Easing.Type.SineEaseInOut)
+				.tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),0, 0.5f, Easing.Type.SineEaseInOut)
                 .start();
     }
 
@@ -747,7 +756,7 @@ public class FlattenedEngine {
             float xOffset = player[EntityIndex.POSITION_X.getIndex()] < other[EntityIndex.POSITION_X.getIndex()] ? xOverlap : -xOverlap;
             player[EntityIndex.POSITION_X.getIndex()] += xOffset;
             player[EntityIndex.VELOCITY_X.getIndex()] = 0.0f;
-        }else{
+        } else {
             float yOffset = player[EntityIndex.POSITION_Y.getIndex()] < other[EntityIndex.POSITION_Y.getIndex()] ? yOverlap : -yOverlap;
             player[EntityIndex.POSITION_Y.getIndex()] += yOffset;
             player[EntityIndex.VELOCITY_Y.getIndex()] = 0.0f;
@@ -759,7 +768,7 @@ public class FlattenedEngine {
     //region Movement System
     private float gravity = 3000.0f;
 
-    private void movementSystem(float[] entity, double deltaTime){
+    private void movementSystem(float[] entity, double deltaTime) {
         final double scaledDeltaTime = deltaTime * currentTimeScale;
 
         entity[EntityIndex.VELOCITY_Y.getIndex()] +=  entity[EntityIndex.GRAVITATION_INFLUENCE.getIndex()] * gravity * scaledDeltaTime;
@@ -773,7 +782,7 @@ public class FlattenedEngine {
     //endregion
 
     //region Trigger System
-    private boolean checkForTriggerOverlap(float[] trigger, float[] other){
+    private boolean checkForTriggerOverlap(float[] trigger, float[] other) {
         float xOverlap =
                 Math.abs(
                         (trigger[EntityIndex.POSITION_X.getIndex()] + trigger[EntityIndex.TRIGGER_POSITION_X.getIndex()]) -
@@ -793,7 +802,7 @@ public class FlattenedEngine {
         return false;
     }
 
-    private void triggerSystem(float[] trigger, double deltaTime){
+    private void triggerSystem(float[] trigger, double deltaTime) {
         ArrayList<float[]> colliders = (trigger[EntityIndex.TRIGGER_COLLISION_TYPE.getIndex()] > 0.5f) ? dynamicColliders : staticColliders;
 
         if(trigger[EntityIndex.TRIGGER_COLLISION_TYPE.getIndex()] > 1.5f){
@@ -820,7 +829,7 @@ public class FlattenedEngine {
             }
         }
 
-        if(trigger[EntityIndex.TRIGGER_ENTER.getIndex()] > 0.5f ||trigger[EntityIndex.TRIGGER_STAY.getIndex()] > 0.5f){
+        if(trigger[EntityIndex.TRIGGER_ENTER.getIndex()] > 0.5f ||trigger[EntityIndex.TRIGGER_STAY.getIndex()] > 0.5f) {
             trigger[EntityIndex.TRIGGER_EXIT.getIndex()] = 1.0f;
             trigger[EntityIndex.TRIGGER_ENTER.getIndex()] = 0.0f;
             trigger[EntityIndex.TRIGGER_STAY.getIndex()] = 0.0f;
@@ -832,9 +841,9 @@ public class FlattenedEngine {
     //endregion
 
     //region Lifetime System
-    private void lifetimeSystem(float[] entity, double deltaTime){
+    private void lifetimeSystem(float[] entity, double deltaTime) {
         entity[EntityIndex.LIFE.getIndex()] -= deltaTime;
-        if(entity[EntityIndex.LIFE.getIndex()] < 0.0f){
+        if(entity[EntityIndex.LIFE.getIndex()] < 0.0f) {
             removeEntity(entity);
         }
     }
@@ -860,24 +869,24 @@ public class FlattenedEngine {
     private double remainingTime = 0.0d;
     private double emitRate = 1.0f / 100.0d;
 
-    private void rainSystem(double deltaTime){
+    private void rainSystem(double deltaTime) {
         if(shouldEmit){
             remainingTime += deltaTime;
 
-            while(remainingTime > emitRate){
+            while(remainingTime > emitRate) {
                 remainingTime -= emitRate;
                 emitRainParticle();
             }
         }
     }
 
-    private void emitRainParticle(){
+    private void emitRainParticle() {
         final Vector2 position = new Vector2(RAIN_PARTICLE_SPAWN_RANGE * random.nextFloat() + RAIN_PARTICLE_SPAWN_RANGE_BEGIN - camera.getTranslateX(), RAIN_PARTICLE_SPAWN_HEIGHT - random.nextFloat() * 50.0f - camera.getTranslateY());
         final Vector2 velocity = new Vector2(RAIN_WINDFORCE, random.nextFloat() * RAIN_DOWNFORCE);
         addEntity(Entities.createRainParticle(position, velocity));
     }
 
-    private void emitRainSplatterParticles(Vector2 position, int amount){
+    private void emitRainSplatterParticles(Vector2 position, int amount) {
         for(int i = 0; i < amount; i++){
             final Vector2 velocity = new Vector2((-0.5f + random.nextFloat()) * RAIN_SPLATTER_FORCE, random.nextFloat() * -RAIN_SPLATTER_FORCE);
             addEntity(Entities.createSplatterParticle(position, velocity));
@@ -887,12 +896,12 @@ public class FlattenedEngine {
 
     //region Cleanup System
     //death zone height
-    double deathZoneHeight = Main.HEIGHT+ 100;
+    double deathZoneHeight = Main.HEIGHT + 100;
     double rainDeathZoneHeight = Main.HEIGHT - 40.0f;
 
-    private void cleanupSystem(float[] entity, double deltaTime){
+    private void cleanupSystem(float[] entity, double deltaTime) {
         double tolerance = camera.getTranslateX();
-        if(entity[EntityIndex.POSITION_X.getIndex()] + entity[EntityIndex.EXTENT_X.getIndex()] < -tolerance){
+        if(entity[EntityIndex.POSITION_X.getIndex()] + entity[EntityIndex.EXTENT_X.getIndex()] < -tolerance) {
             removeEntity(entity);
             return;
         }
@@ -903,7 +912,7 @@ public class FlattenedEngine {
             return;
         }
 
-        if(entity[EntityIndex.POSITION_Y.getIndex()] > deathZoneHeight){
+        if(entity[EntityIndex.POSITION_Y.getIndex()] > deathZoneHeight) {
             if(isBitmaskValid(EntityType.PLAYER.getEntityType(), (int) entity[EntityIndex.ENTITY_TYPE_ID.getIndex()])){
                 Level.setGameState(2);
                 suspendPlayer(entity);
@@ -915,27 +924,27 @@ public class FlattenedEngine {
     //endregion
 
     //region Platform Movement System
-    private void platformMovementSystem(float[] entity, double deltaTime){
+    private void platformMovementSystem(float[] entity, double deltaTime) {
         float tolerance = 0.5f;
 
-        if(entity[EntityIndex.POSITION_X.getIndex()] < entity[EntityIndex.PLATFORM_RANGE_MIN_X.getIndex()] - tolerance){
+        if(entity[EntityIndex.POSITION_X.getIndex()] < entity[EntityIndex.PLATFORM_RANGE_MIN_X.getIndex()] - tolerance) {
             entity[EntityIndex.POSITION_X.getIndex()] = entity[EntityIndex.PLATFORM_RANGE_MIN_X.getIndex()];
             entity[EntityIndex.VELOCITY_X.getIndex()] = -entity[EntityIndex.VELOCITY_X.getIndex()];
-        }else if(entity[EntityIndex.POSITION_X.getIndex()] > entity[EntityIndex.PLATFORM_RANGE_MAX_X.getIndex()] + tolerance){
+        }else if(entity[EntityIndex.POSITION_X.getIndex()] > entity[EntityIndex.PLATFORM_RANGE_MAX_X.getIndex()] + tolerance) {
             entity[EntityIndex.POSITION_X.getIndex()] = entity[EntityIndex.PLATFORM_RANGE_MAX_X.getIndex()];
             entity[EntityIndex.VELOCITY_X.getIndex()] = -entity[EntityIndex.VELOCITY_X.getIndex()];
         }
 
-        if(entity[EntityIndex.POSITION_Y.getIndex()] < entity[EntityIndex.PLATFORM_RANGE_MIN_Y.getIndex()] - tolerance){
+        if(entity[EntityIndex.POSITION_Y.getIndex()] < entity[EntityIndex.PLATFORM_RANGE_MIN_Y.getIndex()] - tolerance) {
             entity[EntityIndex.POSITION_Y.getIndex()] = entity[EntityIndex.PLATFORM_RANGE_MIN_Y.getIndex()];
             entity[EntityIndex.VELOCITY_Y.getIndex()] = -entity[EntityIndex.VELOCITY_Y.getIndex()];
-        }else if(entity[EntityIndex.POSITION_Y.getIndex()] > entity[EntityIndex.PLATFORM_RANGE_MAX_Y.getIndex()] + tolerance){
+        }else if(entity[EntityIndex.POSITION_Y.getIndex()] > entity[EntityIndex.PLATFORM_RANGE_MAX_Y.getIndex()] + tolerance) {
             entity[EntityIndex.POSITION_Y.getIndex()] = entity[EntityIndex.PLATFORM_RANGE_MAX_Y.getIndex()];
             entity[EntityIndex.VELOCITY_Y.getIndex()] = -entity[EntityIndex.VELOCITY_Y.getIndex()];
         }
 
         //System.out.println("trigger object: "+entity[EntityIndex.TRIGGER_OBJECT_TYPE.getIndex()]);
-        if(isBitmaskValid(EntityType.PLAYER.getEntityType(), (int) entity[EntityIndex.TRIGGER_OBJECT_TYPE.getIndex()])){
+        if(isBitmaskValid(EntityType.PLAYER.getEntityType(), (int) entity[EntityIndex.TRIGGER_OBJECT_TYPE.getIndex()])) {
             double scaledDeltaTime = deltaTime * currentTimeScale;
             float[] player = Entities.getFirstPlayer();
             player[EntityIndex.POSITION_X.getIndex()] += entity[EntityIndex.VELOCITY_X.getIndex()] * scaledDeltaTime;
@@ -967,21 +976,20 @@ public class FlattenedEngine {
     private boolean emitBullets = false;
 
 
-    private void bulletSystem(double deltaTime){
-        if(emitBullets){
+    private void bulletSystem(double deltaTime) {
+        if(emitBullets) {
             elapsedTime += deltaTime;
 
-            if(elapsedTime > currentRateOfFire){
+            if(elapsedTime > currentRateOfFire) {
                 elapsedTime -= currentRateOfFire;
                 spawnBullet();
 
                 currentWaveCount--;
-                if(currentWaveCount<=0){
+                if(currentWaveCount<=0) {
                     increaseDifficulty();
-                    System.out.println("wave bullets: "+currentWaveCount);
-                    System.out.println("bullet speed: "+currentBulletSpeed);
-                    System.out.println("current rate of fire: "+currentRateOfFire);
-                    System.out.println("\n");
+					System.out.println("wave bullets: " + currentWaveCount);
+					System.out.println("bullet speed: " + currentBulletSpeed);
+					System.out.println("current rate of fire: " + currentRateOfFire + "\n\n");
                 }
             }
         }
@@ -989,15 +997,14 @@ public class FlattenedEngine {
 
     private void increaseDifficulty() {
         currentWaveCount = initialWaveCount;
-        currentBulletSpeed = currentBulletSpeed * (1.0f+increasePercentage);
+		currentBulletSpeed = currentBulletSpeed * (1.0f + increasePercentage);
         currentRateOfFire -= currentRateOfFire * increasePercentage;
     }
 
-    private void spawnBullet(){
+    private void spawnBullet() {
         Vector2 position = new Vector2(spawnPosX - camera.getTranslateX(), minHeight+random.nextFloat() * (maxHeight - minHeight) );
-        Vector2 velocity = new Vector2(-speedDeviation/2 + currentBulletSpeed + random.nextFloat()*speedDeviation,0 );
+		Vector2 velocity = new Vector2(-speedDeviation / 2 + currentBulletSpeed + random.nextFloat() * speedDeviation, 0);
         addEntity(Entities.createBullet(position, velocity));
     }
-
     //endregion
 }
