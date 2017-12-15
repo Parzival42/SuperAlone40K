@@ -221,8 +221,13 @@ public class FlattenedEngine {
     private boolean isJumpRequested = false;
     private boolean isCrouched = false;
 
+<<<<<<< HEAD
     private void playerControl(float[] player, double deltaTime) {
+		if (Level.getGameState() == 1) {
+=======
+    private void playerControl(float[] player, double deltaTime){
 		if (Level.getGameState() == 1 && player[EntityIndex.LIFE.getIndex()] > 0.5f) {
+>>>>>>> 3eb6e4c7b18a7c77fde5ba0ccd816cab6d436663
             if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_A)) {
                 player[EntityIndex.VELOCITY_X.getIndex()] -= movementSpeed * deltaTime;
                 player[EntityIndex.VELOCITY_X.getIndex()] = player[EntityIndex.VELOCITY_X.getIndex()] < -maxMovementSpeed ? -maxMovementSpeed : player[EntityIndex.VELOCITY_X.getIndex()];
