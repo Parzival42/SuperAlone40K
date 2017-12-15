@@ -32,7 +32,7 @@ public class Entities {
 
         float[] player = EntityCreator.getInstance()
                 .setEntityTypeID(EntityType.BOX_SHADOW.getEntityType() | EntityType.PLAYER.getEntityType())
-                .setSystemMask(SystemBitmask.INPUT.getSystemMask() | SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.TRIGGER_SYSTEM.getSystemMask())
+                .setSystemMask(SystemBitmask.INPUT.getSystemMask() | SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.TRIGGER_SYSTEM.getSystemMask() | SystemBitmask.CLEANUP_SYSTEM.getSystemMask())
                 .setPosition(new Vector2(400,-1000))
                 .setExtent(extent)
                 .setColor(Renderer.PLAYER_COLOR)
@@ -197,7 +197,7 @@ public class Entities {
     public static float[] createMovingPlatform(Vector2 position, Vector2 extent, Vector2 velocity, Vector2 movementRangeMin, Vector2 movementRangeMax){
         float[] entity = EntityCreator.getInstance()
                 .setEntityTypeID(EntityType.BOX_SHADOW.getEntityType() | EntityType.PLATFORM.getEntityType())
-                .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.PLATFORM_MOVEMENT_SYSTEM.getSystemMask() | SystemBitmask.MOVEMENT_SYSTEM.getSystemMask() | SystemBitmask.TRIGGER_SYSTEM.getSystemMask())
+                .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.PLATFORM_MOVEMENT_SYSTEM.getSystemMask() | SystemBitmask.MOVEMENT_SYSTEM.getSystemMask() | SystemBitmask.TRIGGER_SYSTEM.getSystemMask() | SystemBitmask.CLEANUP_SYSTEM.getSystemMask())
                 .setPosition(position)
                 .setExtent(extent)
                 .setColor(Renderer.OBSTACLE_COLOR)

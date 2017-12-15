@@ -77,11 +77,11 @@ public class Level {
 
         engine.addEntity(Entities.createLight());
 
-        seaTopEntity = Entities.createSeaPartBottom(new Vector2(0,Main.HEIGHT - 20), new Vector2(Main.WIDTH, 20));
-        engine.addEntity(seaTopEntity);
-
-        seaBottomEntity = Entities.createSeaPartTop(new Vector2(0,Main.HEIGHT - 39), new Vector2(Main.WIDTH + 10, 2));
+        seaBottomEntity = Entities.createSeaPartBottom(new Vector2(0,Main.HEIGHT - 20), new Vector2(Main.WIDTH, 20));
         engine.addEntity(seaBottomEntity);
+
+        seaTopEntity = Entities.createSeaPartTop(new Vector2(0,Main.HEIGHT - 39), new Vector2(Main.WIDTH + 10, 2));
+        engine.addEntity(seaTopEntity);
 
 
         for(int i = 0; i < sectorProbability.length; i++){

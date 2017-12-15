@@ -60,7 +60,7 @@ public class FlattenedEngine {
     }
     
     public void render(Graphics2D graphics) {
-    	final List<float[]> lights = systemViews[5];
+    	final List<float[]> lights = systemViews[3];
 
     	graphics.setTransform(camera);
     	for(float[] lightEntity : lights) {
@@ -595,10 +595,6 @@ public class FlattenedEngine {
     }
 
     //region Collision Check AABB
-
-    //death zone height
-    double deathZoneHeight = 1000;
-
     private void collisionCheckAABB(float[] entity1, float[] entity2) {
     	float xOverlap = 
     			Math.abs(
@@ -674,6 +670,16 @@ public class FlattenedEngine {
                 if(isBitmaskValid(EntityType.BULLET.getEntityType(), entity2Id) &&
                         isBitmaskValid(EntityType.PLAYER.getEntityType(), entity1Id)) {
                     removeEntity(entity2);
+                    /*TweenEngine.getInstance()
+                            .tween(entity1, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),50, 0.1f, Easing.Type.SineEaseInOut)
+                            .tween(entity1, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),0, 0.2f, Easing.Type.SineEaseInOut)
+                            .notifyTweenFinished((e) => {})
+                            .start();
+
+                    TweenEngine.getInstance()
+                            .tween(entity1, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),30, 0.1f, Easing.Type.SineEaseInOut)
+                            .tween(entity1, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),0, 0.2f, Easing.Type.SineEaseInOut)
+                            .start();*/
                     Level.setGameState(2);
                     return;
                 }
@@ -690,16 +696,8 @@ public class FlattenedEngine {
                 	return;
                 }
 
-                float[] toDelete = entity1[EntityIndex.COLLISION_TYPE.getIndex()] > 0.5f ? entity1 : entity2;
-                removeEntity(toDelete);
-            }
-        }else if(entity1[EntityIndex.POSITION_Y.getIndex()] > deathZoneHeight){
-    	    if(isBitmaskValid(EntityType.PLAYER.getEntityType(), (int) entity1[EntityIndex.ENTITY_TYPE_ID.getIndex()])){
-                Level.setGameState(2);
-                suspendPlayer(entity1);
-                //respawnPlayer(entity1);
-            }else{
-                removeEntity(entity1);
+                /*float[] toDelete = entity1[EntityIndex.COLLISION_TYPE.getIndex()] > 0.5f ? entity1 : entity2;
+                removeEntity(toDelete);*/
             }
         }
     }
@@ -863,10 +861,30 @@ public class FlattenedEngine {
     //endregion
 
     //region Cleanup System
+    //death zone height
+    double deathZoneHeight = Main.HEIGHT+ 100;
+    double rainDeathZoneHeight = Main.HEIGHT - 40.0f;
+
     private void cleanupSystem(float[] entity, double deltaTime){
         double tolerance = camera.getTranslateX();
         if(entity[EntityIndex.POSITION_X.getIndex()] + entity[EntityIndex.EXTENT_X.getIndex()] < -tolerance){
             removeEntity(entity);
+            return;
+        }
+        if(isBitmaskValid(EntityType.RAIN_DROP.getEntityType(), (int) entity[EntityIndex.ENTITY_TYPE_ID.getIndex()]) && entity[EntityIndex.POSITION_Y.getIndex()]+entity[EntityIndex.EXTENT_Y.getIndex()] > rainDeathZoneHeight){
+            emitRainSplatterParticles(new Vector2(entity[EntityIndex.POSITION_X.getIndex()],
+                    entity[EntityIndex.POSITION_Y.getIndex()] + entity[EntityIndex.EXTENT_Y.getIndex()]*0.9f), 2);
+            removeEntity(entity);
+            return;
+        }
+
+        if(entity[EntityIndex.POSITION_Y.getIndex()] > deathZoneHeight){
+            if(isBitmaskValid(EntityType.PLAYER.getEntityType(), (int) entity[EntityIndex.ENTITY_TYPE_ID.getIndex()])){
+                Level.setGameState(2);
+                suspendPlayer(entity);
+            }else{
+                removeEntity(entity);
+            }
         }
     }
     //endregion
