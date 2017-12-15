@@ -209,7 +209,6 @@ public class FlattenedEngine {
     private float movementSpeed = 1000.0f;
     private float maxMovementSpeed = 350.0f;
     private float jumpStrength = 1200.0f;
-    private float maxJumpStrength = 700.0f;
     private float playerGravity = 2000.0f;
     private boolean isJumping = false;
     private boolean isDoubleJumping = false;
@@ -218,7 +217,7 @@ public class FlattenedEngine {
     private boolean isCrouched = false;
 
     private void playerControl(float[] player, double deltaTime){
-		if (Level.getGameState() == 1) {
+		if (Level.getGameState() == 1 && player[EntityIndex.LIFE.getIndex()] > 0.5f) {
             if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_A)) {
                 player[EntityIndex.VELOCITY_X.getIndex()] -= movementSpeed * deltaTime;
                 player[EntityIndex.VELOCITY_X.getIndex()] = player[EntityIndex.VELOCITY_X.getIndex()] < -maxMovementSpeed ? -maxMovementSpeed : player[EntityIndex.VELOCITY_X.getIndex()];
@@ -362,7 +361,7 @@ public class FlattenedEngine {
                 emitBullets = true;
                 Level.setGameState(1);
                 minPosX = 0;
-                maxPosX = 700;
+                maxPosX = 600;
             }
         }
 
@@ -384,7 +383,7 @@ public class FlattenedEngine {
 
     //camera control parameters
     private float minPosX = 0.0f;
-    private float maxPosX = 700.0f;
+    private float maxPosX = 600.0f;
 
     private float previousX = 500.0f;
 

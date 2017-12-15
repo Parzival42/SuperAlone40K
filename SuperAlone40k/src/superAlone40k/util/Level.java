@@ -17,14 +17,23 @@ public class Level {
     private float movement = 0.0f;
 
     // 0 - fixed platforms - 1 nothing
-    private int[] sectorProbability = new int[]{15,50};
+
+    // 0 - nothing, 1 - floor, 2 floor with static platform, 3
+
+    private final int WATER = 0;
+    private final int WATER_HOR_PLATFORM = 1;
+    private final int WATER_VER_PLATFORM = 2;
+    private final int FLOOR = 3;
+    private final int FLOOR_PLATFORM = 4;
+
+    private int[] sectorProbability = new int[]{30, 30, 20, 35, 30};
     private int totalPropability = 0;
 
     private float currentSectorPosition = 0.0f;
     private float minSectorWidth = 200;
     private float cameraOffset;
 
-    private ArrayList<Integer> indexHistory = new ArrayList<>();
+    private int lastSector = -1;
 
     private int cellHeight;
     private int cellAmount = 24;
@@ -41,7 +50,6 @@ public class Level {
     private float[] seaBottomEntity;
 
     public Level(FlattenedEngine engine, Canvas canvas){
-
         this.canvas = canvas;
 
         windowWidth = canvas.getWidth();
@@ -112,41 +120,18 @@ public class Level {
                 currentSectorPosition = -3.0f * windowWidth;
 
             }
-            createScoreScene(engine);
+            for(int i = 0; i < engine.getEntities().size(); i++){
+                if(FlattenedEngine.isBitmaskValid(EntityType.PLATFORM.getEntityType(), (int) engine.getEntities().get(i)[EntityIndex.ENTITY_TYPE_ID.getIndex()]) ||
+                        FlattenedEngine.isBitmaskValid(EntityType.BULLET.getEntityType(), (int) engine.getEntities().get(i)[EntityIndex.ENTITY_TYPE_ID.getIndex()]) ){
+                    engine.removeEntity(engine.getEntities().get(i));
+                }
+            }
 
         }
         gameStateChanged = false;
     }
 
-    private void createScoreScene(FlattenedEngine engine) {
-        for(int i = 0; i < engine.getEntities().size(); i++){
-            if(FlattenedEngine.isBitmaskValid(EntityType.PLATFORM.getEntityType(), (int) engine.getEntities().get(i)[EntityIndex.ENTITY_TYPE_ID.getIndex()]) ||
-                    FlattenedEngine.isBitmaskValid(EntityType.BULLET.getEntityType(), (int) engine.getEntities().get(i)[EntityIndex.ENTITY_TYPE_ID.getIndex()]) ){
-                engine.removeEntity(engine.getEntities().get(i));
-                continue;
-            }
-        }
-    }
-
-
-    private void refineSectors(FlattenedEngine engine, int oneSequence) {
-        if(oneSequence>2){
-            Vector2 min = new Vector2(currentSectorPosition- (2.5f*minSectorWidth),canvas.getHeight()*0.7f);
-            Vector2 max = new Vector2(currentSectorPosition-0.5f*minSectorWidth, canvas.getHeight()*0.7f);
-            engine.addEntity(Entities.createMovingPlatform(min, new Vector2(75,15), new Vector2(200,0), min, max));
-        }else if(oneSequence ==1){
-            Vector2 min = new Vector2(currentSectorPosition-0.5f*minSectorWidth,canvas.getHeight()*0.4f);
-            Vector2 max = new Vector2(currentSectorPosition-0.5f*minSectorWidth, canvas.getHeight()*0.8f);
-            engine.addEntity(Entities.createMovingPlatform(min, new Vector2(32.5f,15), new Vector2(0,200), min, max));
-
-        }
-
-
-    }
-
     private void generateNextSector(FlattenedEngine engine) {
-        float sectorWidth = minSectorWidth + random.nextFloat() * 50;
-
         int value = (int) (random.nextFloat() * totalPropability);
 
         int index = 0;
@@ -160,49 +145,142 @@ public class Level {
             }
         }
 
-        if(currentSectorPosition < windowWidth){
-            index = 0;
-        }
-
-        int oneSequence = getOneSequenceAmount();
-
-        if(index == 0){
-            createPlatformSector(engine, sectorWidth);
+        if(currentSectorPosition < Main.WIDTH/2){
+            index = FLOOR;
         }else{
-            if(oneSequence > 2){
-                createPlatformSector(engine, sectorWidth);
-                index = 0;
+            index = correctIndex(index);
+        }
+
+        switch(index){
+            case WATER: createWaterSector(engine); break;
+            case WATER_HOR_PLATFORM: createWaterHorPlatformSector(engine); break;
+            case WATER_VER_PLATFORM: createWaterVerPlatformSector(engine); break;
+            case FLOOR: createFloor(engine); break;
+            case FLOOR_PLATFORM: createFloorPlatformSector(engine); break;
+        }
+
+        lastSector = index;
+    }
+
+    private int correctIndex(int index){
+        int newIndex = index;
+
+        if(index == WATER || index == WATER_HOR_PLATFORM){
+            if(lastSector == WATER || lastSector == WATER_HOR_PLATFORM) {
+                return random.nextFloat() < 0.7f ? FLOOR : FLOOR_PLATFORM;
             }
         }
 
-        refineSectors(engine, oneSequence);
-
-        indexHistory.add(index);
-        if(indexHistory.size() > 3){
-            indexHistory.remove(0);
-        }
-
-
-        currentSectorPosition += sectorWidth;
-    }
-
-    private int getOneSequenceAmount() {
-        int ones = 0;
-        for (int i = 0; i < indexHistory.size(); i++){
-            if(indexHistory.get(i) == 1){
-                ones++;
-            }else{
-                ones = 0;
+        if(index == WATER_VER_PLATFORM){
+            if(lastSector == WATER){
+                return random.nextFloat() < 0.4f ? FLOOR : FLOOR_PLATFORM;
             }
         }
 
-        return ones;
+        if(index == FLOOR || index == FLOOR_PLATFORM){
+            if(lastSector == FLOOR || lastSector == FLOOR_PLATFORM){
+                if(random.nextFloat() > 0.6f){
+                    return random.nextFloat() > 0.4f ? random.nextFloat() > 0.7f ? WATER : WATER_HOR_PLATFORM : WATER_VER_PLATFORM;
+                }
+            }
+        }
+
+
+        return newIndex;
+    }
+
+    private void createWaterSector(FlattenedEngine engine){
+        int segments = 1+random.nextInt(2);
+        float[] segmentDimensions = generateSegmentDimenions(segments);
+        getSegmentPositions(segmentDimensions);
+        lastSector = WATER;
+    }
+
+    private float[] getSegmentPositions(float[] segmentDimensions){
+        float[] segmentPositions = new float[segmentDimensions.length];
+        float currentSum = 0.0f;
+        for(int i = 0; i < segmentPositions.length; i++){
+            segmentPositions[i] = currentSectorPosition + currentSum;
+            currentSum += segmentDimensions[i];
+        }
+
+        for(int i = 0; i < segmentDimensions.length; i++){
+            currentSectorPosition+=segmentDimensions[i];
+        }
+        return segmentPositions;
     }
 
 
-    private void createPlatformSector(FlattenedEngine engine, float sectorWidth){
-        int step = Math.min(Math.round((windowHeight*0.9f+random.nextFloat()*windowHeight*0.2f)/ cellHeight)-1, cellAmount-1);
+    private void createWaterHorPlatformSector(FlattenedEngine engine){
+        int segments = 2+random.nextInt(2);
+        float[] segmentDimensions = generateSegmentDimenions(segments);
+        float[] segmentPositions = getSegmentPositions(segmentDimensions);
+
+        int step = random.nextFloat() > 0.5f ? 14 : 19;
+        Vector2 min = new Vector2(segmentPositions[0] + segmentDimensions[0]/2.0f,step*cellHeight);
+        Vector2 max = new Vector2(segmentPositions[segments-1] + segmentDimensions[segments-1]/2.0f,step*cellHeight);
+        engine.addEntity(Entities.createMovingPlatform(min, new Vector2(40.0f +random.nextFloat()*20.0f, 15), new Vector2(200+random.nextFloat()*50.0f,0), min, max));
+
+        lastSector = WATER_HOR_PLATFORM;
+    }
+
+    private void createWaterVerPlatformSector(FlattenedEngine engine){
+        int segments = 2+random.nextInt(2);
+        float[] segmentDimensions = generateSegmentDimenions(segments);
+        float[] segmentPositions = getSegmentPositions(segmentDimensions);
+
+        int index = segments == 2 ? 0 : 1;
+        Vector2 min = new Vector2(segmentPositions[index] + segmentDimensions[index]/2.0f,12*cellHeight);
+        Vector2 max = new Vector2(segmentPositions[index] + segmentDimensions[index]/2.0f,21*cellHeight);
+        engine.addEntity(Entities.createMovingPlatform(min, new Vector2(40.0f +random.nextFloat()*20.0f, 15), new Vector2(0,200+random.nextFloat()*50.0f), min, max));
+
+        lastSector = WATER_VER_PLATFORM;
+    }
+
+    private void createFloor(FlattenedEngine engine){
+        int segments = 2+random.nextInt(2);
+        float[] segmentDimensions = generateSegmentDimenions(segments);
+        float[] segmentPositions = getSegmentPositions(segmentDimensions);
+
+        int step = Math.min(Math.round((windowHeight*0.9f+random.nextFloat()*windowHeight*0.3f)/ cellHeight)-1, cellAmount-1);
         int height = (cellAmount - step) * cellHeight;
-        engine.addEntity(Entities.createPlatform(new Vector2(currentSectorPosition+sectorWidth/2.0f,(step * cellHeight )+  (height/2.0f)), new Vector2(sectorWidth/2.0f+1.5f, height)));
+
+        for(int i = 0; i < segments; i++){
+            engine.addEntity(Entities.createPlatform(new Vector2(segmentPositions[i]+segmentDimensions[i]/2.0f,(step * cellHeight )+  (height/2.0f)), new Vector2(segmentDimensions[i]/2.0f+3.0f, height)));
+        }
+
+        lastSector = FLOOR;
     }
+
+    private void createFloorPlatformSector(FlattenedEngine engine){
+        int segments = 2+random.nextInt(3);
+        float[] segmentDimensions = generateSegmentDimenions(segments);
+        float[] segmentPositions = getSegmentPositions(segmentDimensions);
+
+        int step = Math.min(Math.round((windowHeight*0.9f+random.nextFloat()*windowHeight*0.3f)/ cellHeight)-1, cellAmount-1);
+        int height = (cellAmount - step) * cellHeight;
+
+        for(int i = 0; i < segments; i++){
+            engine.addEntity(Entities.createPlatform(new Vector2(segmentPositions[i]+segmentDimensions[i]/2.0f,(step * cellHeight )+  (height/2.0f)), new Vector2(segmentDimensions[i]/2.0f+3.0f, height)));
+        }
+
+        int platforms = random.nextInt(segments+1);
+
+        for(int i = 0; i < platforms; i++){
+            step = random.nextFloat() > 0.5f ? 11 : 16;
+
+            engine.addEntity(Entities.createPlatform(new Vector2(segmentPositions[i]+segmentDimensions[i]/2.0f,(step * cellHeight )+  10), new Vector2(40+random.nextFloat()*40.0f, 10)));
+        }
+
+        lastSector = FLOOR;
+    }
+
+    private float[] generateSegmentDimenions(int amount){
+        float[] segmentDimensions = new float[amount];
+        for(int i = 0; i < amount; i++){
+            segmentDimensions[i]=  minSectorWidth+random.nextFloat()*50.0f;
+        }
+        return segmentDimensions;
+    }
+
 }
