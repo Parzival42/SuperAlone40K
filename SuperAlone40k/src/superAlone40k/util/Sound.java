@@ -55,6 +55,21 @@ public class Sound {
 	}
 	
 	/**
+	 * Set the volume for the given channel. (Gain between 0 and 1)  
+	 */
+	public static void setVolumeFor(final MidiChannel channel, final double gain) {
+		channel.controlChange(7, (int) (gain * 127));
+		// TODO: Seems not to work properly?
+	}
+	
+	public static void setGlobalVolume(final double gain) {
+		for(final MidiChannel channel : channelById.values()) {
+			setVolumeFor(channel, gain);
+		}
+		// TODO: Do something similar for music.
+	}
+	
+	/**
 	 * Changes the instrument for the given channel.
 	 */
 	public static void changeInstrumentFor(final MidiChannel channel, final int instrument) {
