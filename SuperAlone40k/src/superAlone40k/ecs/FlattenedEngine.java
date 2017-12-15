@@ -5,6 +5,7 @@ import superAlone40k.renderer.Renderer;
 import superAlone40k.util.*;
 import superAlone40k.window.WindowWithFlattenedECS;
 
+import javax.sound.midi.MidiChannel;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -41,6 +42,9 @@ public class FlattenedEngine {
     private Font brandonBig = new Font("BrandonGrotesque-Black", Font.PLAIN, 350);
     private Font brandonSmall = new Font("BrandonGrotesque-Black", Font.PLAIN, 150);
     private Font brandonTiny = new Font("BrandonGrotesque-Black", Font.PLAIN, 30);
+    
+    private MidiChannel playerJumpChannel = Sound.getChannelBy(Sound.PLAYER_JUMP);
+    private MidiChannel playerCollisionChannel = Sound.getChannelBy(Sound.PLAYER_COLLIDE);
 
     public FlattenedEngine() {
         systemViews = new ArrayList[systemMethods.length];
@@ -121,9 +125,10 @@ public class FlattenedEngine {
         }
 
         //general update
-        bulletSystem(deltaTime*currentTimeScale*currentTimeScale);
+        Sound.setBackgroundTempo((float) Math.max(0.7, currentTimeScale));
+		bulletSystem(deltaTime * currentTimeScale * currentTimeScale);
         performCollisionDetection();
-        rainSystem(deltaTime*currentTimeScale*currentTimeScale);
+		rainSystem(deltaTime * currentTimeScale * currentTimeScale);
     }
 
 	public void addEntity(float[] entity){
@@ -229,7 +234,10 @@ public class FlattenedEngine {
                 player[EntityIndex.VELOCITY_X.getIndex()] = player[EntityIndex.VELOCITY_X.getIndex()] > maxMovementSpeed ? maxMovementSpeed : player[EntityIndex.VELOCITY_X.getIndex()];
             }
 
+            // Grounded Tween and collision sound
             if (player[EntityIndex.TRIGGER_ENTER.getIndex()] > 0.5f && !WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_S)) {
+            	Sound.playNoteFor(playerCollisionChannel, 23, 1000);
+            	Sound.stopNoteFor(playerCollisionChannel, 23, 1000);
                 TweenEngine.getInstance()
 						.tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(), 35, 0.0f,
 								Easing.Type.SineEaseInOut)
@@ -257,9 +265,6 @@ public class FlattenedEngine {
 
             //jump requested?
             if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_SPACE) && jumpRequestValid) {
-            	// Cache this stuff.
-            	Sound.playNoteFor(Sound.getChannelBy(Sound.PLAYER_JUMP), 45, 1000);
-            	Sound.stopNoteFor(Sound.getChannelBy(Sound.PLAYER_JUMP), 45, 60);
             	
                 jumpRequestValid = false;
                 isJumpRequested = true;
@@ -267,6 +272,8 @@ public class FlattenedEngine {
 
             //first jump
             if(isGrounded && isJumpRequested) {
+            	Sound.playNoteFor(playerJumpChannel, 45, 1000);
+            	Sound.stopNoteFor(playerJumpChannel, 45, 60);
 
                 TweenEngine.getInstance()
                         .tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),20, 0.0f, Easing.Type.SineEaseInOut)
@@ -286,6 +293,8 @@ public class FlattenedEngine {
 
             //second jump
             if(isJumping && !isDoubleJumping && isJumpRequested){
+            	Sound.playNoteFor(playerJumpChannel, 50, 1000);
+            	Sound.stopNoteFor(playerJumpChannel, 50, 60);
 
                 TweenEngine.getInstance()
                         .tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),30, 0.0f, Easing.Type.SineEaseInOut)
@@ -683,12 +692,10 @@ public class FlattenedEngine {
                 //player and environment
                 if(isBitmaskValid(EntityType.PLAYER.getEntityType(), entity1Id)) {
                 	resolvePlayerCollision(entity1, entity2, xOverlap, yOverlap);
-
                 	return;
                 }
                 if(isBitmaskValid(EntityType.PLAYER.getEntityType(), entity2Id)) {
                 	resolvePlayerCollision(entity2, entity1, xOverlap, yOverlap);
-
                 	return;
                 }
 
