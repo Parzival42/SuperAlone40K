@@ -46,11 +46,11 @@ public class Sound {
 	}
 
 	public static void playNoteFor(final MidiChannel channel, int note, int velocity) {
-		fxChannels[0].noteOn(note, velocity);
+		channel.noteOn(note, velocity);
 	}
 	
 	public static void stopNoteFor(final MidiChannel channel, int note, int velocity) {
-		fxChannels[0].noteOff(note, velocity);
+		channel.noteOff(note, velocity);
 	}
 	
 	/**
