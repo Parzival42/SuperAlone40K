@@ -661,26 +661,16 @@ public class FlattenedEngine {
 
                 //player and bullet
                 if(isBitmaskValid(EntityType.PLAYER.getEntityType(), entity2Id) &&
-                        isBitmaskValid(EntityType.BULLET.getEntityType(), entity1Id)) {
+                        isBitmaskValid(EntityType.BULLET.getEntityType(), entity1Id) && entity2[EntityIndex.LIFE.getIndex()] > 0.5f) {
                     removeEntity(entity1);
-                    Level.setGameState(2);
+                    deathAnimation(entity2);
                     return;
                 }
 
                 if(isBitmaskValid(EntityType.BULLET.getEntityType(), entity2Id) &&
-                        isBitmaskValid(EntityType.PLAYER.getEntityType(), entity1Id)) {
+                        isBitmaskValid(EntityType.PLAYER.getEntityType(), entity1Id) && entity1[EntityIndex.LIFE.getIndex()]>0.5f) {
                     removeEntity(entity2);
-                    /*TweenEngine.getInstance()
-                            .tween(entity1, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),50, 0.1f, Easing.Type.SineEaseInOut)
-                            .tween(entity1, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),0, 0.2f, Easing.Type.SineEaseInOut)
-                            .notifyTweenFinished((e) => {})
-                            .start();
-
-                    TweenEngine.getInstance()
-                            .tween(entity1, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),30, 0.1f, Easing.Type.SineEaseInOut)
-                            .tween(entity1, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),0, 0.2f, Easing.Type.SineEaseInOut)
-                            .start();*/
-                    Level.setGameState(2);
+                    deathAnimation(entity1);
                     return;
                 }
 
@@ -702,6 +692,23 @@ public class FlattenedEngine {
         }
     }
 
+    private void deathAnimation(float[] player){
+        player[EntityIndex.GRAVITATION_INFLUENCE.getIndex()] = 0;
+        player[EntityIndex.LIFE.getIndex()] = 0;
+        player[EntityIndex.VELOCITY_X.getIndex()] = 0.0f;
+        player[EntityIndex.VELOCITY_Y.getIndex()] = 0.0f;
+        TweenEngine.getInstance()
+                .tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),50, 0.1f, Easing.Type.SineEaseInOut)
+                .tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),0, 0.5f, Easing.Type.SineEaseInOut)
+                .notifyTweenFinished((e) -> {suspendPlayer(player);Level.setGameState(2);})
+                .start();
+
+        TweenEngine.getInstance()
+                .tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),30, 0.1f, Easing.Type.SineEaseInOut)
+                .tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),0, 0.5f, Easing.Type.SineEaseInOut)
+                .start();
+    }
+
     private void suspendPlayer(float[] player) {
         camera.setToTranslation(0,0);
         previousX = 450;
@@ -710,6 +717,11 @@ public class FlattenedEngine {
         player[EntityIndex.GRAVITATION_INFLUENCE.getIndex()] = 0.0f;
         player[EntityIndex.VELOCITY_X.getIndex()] = 0.0f;
         player[EntityIndex.VELOCITY_Y.getIndex()] = 0.0f;
+        player[EntityIndex.EXTENT_X.getIndex()] = 20.0f;
+        player[EntityIndex.EXTENT_Y.getIndex()] = 40.0f;
+        player[EntityIndex.AABB_EXTENT_X.getIndex()] = 20.0f;
+        player[EntityIndex.AABB_EXTENT_Y.getIndex()] = 40.0f;
+        player[EntityIndex.LIFE.getIndex()] = 1.0f;
     }
     //endregion
 
@@ -808,8 +820,8 @@ public class FlattenedEngine {
 
     //region Lifetime System
     private void lifetimeSystem(float[] entity, double deltaTime){
-        entity[EntityIndex.LIFETIME.getIndex()] -= deltaTime;
-        if(entity[EntityIndex.LIFETIME.getIndex()] < 0.0f){
+        entity[EntityIndex.LIFE.getIndex()] -= deltaTime;
+        if(entity[EntityIndex.LIFE.getIndex()] < 0.0f){
             removeEntity(entity);
         }
     }

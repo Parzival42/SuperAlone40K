@@ -118,7 +118,7 @@ public class EntityCreator {
     }
 
     public EntityCreator setLifetime(double lifetime) {
-        entityBuffer[index][EntityIndex.LIFETIME.getIndex()] = (float) lifetime;
+        entityBuffer[index][EntityIndex.LIFE.getIndex()] = (float) lifetime;
         return this;
     }
 
