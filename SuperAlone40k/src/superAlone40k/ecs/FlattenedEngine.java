@@ -218,49 +218,55 @@ public class FlattenedEngine {
     private boolean isCrouched = false;
 
     private void playerControl(float[] player, double deltaTime){
-        if(Level.getGameState()==1){
-            if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_A)){
+		if (Level.getGameState() == 1) {
+            if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_A)) {
                 player[EntityIndex.VELOCITY_X.getIndex()] -= movementSpeed * deltaTime;
                 player[EntityIndex.VELOCITY_X.getIndex()] = player[EntityIndex.VELOCITY_X.getIndex()] < -maxMovementSpeed ? -maxMovementSpeed : player[EntityIndex.VELOCITY_X.getIndex()];
             }
 
-            if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_D)){
+            if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_D)) {
                 player[EntityIndex.VELOCITY_X.getIndex()] += movementSpeed * deltaTime;
                 player[EntityIndex.VELOCITY_X.getIndex()] = player[EntityIndex.VELOCITY_X.getIndex()] > maxMovementSpeed ? maxMovementSpeed : player[EntityIndex.VELOCITY_X.getIndex()];
             }
 
             if (player[EntityIndex.TRIGGER_ENTER.getIndex()] > 0.5f && !WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_S)) {
                 TweenEngine.getInstance()
-                        .tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),35, 0.0f, Easing.Type.SineEaseInOut)
-                        .tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),40, 0.2f, Easing.Type.SineEaseInOut)
+						.tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(), 35, 0.0f,
+								Easing.Type.SineEaseInOut)
+						.tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),40, 0.2f, Easing.Type.SineEaseInOut)
                         .start();
 
                 TweenEngine.getInstance()
-                        .tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),23, 0.0f, Easing.Type.SineEaseInOut)
-                        .tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),20, 0.2f, Easing.Type.SineEaseInOut)
+						.tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(), 23, 0.0f,
+								Easing.Type.SineEaseInOut)
+						.tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),20, 0.2f, Easing.Type.SineEaseInOut)
                         .start();
             }
 
             boolean isGrounded = false;
-            if(player[EntityIndex.TRIGGER_STAY.getIndex()] > 0.5f || player[EntityIndex.TRIGGER_ENTER.getIndex()] > 0.5f){
+            if(player[EntityIndex.TRIGGER_STAY.getIndex()] > 0.5f || player[EntityIndex.TRIGGER_ENTER.getIndex()] > 0.5f) {
                 isJumpRequested = false;
                 isGrounded = true;
                 isJumping = false;
                 isDoubleJumping = false;
             }
 
-            if(!WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_SPACE)){
+            if(!WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_SPACE)) {
                 jumpRequestValid = true;
             }
 
             //jump requested?
-            if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_SPACE) && jumpRequestValid){
+            if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_SPACE) && jumpRequestValid) {
+            	// Cache this stuff.
+            	Sound.playNoteFor(Sound.getChannelBy(Sound.PLAYER_JUMP), 45, 1000);
+            	Sound.stopNoteFor(Sound.getChannelBy(Sound.PLAYER_JUMP), 45, 60);
+            	
                 jumpRequestValid = false;
                 isJumpRequested = true;
             }
 
             //first jump
-            if(isGrounded && isJumpRequested){
+            if(isGrounded && isJumpRequested) {
 
                 TweenEngine.getInstance()
                         .tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(),20, 0.0f, Easing.Type.SineEaseInOut)
@@ -291,7 +297,7 @@ public class FlattenedEngine {
                         .tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),20, 0.2f, Easing.Type.SineEaseInOut)
                         .start();
 
-                player[EntityIndex.VELOCITY_Y.getIndex()] = -jumpStrength*0.8f;
+				player[EntityIndex.VELOCITY_Y.getIndex()] = -jumpStrength * 0.8f;
                 isDoubleJumping = true;
                 isJumpRequested = false;
             }
@@ -311,7 +317,7 @@ public class FlattenedEngine {
                         .start();
             }
 
-            if(isCrouched){
+            if(isCrouched) {
                 if(!WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_S)){
                     isCrouched = false;
                     TweenEngine.getInstance()
@@ -321,7 +327,7 @@ public class FlattenedEngine {
                     TweenEngine.getInstance()
                             .tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(),20, 0.2f, Easing.Type.SineEaseInOut)
                             .start();
-                }else if(!isGrounded){
+                } else if(!isGrounded){
                     isCrouched = false;
                 }
             }
@@ -343,12 +349,12 @@ public class FlattenedEngine {
         currentTimeScale = Easing.updateEasing(Easing.Type.CubicEaseInOut, value,0.0f,1.0f,1.0f);
     }
 
-    private void menuControl(){
+    private void menuControl() {
         if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_ESCAPE)) {
             System.exit(42);
         }
 
-        if(Level.getGameState() == 0){
+        if(Level.getGameState() == 0) {
             emitBullets = false;
             suspendPlayer(Entities.getFirstPlayer());
             currentTimeScale = 1.0f;

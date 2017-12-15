@@ -36,7 +36,16 @@ public class WindowWithFlattenedECS extends JFrame implements KeyListener {
     private FlattenedEngine engine;
     private Level level;
 
-    public WindowWithFlattenedECS(String name, int width, int height){
+    public WindowWithFlattenedECS(String name, int width, int height) {
+    	// Initialize sound and sound FX channels
+    	Sound.initializeSound();	// Background music
+    	
+    	// Player Jump Channel
+    	Sound.addChannel(Sound.PLAYER_JUMP);
+    	Sound.changeInstrumentFor(Sound.getChannelBy(Sound.PLAYER_JUMP), 121 - 1);
+    	
+    	
+    	
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         setFocusable(true);

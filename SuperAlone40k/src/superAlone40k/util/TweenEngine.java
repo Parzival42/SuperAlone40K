@@ -92,6 +92,10 @@ public class TweenEngine {
     public TweenObject tween(float[] entity, int indexToTween, int boundingBoxToTween, float tweenTo, float duration, Easing.Type type) {
         return new TweenObject().tween(entity, indexToTween, boundingBoxToTween, tweenTo , duration, type);
     }
+    
+    public TweenObject tween() {
+    	return new TweenObject();
+    }
 
     public void update(double deltaTime) {
 
