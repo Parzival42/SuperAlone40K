@@ -48,6 +48,7 @@ public class Level {
 
     private float[] seaTopEntity;
     private float[] seaBottomEntity;
+    private float[] seaBottomTopEntity;
 
     public Level(FlattenedEngine engine, Canvas canvas){
         this.canvas = canvas;
@@ -85,12 +86,11 @@ public class Level {
 
         engine.addEntity(Entities.createLight());
 
-        seaBottomEntity = Entities.createSeaPartBottom(new Vector2(0,Main.HEIGHT - 20), new Vector2(Main.WIDTH, 20));
+        seaBottomEntity = Entities.createSeaPartBottom(new Vector2(0,Main.HEIGHT - 20), new Vector2(Main.WIDTH + 10, 20));
         engine.addEntity(seaBottomEntity);
 
-        seaTopEntity = Entities.createSeaPartTop(new Vector2(0,Main.HEIGHT - 39), new Vector2(Main.WIDTH + 10, 2));
-        engine.addEntity(seaTopEntity);
-
+        seaBottomTopEntity = Entities.createSeaPartBottomTop(new Vector2(0,Main.HEIGHT - 17), new Vector2(Main.WIDTH + 10, 17));
+        engine.addEntity(seaBottomTopEntity);
 
         for(int i = 0; i < sectorProbability.length; i++){
             totalPropability+= sectorProbability[i];
@@ -104,7 +104,7 @@ public class Level {
                 Entities.setPositionFor(Entities.getFirstPlayer(), 400, -1000);
             }
 
-            Entities.setPositionFor(seaTopEntity, (float) -camera.getTranslateX(), seaTopEntity[EntityIndex.POSITION_Y.getIndex()]);
+            Entities.setPositionFor(seaBottomTopEntity, (float) -camera.getTranslateX(), seaBottomTopEntity[EntityIndex.POSITION_Y.getIndex()]);
             Entities.setPositionFor(seaBottomEntity, (float) - camera.getTranslateX(), seaBottomEntity[EntityIndex.POSITION_Y.getIndex()]);
             float cameraX = (float) camera.getTranslateX() + cameraOffset;
 
@@ -115,7 +115,7 @@ public class Level {
 
         }else if(gameState == 2){
             if(gameStateChanged){
-                Entities.setPositionFor(seaTopEntity, 0, seaTopEntity[EntityIndex.POSITION_Y.getIndex()]);
+                Entities.setPositionFor(seaBottomTopEntity, (float) -camera.getTranslateX(), seaBottomTopEntity[EntityIndex.POSITION_Y.getIndex()]);
                 Entities.setPositionFor(seaBottomEntity, 0, seaBottomEntity[EntityIndex.POSITION_Y.getIndex()]);
                 currentSectorPosition = -3.0f * windowWidth;
 

@@ -70,6 +70,17 @@ public class Entities {
 
         return entity;
     }
+
+    public static float[] createSeaPartBottomTop(Vector2 position, Vector2 extent) {
+        float[] entity = EntityCreator.getInstance()
+                .setEntityTypeID(EntityType.BOX_SHADOW.getEntityType())
+                .setPosition(position)
+                .setExtent(extent)
+                .setColor(Renderer.WATER_COLOR_2)
+                .create();
+
+        return entity;
+    }
     
     /**
      * @return Returns <strong>true</strong> if a player is already in the game, <strong>false</strong> otherwise.

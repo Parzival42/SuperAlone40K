@@ -322,12 +322,12 @@ public class FlattenedEngine {
                 isCrouched = true;
 
                 TweenEngine.getInstance()
-						.tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(), 20, 0.2f,
+						.tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(), 25, 0.1f,
 								Easing.Type.SineEaseInOut)
                         .start();
 
                 TweenEngine.getInstance()
-						.tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(), 30, 0.2f,
+						.tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(), 25, 0.1f,
 								Easing.Type.SineEaseInOut)
                         .start();
             }
@@ -337,12 +337,12 @@ public class FlattenedEngine {
                     isCrouched = false;
                     TweenEngine.getInstance()
 							.tween(player, EntityIndex.EXTENT_Y.getIndex(), EntityIndex.AABB_EXTENT_Y.getIndex(), 40,
-									0.2f, Easing.Type.SineEaseInOut)
+									0.1f, Easing.Type.SineEaseInOut)
                             .start();
 
                     TweenEngine.getInstance()
 							.tween(player, EntityIndex.EXTENT_X.getIndex(), EntityIndex.AABB_EXTENT_X.getIndex(), 20,
-									0.2f, Easing.Type.SineEaseInOut)
+									0.1f, Easing.Type.SineEaseInOut)
                             .start();
                 } else if(!isGrounded) {
                     isCrouched = false;
@@ -356,8 +356,7 @@ public class FlattenedEngine {
 
             player[EntityIndex.POSITION_X.getIndex()] += player[EntityIndex.VELOCITY_X.getIndex()] * deltaTime;
             player[EntityIndex.POSITION_Y.getIndex()] += player[EntityIndex.VELOCITY_Y.getIndex()] * deltaTime;
-        }
-
+		}
     }
 
     private void timeScaleControl(float[] player, double deltaTime) {
@@ -553,10 +552,17 @@ public class FlattenedEngine {
         graphics.setPaint(new GradientPaint((float)-camera.getTranslateX(), 0, Renderer.BACKGROUND_GRADIENT_DARK, (float)(Main.WIDTH -camera.getTranslateX()), 0, Renderer.BACKGROUND_GRADIENT_LIGHT));
     	
 		path.closePath();
+
+		// TODO: clip image for background
+		/*graphics.setClip(path);
+		graphics.drawImage(Renderer.background, 0,0, null);
+        graphics.setClip(null);*/
+
 		if(!DEBUG_SHADOWS) {	// TODO: Remove this in finished code
 			graphics.fill(path);
 		}
 		angleSortedRays.clear();
+
 	}
 
     private void addRaysOfEntities(Vector2 lightPosition) {
