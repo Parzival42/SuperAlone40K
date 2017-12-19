@@ -111,7 +111,7 @@ public class Sound {
 			e.printStackTrace();
 		}
 		
-		try(InputStream backGroundMusicStream = new BufferedInputStream(new FileInputStream(new File("sound/LA_1972.mid")))) {
+		try(InputStream backGroundMusicStream = new BufferedInputStream(new FileInputStream(new File("sound/tetris.mid")))) {
 			musicSequencer.setSequence(backGroundMusicStream);
 			musicSequencer.setLoopCount(Sequencer.LOOP_CONTINUOUSLY);
 			musicSequencer.start();
