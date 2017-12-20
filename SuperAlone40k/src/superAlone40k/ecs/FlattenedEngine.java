@@ -26,7 +26,15 @@ public class FlattenedEngine {
     private ArrayList<float[]> entitiesToDelete = new ArrayList<>();
 
     private int[] systemBitmasks = new int[] {SystemBitmask.INPUT.getSystemMask(), SystemBitmask.COLLIDER_SORTING.getSystemMask(), SystemBitmask.MOVEMENT_SYSTEM.getSystemMask(), SystemBitmask.LIGHT_SYSTEM.getSystemMask(), SystemBitmask.TRIGGER_SYSTEM.getSystemMask(), SystemBitmask.LIFETIME_SYSTEM.getSystemMask(), SystemBitmask.CLEANUP_SYSTEM.getSystemMask(), SystemBitmask.PLATFORM_MOVEMENT_SYSTEM.getSystemMask() };
-    private SystemMethod[] systemMethods = new SystemMethod[]{FlattenedEngine::inputProcessing, FlattenedEngine::colliderSorting, FlattenedEngine::movementSystem, FlattenedEngine::lightingSystem, FlattenedEngine::triggerSystem, FlattenedEngine::lifetimeSystem, FlattenedEngine::cleanupSystem, FlattenedEngine::platformMovementSystem};
+	private SystemMethod[] systemMethods = new SystemMethod[] {
+			FlattenedEngine::inputProcessing,
+			FlattenedEngine::colliderSorting,
+			FlattenedEngine::movementSystem,
+			FlattenedEngine::lightingSystem,
+			FlattenedEngine::triggerSystem,
+			FlattenedEngine::lifetimeSystem,
+			FlattenedEngine::cleanupSystem,
+			FlattenedEngine::platformMovementSystem };
 
     private final TreeSet<Ray> angleSortedRays = new TreeSet<>();
     
@@ -440,16 +448,16 @@ public class FlattenedEngine {
             final float width = entity[EntityIndex.EXTENT_X.getIndex()] * 2;
             final float height = entity[EntityIndex.EXTENT_Y.getIndex()] * 2;
 
-            final Vector2 toLeftTop = new Vector2(Math.max(min.x, -camera.getTranslateX()), min.y).sub(lightPosition);
+            final Vector2 toLeftTop = new Vector2(Math.max(min.x, -camera.getTranslateX()), Math.max(min.y, 0.0)).sub(lightPosition);
             final Ray leftTop = new Ray(lightPosition, toLeftTop);
 
-            final Vector2 toRightTop = new Vector2(Math.min(min.x + width, -camera.getTranslateX() + Main.WIDTH), min.y).sub(lightPosition);
+            final Vector2 toRightTop = new Vector2(Math.min(min.x + width, -camera.getTranslateX() + Main.WIDTH), Math.max(min.y, 0.0)).sub(lightPosition);
             final Ray rightTop = new Ray(lightPosition, toRightTop);
 
-            final Vector2 toLeftBottom = new Vector2(Math.max(min.x, -camera.getTranslateX()), min.y + height).sub(lightPosition);
+            final Vector2 toLeftBottom = new Vector2(Math.max(min.x, -camera.getTranslateX()), Math.min(min.y + height, Main.HEIGHT)).sub(lightPosition);
             final Ray leftBottom = new Ray(lightPosition, toLeftBottom);
 
-            final Vector2 toRightBottom = new Vector2(Math.min(min.x + width, -camera.getTranslateX() + Main.WIDTH), min.y + height).sub(lightPosition);
+            final Vector2 toRightBottom = new Vector2(Math.min(min.x + width, -camera.getTranslateX() + Main.WIDTH), Math.min(min.y + height, Main.HEIGHT)).sub(lightPosition);
             final Ray rightBottom = new Ray(lightPosition, toRightBottom);
 
             return new Ray[] { leftTop, rightTop, leftBottom, rightBottom };

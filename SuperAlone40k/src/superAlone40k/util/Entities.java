@@ -52,7 +52,6 @@ public class Entities {
 
     public static float[] createSeaPartTop(Vector2 position, Vector2 extent) {
         float[] entity = EntityCreator.getInstance()
-                .setEntityTypeID(EntityType.BOX_SHADOW.getEntityType())
                 .setPosition(position)
                 .setExtent(extent)
                 .setColor(Renderer.BULLET_TOPWATER_COLOR)
@@ -62,7 +61,6 @@ public class Entities {
 
     public static float[] createSeaPartBottom(Vector2 position, Vector2 extent) {
         float[] entity = EntityCreator.getInstance()
-                .setEntityTypeID(EntityType.BOX_SHADOW.getEntityType())
                 .setPosition(position)
                 .setExtent(extent)
                 .setColor(Renderer.WATER_COLOR)
@@ -73,10 +71,9 @@ public class Entities {
 
     public static float[] createSeaPartBottomTop(Vector2 position, Vector2 extent) {
         float[] entity = EntityCreator.getInstance()
-                .setEntityTypeID(EntityType.BOX_SHADOW.getEntityType())
                 .setPosition(position)
                 .setExtent(extent)
-                .setColor(Renderer.WATER_COLOR_2)
+                .setColor(Renderer.WATER_COLOR/*_2*/)
                 .create();
 
         return entity;
