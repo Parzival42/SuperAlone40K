@@ -54,9 +54,9 @@ public class TweenEngine {
             return nextTweenObject;
         }
 
-        public TweenObject reverse() {
-            return this.tween(prevTweenObject.entity, prevTweenObject.indexToTween, prevTweenObject.boundingBoxToTween, prevTweenObject.beginning, prevTweenObject.duration, prevTweenObject.easingType);
-        }
+//        public TweenObject reverse() {
+//            return this.tween(prevTweenObject.entity, prevTweenObject.indexToTween, prevTweenObject.boundingBoxToTween, prevTweenObject.beginning, prevTweenObject.duration, prevTweenObject.easingType);
+//        }
 
         public TweenObject notifyTweenFinished(ActionListener actionListener) {
             this.prevTweenObject.actionListener = actionListener;
@@ -93,9 +93,9 @@ public class TweenEngine {
         return new TweenObject().tween(entity, indexToTween, boundingBoxToTween, tweenTo , duration, type);
     }
 
-    public TweenObject delay (float duration){
-        return new TweenObject().delay(duration);
-    }
+//    public TweenObject delay (float duration){
+//        return new TweenObject().delay(duration);
+//    }
 
     public void update(double deltaTime) {
 
@@ -138,7 +138,5 @@ public class TweenEngine {
                 tweenObjects.remove(i);
             }
         }
-
     }
-
 }
