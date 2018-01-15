@@ -5,7 +5,6 @@ import superAlone40k.ecs.EntityType;
 import superAlone40k.ecs.SystemBitmask;
 import superAlone40k.renderer.Renderer;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.SplittableRandom;
 
@@ -54,7 +53,7 @@ public class Entities {
         float[] entity = EntityCreator.getInstance()
                 .setPosition(position)
                 .setExtent(extent)
-                .setColor(Renderer.BULLET_TOPWATER_COLOR)
+                .setColor(Renderer.BULLET_COLOR)
                 .create();
         return entity;
     }
@@ -190,7 +189,7 @@ public class Entities {
                 .setSystemMask(SystemBitmask.COLLIDER_SORTING.getSystemMask() | SystemBitmask.MOVEMENT_SYSTEM.getSystemMask() | SystemBitmask.CLEANUP_SYSTEM.getSystemMask())
                 .setPosition(position)
                 .setExtent(extent)
-                .setColor(Renderer.BULLET_TOPWATER_COLOR)
+                .setColor(Renderer.BULLET_COLOR)
                 .setAABBExtent(extent)
                 .setCollisionType(1.0f)
                 .setVelocity(velocity)
