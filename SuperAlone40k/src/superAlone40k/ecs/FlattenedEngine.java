@@ -927,6 +927,7 @@ public class FlattenedEngine {
 
         if(entity[EntityIndex.POSITION_Y.getIndex()] > deathZoneHeight) {
             if(isBitmaskValid(EntityType.PLAYER.getEntityType(), (int) entity[EntityIndex.ENTITY_TYPE_ID.getIndex()])){
+                deathAnimation(entity);
                 Level.setGameState(2);
                 suspendPlayer(entity);
             }else{
@@ -1000,9 +1001,6 @@ public class FlattenedEngine {
                 currentWaveCount--;
                 if(currentWaveCount<=0) {
                     increaseDifficulty();
-					System.out.println("wave bullets: " + currentWaveCount);
-					System.out.println("bullet speed: " + currentBulletSpeed);
-					System.out.println("current rate of fire: " + currentRateOfFire + "\n\n");
                 }
             }
         }
