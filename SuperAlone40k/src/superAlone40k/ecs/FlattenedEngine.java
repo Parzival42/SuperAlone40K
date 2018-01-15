@@ -315,11 +315,10 @@ public class FlattenedEngine {
                 player[EntityIndex.VELOCITY_Y.getIndex()] = -jumpStrength;
                 isJumping = true;
                 isJumpRequested = false;
-
             }
 
             //second jump
-            if(isJumping && !isDoubleJumping && isJumpRequested) {
+            if((isJumping && !isDoubleJumping && isJumpRequested)||(!isJumping && !isDoubleJumping && isJumpRequested)) {
             	Sound.playNoteFor(playerJumpChannel, 50, 1000);
             	Sound.stopNoteFor(playerJumpChannel, 50, 60);
 
