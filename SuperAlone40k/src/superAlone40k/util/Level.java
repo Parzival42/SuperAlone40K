@@ -7,7 +7,6 @@ import superAlone40k.ecs.FlattenedEngine;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.util.ArrayList;
 import java.util.Random;
 
 public class Level {
@@ -46,7 +45,6 @@ public class Level {
     private static int gameState = 0;
     private static boolean gameStateChanged = true;
 
-    private float[] seaTopEntity;
     private float[] seaBottomEntity;
     private float[] seaBottomTopEntity;
 

@@ -237,7 +237,7 @@ public class FlattenedEngine {
     //player control parameters
     private float movementSpeed = 1200.0f;
     private float maxMovementSpeed = 400.0f;
-    private float jumpStrength = 1700.0f;
+    private float jumpStrength = 1600.0f;
     private float playerGravity = 2500.0f;
     private boolean isJumping = false;
     private boolean isDoubleJumping = false;
@@ -384,7 +384,7 @@ public class FlattenedEngine {
 
     private void timeScaleControl(float[] player, double deltaTime) {
 		final float relativeHorizontalSpeed = Math.abs(player[EntityIndex.VELOCITY_X.getIndex()] / maxMovementSpeed);
-        final float value = relativeHorizontalSpeed < 0.25f ? 0.25f : relativeHorizontalSpeed;
+        final float value = relativeHorizontalSpeed < 0.35f ? 0.35f : relativeHorizontalSpeed;
 		currentTimeScale = TweenEngine.updateEasing(TweenEngine.Type.CubicEaseInOut, value, 0.0f, 1.0f, 1.0f);
     }
 
