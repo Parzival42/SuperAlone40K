@@ -46,9 +46,15 @@ public class FlattenedEngine {
 
     private int highScore = 0;
 
+    private boolean firstRender = true;
+
     private Font brandonBig = new Font("BrandonGrotesque-Black", Font.PLAIN, 350);
     private Font brandonSmall = new Font("BrandonGrotesque-Black", Font.PLAIN, 150);
     private Font brandonTiny = new Font("BrandonGrotesque-Black", Font.PLAIN, 30);
+
+    private FontMetrics metricsBrandonBig;
+    private FontMetrics metricsBrandonSmall;
+    private FontMetrics metricsBrandonTiny;
     
     private MidiChannel playerJumpChannel = Sound.getChannelBy(Sound.PLAYER_JUMP);
     private MidiChannel playerCollisionChannel = Sound.getChannelBy(Sound.PLAYER_COLLIDE);
@@ -85,24 +91,34 @@ public class FlattenedEngine {
     	    highScore = score;
         }
 
+        if (firstRender) {
+    	    firstRender = false;
+    	    metricsBrandonBig = getFontMetrics(graphics, brandonBig);
+    	    metricsBrandonSmall = getFontMetrics(graphics, brandonSmall);
+    	    metricsBrandonTiny = getFontMetrics(graphics, brandonTiny);
+        }
+
 		if (Level.getGameState() == 0) {
     	    highScore = 0;
-            drawCenteredString(graphics,"SUPER ALONE", Main.WIDTH / 2, Main.HEIGHT / 2, brandonSmall, Renderer.SCORE_COLOR);
-            drawCenteredString(graphics,"PRESS SPACE TO START", Main.WIDTH / 2, Main.HEIGHT / 2, brandonTiny, Renderer.BULLET_TOPWATER_COLOR);
+            drawCenteredString(graphics,"SUPER ALONE", Main.WIDTH / 2, Main.HEIGHT / 2, brandonSmall, Renderer.SCORE_COLOR, metricsBrandonSmall);
+            drawCenteredString(graphics,"PRESS SPACE TO START", Main.WIDTH / 2, Main.HEIGHT / 2, brandonTiny, Renderer.BULLET_TOPWATER_COLOR, metricsBrandonTiny);
         }
 
         if (Level.getGameState() == 1) {
-            drawCenteredString(graphics, highScore + "", (int) (Main.WIDTH / 2 - camera.getTranslateX()), (int) (Main.HEIGHT / 2 - camera.getTranslateY()), brandonBig, Renderer.SCORE_COLOR);
+            drawCenteredString(graphics, highScore + "", (int) (Main.WIDTH / 2 - camera.getTranslateX()), (int) (Main.HEIGHT / 2 - camera.getTranslateY()), brandonBig, Renderer.SCORE_COLOR, metricsBrandonBig);
         }
 
 		if (Level.getGameState() == 2) {
-            drawCenteredString(graphics, "SCORE " + highScore, Main.WIDTH / 2, Main.HEIGHT / 2, brandonSmall, Renderer.SCORE_COLOR);
-            drawCenteredString(graphics, "PRESS N TO CONTINUE", Main.WIDTH / 2, Main.HEIGHT / 2, brandonTiny, Renderer.BULLET_TOPWATER_COLOR);
+            drawCenteredString(graphics, "SCORE " + highScore, Main.WIDTH / 2, Main.HEIGHT / 2, brandonSmall, Renderer.SCORE_COLOR, metricsBrandonSmall);
+            drawCenteredString(graphics, "PRESS N TO CONTINUE", Main.WIDTH / 2, Main.HEIGHT / 2, brandonTiny, Renderer.BULLET_TOPWATER_COLOR, metricsBrandonTiny);
         }
     }
 
-    public void drawCenteredString(Graphics g, String text, int x, int y, Font font, Color color) {
-        FontMetrics metrics = g.getFontMetrics(font);
+    private FontMetrics getFontMetrics(Graphics g, Font font) {
+        return g.getFontMetrics(font);
+    }
+
+    public void drawCenteredString(Graphics g, String text, int x, int y, Font font, Color color, FontMetrics metrics) {
         g.setColor(color);
         g.setFont(font);
         g.drawString(text, x - metrics.stringWidth(text) / 2, y + metrics.getHeight() / 4);
