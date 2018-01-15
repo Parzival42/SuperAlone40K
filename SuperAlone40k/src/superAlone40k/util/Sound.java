@@ -111,13 +111,23 @@ public class Sound {
 			e.printStackTrace();
 		}
 		
+		
 		try(InputStream backGroundMusicStream = new BufferedInputStream(new FileInputStream(new File("sound/tetris.mid")))) {
-			musicSequencer.setSequence(backGroundMusicStream);
-			musicSequencer.setLoopCount(Sequencer.LOOP_CONTINUOUSLY);
-			musicSequencer.start();
+			initializeMusicSequencer(backGroundMusicStream);
 		} catch (IOException | InvalidMidiDataException e) {
-			e.printStackTrace();
+			try(InputStream classBasedMusicStream = Sound.class.getClassLoader().getResourceAsStream("superAlone40k/tetris.mid")) {
+				initializeMusicSequencer(classBasedMusicStream);
+			} catch (IOException | InvalidMidiDataException e1) {
+				e1.printStackTrace();
+			}
+//			e.printStackTrace();
 		}
+	}
+
+	private static void initializeMusicSequencer(InputStream musicStream) throws IOException, InvalidMidiDataException {
+		musicSequencer.setSequence(musicStream);
+		musicSequencer.setLoopCount(Sequencer.LOOP_CONTINUOUSLY);
+		musicSequencer.start();
 	}
 	
 	private static void initializeSoundFxChannels() {
