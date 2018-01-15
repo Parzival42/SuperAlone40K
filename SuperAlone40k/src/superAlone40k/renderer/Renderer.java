@@ -17,19 +17,19 @@ public class Renderer {
 	//For the new look see: https://tinyurl.com/y9alxmfq
 
 	//Color constants
-	public static Color PLAYER_COLOR = new Color(242, 71, 56, 255);
-	public static Color BULLET_TOPWATER_COLOR = new Color(255, 255, 255, 255);
-	public static Color OBSTACLE_COLOR = new Color(0, 6, 13, 255);
-	public static Color WATER_COLOR = new Color(0, 136, 204, 102);
-	public static Color SCORE_COLOR = new Color(255, 255, 255, 13);
-	public static Color BACKGROUND_GRADIENT_LIGHT = new Color(0, 82, 122, 255);
-	public static Color BACKGROUND_GRADIENT_DARK = new Color(0, 31, 46, 255);
-	public static Color SHADOW_GRADIENT_LIGHT = new Color(0, 60, 89, 255);
-	public static Color SHADOW_GRADIENT_DARK = new Color(0, 31, 46, 255);
-	public static Color BULLETTRAIL_GRADIENT_LIGHT = new Color(255, 255, 255, 255);
-	public static Color BULLETTRAIL_GRADIENT_DARK = new Color(255, 255, 255, 0);
-	public static Color RAIN_GRADIENT_LIGHT = new Color(255, 255, 255, 10);
-	public static Color RAIN_GRADIENT_DARK = new Color(255, 255, 255, 0);
+	public static Color PLAYER_COLOR = hsvToRgb(5,77,95, 100); //new Color(242, 71, 56, 255);
+	public static Color BULLET_COLOR = hsvToRgb(0,0,100, 100); //new Color(255, 255, 255, 255);
+	public static Color OBSTACLE_COLOR = hsvToRgb(0,0,0, 100); //new Color(0, 6, 13, 255);
+	public static Color WATER_COLOR = hsvToRgb(196,100,89, 38); //new Color(0, 136, 204, 102);
+	public static Color SCORE_COLOR = hsvToRgb(0,0,100, 5); //new Color(255, 255, 255, 13);
+	public static Color BACKGROUND_GRADIENT_LIGHT = hsvToRgb(200,100,48, 100); //new Color(0, 82, 122, 255);
+	public static Color BACKGROUND_GRADIENT_DARK = hsvToRgb(213,100,8, 100); //new Color(0, 31, 46, 255);
+	public static Color SHADOW_GRADIENT_LIGHT = hsvToRgb(200,100,35, 100); //new Color(0, 60, 89, 255);
+	public static Color SHADOW_GRADIENT_DARK = hsvToRgb(213,100,8, 100); //new Color(0, 31, 46, 255);
+	public static Color BULLETTRAIL_GRADIENT_LIGHT = hsvToRgb(0,0,100, 0); //new Color(255, 255, 255, 255);
+	public static Color BULLETTRAIL_GRADIENT_DARK = hsvToRgb(0,0,100, 70); //new Color(255, 255, 255, 0);
+	public static Color RAIN_GRADIENT_LIGHT = hsvToRgb(0,0,100, 10); //new Color(255, 255, 255, 10);
+	public static Color RAIN_GRADIENT_DARK = hsvToRgb(0,0,100, 0); //new Color(255, 255, 255, 0);
     
     // Pre-calculated raindrop
     private final BufferedImage rainDrop;
@@ -44,7 +44,7 @@ public class Renderer {
     	rainDrop = createGradientImage(
     			(int) Entities.RAIN_PARTICLE_WIDTH,
     			PRE_CALCULATED_RAINDROP_HEIGHT, 
-    			new GradientPaint(0, 0, Renderer.RAIN_GRADIENT_DARK, 0, PRE_CALCULATED_RAINDROP_HEIGHT, Renderer.RAIN_GRADIENT_LIGHT));
+    			new GradientPaint(0, 0, Renderer.RAIN_GRADIENT_DARK, 0, PRE_CALCULATED_RAINDROP_HEIGHT, Renderer.RAIN_GRADIENT_LIGHT, true));
     	
     	final int radialWidth = (int) (Main.WIDTH * 2.5);
     	final int radialHeight = (int) (Main.HEIGHT * 2.5);
@@ -57,7 +57,7 @@ public class Renderer {
     	background = createGradientImage(
 				Main.WIDTH,
 				Main.HEIGHT,
-				new GradientPaint(0, 0, Renderer.SHADOW_GRADIENT_DARK, Main.WIDTH, 0, Renderer.SHADOW_GRADIENT_LIGHT));
+				new GradientPaint(0, 0, Renderer.SHADOW_GRADIENT_DARK, Main.WIDTH, 0, Renderer.SHADOW_GRADIENT_LIGHT, true));
 
 	}
 
@@ -107,4 +107,9 @@ public class Renderer {
     	g.fillRect(0, 0, width, height);
     	return image;
     }
+
+    private static Color hsvToRgb(float hue, float saturation, float brightness, float opacity) {
+    	Color rgb = Color.getHSBColor(hue / 360.0f, saturation / 100.0f, brightness / 100.0f);
+		return new Color(rgb.getRed()/255.0f, rgb.getGreen()/255.0f, rgb.getBlue()/255.0f, opacity/100.0f);
+	}
 }
