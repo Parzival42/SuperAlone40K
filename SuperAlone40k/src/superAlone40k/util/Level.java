@@ -30,7 +30,7 @@ public class Level {
     private int totalPropability = 0;
 
     private float currentSectorPosition = 0.0f;
-    private float minSectorWidth = 200;
+    private float minSectorWidth = 190;
     private float cameraOffset;
 
     private int lastSector = -1;

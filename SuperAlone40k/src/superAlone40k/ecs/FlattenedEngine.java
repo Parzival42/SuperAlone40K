@@ -236,9 +236,9 @@ public class FlattenedEngine {
 
     //player control parameters
     private float movementSpeed = 1200.0f;
-    private float maxMovementSpeed = 350.0f;
-    private float jumpStrength = 1400.0f;
-    private float playerGravity = 2600.0f;
+    private float maxMovementSpeed = 400.0f;
+    private float jumpStrength = 1700.0f;
+    private float playerGravity = 2500.0f;
     private boolean isJumping = false;
     private boolean isDoubleJumping = false;
     private boolean jumpRequestValid = true;
