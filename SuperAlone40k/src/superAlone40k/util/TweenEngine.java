@@ -1,9 +1,14 @@
 package superAlone40k.util;
 
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 public class TweenEngine {
+
+    public interface TweenListener {
+        public void tweenAction(float value);
+    }
 
     public class TweenObject {
         private float[] entity;
@@ -13,6 +18,7 @@ public class TweenEngine {
         private int boundingBoxToTween;
         private float time;
         private float beginning;
+        private float value;
         private float end;
         private float duration;
         private boolean finished;
@@ -22,7 +28,8 @@ public class TweenEngine {
         private TweenObject prevTweenObject;
         private TweenObject head;
 
-        private ActionListener actionListener;
+        private TweenListener actionListener;
+        private TweenListener updateListener;
 
         TweenObject() {
             this.head = this;
@@ -46,6 +53,16 @@ public class TweenEngine {
             return nextTweenObject;
         }
 
+        public TweenObject tween(float tweenFrom, float tweenTo, float duration, Type type) {
+            this.set = true;
+            this.beginning = tweenFrom;
+            this.end = tweenTo;
+            this.duration = duration;
+            this.easingType = type;
+            nextTweenObject = new TweenObject(this.head, this);
+            return nextTweenObject;
+        }
+
         /*public TweenObject delay(float duration) {
             this.set = true;
             this.delay = true;
@@ -58,14 +75,25 @@ public class TweenEngine {
             return this.tween(prevTweenObject.entity, prevTweenObject.indexToTween, prevTweenObject.boundingBoxToTween, prevTweenObject.beginning, prevTweenObject.duration, prevTweenObject.easingType);
         }*/
 
-        public TweenObject notifyTweenFinished(ActionListener actionListener) {
+        public TweenObject notifyTweenFinished(TweenListener actionListener) {
             this.prevTweenObject.actionListener = actionListener;
+            return this;
+        }
+
+        public TweenObject onTweenUpdated(TweenListener updateListener) {
+            this.prevTweenObject.updateListener = updateListener;
             return this;
         }
 
         private void tweenFinished () {
             if (actionListener != null) {
-                this.actionListener.actionPerformed(null);
+                this.actionListener.tweenAction(0);
+            }
+        }
+
+        private void tweenUpdated() {
+            if (updateListener != null) {
+                this.updateListener.tweenAction(value);
             }
         }
 
@@ -93,6 +121,10 @@ public class TweenEngine {
         return new TweenObject().tween(entity, indexToTween, boundingBoxToTween, tweenTo , duration, type);
     }
 
+    public TweenObject tween(float tweenFrom, float tweenTo, float duration, Type type) {
+        return new TweenObject().tween(tweenFrom, tweenTo , duration, type);
+    }
+
     /*public TweenObject delay (float duration){
         return new TweenObject().delay(duration);
     }*/
@@ -103,15 +135,23 @@ public class TweenEngine {
             TweenObject tweenObject = tweenObjects.get(i);
 
             if (!tweenObject.delay) {
-                tweenObject.entity[tweenObject.indexToTween] = updateEasing(tweenObject.easingType, tweenObject.time, tweenObject.beginning, tweenObject.end, tweenObject.duration);
-                if (tweenObject.boundingBoxToTween != -1) {
-                    tweenObject.entity[tweenObject.boundingBoxToTween] = tweenObject.entity[tweenObject.indexToTween];
+                if (tweenObject.entity == null) {
+                    tweenObject.value = updateEasing(tweenObject.easingType, tweenObject.time, tweenObject.beginning, tweenObject.end, tweenObject.duration);
+                } else {
+                    tweenObject.entity[tweenObject.indexToTween] = updateEasing(tweenObject.easingType, tweenObject.time, tweenObject.beginning, tweenObject.end, tweenObject.duration);
+                    if (tweenObject.boundingBoxToTween != -1) {
+                        tweenObject.entity[tweenObject.boundingBoxToTween] = tweenObject.entity[tweenObject.indexToTween];
+                    }
                 }
             }
 
             if (tweenObject.time + deltaTime > tweenObject.duration) {
                 if (!tweenObject.delay) {
-                    tweenObject.entity[tweenObject.indexToTween] = tweenObject.end;
+                    if (tweenObject.entity == null) {
+                        tweenObject.value =  tweenObject.end;
+                    } else {
+                        tweenObject.entity[tweenObject.indexToTween] = tweenObject.end;
+                    }
                 }
                 tweenObject.time = tweenObject.duration;
                 tweenObject.finished = true;
@@ -119,13 +159,21 @@ public class TweenEngine {
                 tweenObject.time += deltaTime;
             }
 
+            tweenObject.tweenUpdated();
+
             if (tweenObject.finished) {
 
                 if (!tweenObject.delay) {
-                    tweenObject.entity[tweenObject.indexToTween] = tweenObject.end;
-                    if (tweenObject.boundingBoxToTween != -1) {
-                        tweenObject.entity[tweenObject.boundingBoxToTween] = tweenObject.end;
+
+                    if (tweenObject.entity == null) {
+                        tweenObject.value =  tweenObject.end;
+                    } else {
+                        tweenObject.entity[tweenObject.indexToTween] = tweenObject.end;
+                        if (tweenObject.boundingBoxToTween != -1) {
+                            tweenObject.entity[tweenObject.boundingBoxToTween] = tweenObject.end;
+                        }
                     }
+
                     tweenObject.nextTweenObject.beginning = tweenObject.end;
                 }
 
@@ -137,6 +185,7 @@ public class TweenEngine {
                 tweenObject.tweenFinished();
                 tweenObjects.remove(i);
             }
+
         }
 
     }
@@ -154,8 +203,8 @@ public class TweenEngine {
         BackEaseInOut,
         ElasticEaseIn,
         ElasticEaseOut,
-        ElasticEaseInOut,
-        BounceEaseIn,
+        ElasticEaseInOut
+        /*BounceEaseIn,
         BounceEaseOut,
         BounceEaseInOut*/
     }

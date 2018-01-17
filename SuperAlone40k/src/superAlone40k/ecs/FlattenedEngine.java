@@ -1,5 +1,6 @@
 package superAlone40k.ecs;
 
+import jdk.nashorn.internal.runtime.Debug;
 import superAlone40k.Main;
 import superAlone40k.renderer.Renderer;
 import superAlone40k.util.*;
@@ -52,6 +53,12 @@ public class FlattenedEngine {
     private Font brandonSmall = new Font("BrandonGrotesque-Black", Font.PLAIN, 150);
     private Font brandonTiny = new Font("BrandonGrotesque-Black", Font.PLAIN, 20);
 
+    private int writeScore;
+    private int oldWriteScore;
+    private boolean first = true;
+    private int playerY;
+    private int scoreHeight = Main.HEIGHT / 2 - 50;
+
     private FontMetrics metricsBrandonBig;
     private FontMetrics metricsBrandonSmall;
     private FontMetrics metricsBrandonTiny;
@@ -77,9 +84,6 @@ public class FlattenedEngine {
         updating = false;
     }
 
-    private int playerXLerp;
-    private int playerYLerp;
-
     public void render(Graphics2D graphics) {
     	final List<float[]> lights = systemViews[3];
 
@@ -102,32 +106,53 @@ public class FlattenedEngine {
 
         if (Level.getGameState() == 1) {
 
+            first = true;
+
             highScore =  (int) Math.max((-camera.getTranslateX() - 180) / (Main.WIDTH / 8), 0);
 
             int playerX = (int)Entities.getFirstPlayer()[EntityIndex.POSITION_X.getIndex()];
 
             if (playerX < 1000) {
-                playerXLerp = lerp(playerXLerp, playerX, 0.2f);
-
-                int playerY = (int) Entities.getFirstPlayer()[EntityIndex.POSITION_Y.getIndex()] - 130;
-                playerYLerp = lerp(playerYLerp, playerY, 0.2f);
-
-                drawLeftCenteredString(graphics, "A & D",  playerXLerp + 5, playerYLerp - 50, brandonTiny, Renderer.PLAYER_COLOR, metricsBrandonTiny);
-                drawRightCenteredString(graphics, "MOVE", playerXLerp - 5, playerYLerp - 50, brandonTiny, Renderer.BULLET_COLOR, metricsBrandonTiny);
-
-                drawLeftCenteredString(graphics, "SPACE", playerXLerp + 5, playerYLerp, brandonTiny, Renderer.PLAYER_COLOR, metricsBrandonTiny);
-                drawRightCenteredString(graphics, "JUMP", playerXLerp - 5, playerYLerp, brandonTiny, Renderer.BULLET_COLOR, metricsBrandonTiny);
-
-                drawLeftCenteredString(graphics, "S", playerXLerp + 5, playerYLerp + 50, brandonTiny, Renderer.PLAYER_COLOR, metricsBrandonTiny);
-                drawRightCenteredString(graphics, "DUCK", playerXLerp -5, playerYLerp + 50, brandonTiny, Renderer.BULLET_COLOR, metricsBrandonTiny);
-            } else {
-                drawCenteredString(graphics, highScore + "", (int) (Main.WIDTH / 2 - camera.getTranslateX()), (int) (Main.HEIGHT / 2 - camera.getTranslateY()), brandonBig, Renderer.SCORE_COLOR, metricsBrandonBig);
+                playerY = (int) Entities.getFirstPlayer()[EntityIndex.POSITION_Y.getIndex()] - 130;
             }
 
+            playerX = Math.min(playerX, 1000);
+
+            drawLeftCenteredString(graphics, "A & D",  playerX + 5, playerY - 50, brandonTiny, Renderer.PLAYER_COLOR, metricsBrandonTiny);
+            drawRightCenteredString(graphics, "MOVE", playerX - 5, playerY - 50, brandonTiny, Renderer.BULLET_COLOR, metricsBrandonTiny);
+
+            drawLeftCenteredString(graphics, "SPACE", playerX + 5, playerY, brandonTiny, Renderer.PLAYER_COLOR, metricsBrandonTiny);
+            drawRightCenteredString(graphics, "JUMP", playerX - 5, playerY, brandonTiny, Renderer.BULLET_COLOR, metricsBrandonTiny);
+
+            drawLeftCenteredString(graphics, "S", playerX + 5, playerY + 50, brandonTiny, Renderer.PLAYER_COLOR, metricsBrandonTiny);
+            drawRightCenteredString(graphics, "CROUCH", playerX -5, playerY + 50, brandonTiny, Renderer.BULLET_COLOR, metricsBrandonTiny);
+
+            drawCenteredString(graphics, highScore + "", (int) (Main.WIDTH / 2 - camera.getTranslateX()), Main.HEIGHT / 2 - 50, brandonBig, Renderer.SCORE_COLOR, metricsBrandonBig);
         }
 
 		if (Level.getGameState() == 2) {
-            drawCenteredString(graphics, "SCORE " + highScore, Main.WIDTH / 2, Main.HEIGHT / 2, brandonSmall, Renderer.BULLET_COLOR, metricsBrandonSmall);
+    	    if (first) {
+    	        first = false;
+                scoreHeight = Main.HEIGHT / 2 - 50;
+                TweenEngine.getInstance()
+                        .tween(0, highScore, highScore * 0.1f, TweenEngine.Type.SineEaseInOut)
+                        .onTweenUpdated((value) -> {
+                            writeScore = (int)value;
+                            if (writeScore != oldWriteScore) {
+                                oldWriteScore = writeScore;
+                                TweenEngine.getInstance()
+                                        .tween(Main.HEIGHT / 2 - 40, Main.HEIGHT / 2 - 50, 0.1f, TweenEngine.Type.SineEaseInOut)
+                                        .onTweenUpdated((value2) -> scoreHeight = (int)value2)
+                                        .start();
+                            }
+
+                        })
+                        .start();
+            }
+
+
+            drawRightCenteredString(graphics, "SCORE", Main.WIDTH / 2 + 180, Main.HEIGHT / 2 - 50, brandonSmall, Renderer.BULLET_COLOR, metricsBrandonSmall);
+            drawLeftCenteredString(graphics, writeScore + "", Main.WIDTH / 2 + 200, scoreHeight, brandonSmall, Renderer.PLAYER_COLOR, metricsBrandonSmall);
             drawCenteredString(graphics, "PRESS SPACE TO PLAY AGAIN", Main.WIDTH / 2, (int) (Main.HEIGHT * 0.9f), brandonTiny, Renderer.BULLETTRAIL_GRADIENT_DARK, metricsBrandonTiny);
         }
     }
