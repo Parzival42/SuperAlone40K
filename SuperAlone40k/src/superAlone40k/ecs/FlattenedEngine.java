@@ -76,7 +76,10 @@ public class FlattenedEngine {
 
         updating = false;
     }
-    
+
+    private int playerXLerp;
+    private int playerYLerp;
+
     public void render(Graphics2D graphics) {
     	final List<float[]> lights = systemViews[3];
 
@@ -84,12 +87,6 @@ public class FlattenedEngine {
     	for(float[] lightEntity : lights) {
     		calculateShadows(lightEntity, graphics);
     	}
-
-    	int score = (int) (-camera.getTranslateX() / (Main.WIDTH / 8));
-
-    	if (score > highScore) {
-    	    highScore = score;
-        }
 
         if (firstRender) {
     	    firstRender = false;
@@ -99,19 +96,45 @@ public class FlattenedEngine {
         }
 
 		if (Level.getGameState() == 0) {
-    	    highScore = 0;
             drawCenteredString(graphics,"SUPER ALONE", Main.WIDTH / 2, Main.HEIGHT / 2, brandonSmall, Renderer.BULLET_COLOR, metricsBrandonSmall);
             drawCenteredString(graphics,"PRESS SPACE TO START", Main.WIDTH / 2, (int) (Main.HEIGHT * 0.9f), brandonTiny, Renderer.BULLETTRAIL_GRADIENT_DARK, metricsBrandonTiny);
         }
 
         if (Level.getGameState() == 1) {
-            drawCenteredString(graphics, highScore + "", (int) (Main.WIDTH / 2 - camera.getTranslateX()), (int) (Main.HEIGHT / 2 - camera.getTranslateY()), brandonBig, Renderer.SCORE_COLOR, metricsBrandonBig);
+
+            highScore =  (int) Math.max((-camera.getTranslateX() - 180) / (Main.WIDTH / 8), 0);
+
+            int playerX = (int)Entities.getFirstPlayer()[EntityIndex.POSITION_X.getIndex()];
+
+            if (playerX < 1000) {
+                playerXLerp = lerp(playerXLerp, playerX, 0.2f);
+
+                int playerY = (int) Entities.getFirstPlayer()[EntityIndex.POSITION_Y.getIndex()] - 130;
+                playerYLerp = lerp(playerYLerp, playerY, 0.2f);
+
+                drawLeftCenteredString(graphics, "A & D",  playerXLerp + 5, playerYLerp - 50, brandonTiny, Renderer.PLAYER_COLOR, metricsBrandonTiny);
+                drawRightCenteredString(graphics, "MOVE", playerXLerp - 5, playerYLerp - 50, brandonTiny, Renderer.BULLET_COLOR, metricsBrandonTiny);
+
+                drawLeftCenteredString(graphics, "SPACE", playerXLerp + 5, playerYLerp, brandonTiny, Renderer.PLAYER_COLOR, metricsBrandonTiny);
+                drawRightCenteredString(graphics, "JUMP", playerXLerp - 5, playerYLerp, brandonTiny, Renderer.BULLET_COLOR, metricsBrandonTiny);
+
+                drawLeftCenteredString(graphics, "S", playerXLerp + 5, playerYLerp + 50, brandonTiny, Renderer.PLAYER_COLOR, metricsBrandonTiny);
+                drawRightCenteredString(graphics, "DUCK", playerXLerp -5, playerYLerp + 50, brandonTiny, Renderer.BULLET_COLOR, metricsBrandonTiny);
+            } else {
+                drawCenteredString(graphics, highScore + "", (int) (Main.WIDTH / 2 - camera.getTranslateX()), (int) (Main.HEIGHT / 2 - camera.getTranslateY()), brandonBig, Renderer.SCORE_COLOR, metricsBrandonBig);
+            }
+
         }
 
 		if (Level.getGameState() == 2) {
             drawCenteredString(graphics, "SCORE " + highScore, Main.WIDTH / 2, Main.HEIGHT / 2, brandonSmall, Renderer.BULLET_COLOR, metricsBrandonSmall);
-            drawCenteredString(graphics, "PRESS N TO CONTINUE", Main.WIDTH / 2, (int) (Main.HEIGHT * 0.9f), brandonTiny, Renderer.BULLETTRAIL_GRADIENT_DARK, metricsBrandonTiny);
+            drawCenteredString(graphics, "PRESS SPACE TO PLAY AGAIN", Main.WIDTH / 2, (int) (Main.HEIGHT * 0.9f), brandonTiny, Renderer.BULLETTRAIL_GRADIENT_DARK, metricsBrandonTiny);
         }
+    }
+
+    int lerp(float point1, float point2, float alpha)
+    {
+        return (int) (point1 + alpha * (point2 - point1));
     }
 
     private FontMetrics getFontMetrics(Graphics g, Font font) {
@@ -122,6 +145,18 @@ public class FlattenedEngine {
         g.setColor(color);
         g.setFont(font);
         g.drawString(text, x - metrics.stringWidth(text) / 2, y + metrics.getHeight() / 4);
+    }
+
+    public void drawLeftCenteredString(Graphics g, String text, int x, int y, Font font, Color color, FontMetrics metrics) {
+        g.setColor(color);
+        g.setFont(font);
+        g.drawString(text, x, y + metrics.getHeight() / 4);
+    }
+
+    public void drawRightCenteredString(Graphics g, String text, int x, int y, Font font, Color color, FontMetrics metrics) {
+        g.setColor(color);
+        g.setFont(font);
+        g.drawString(text, x - metrics.stringWidth(text), y + metrics.getHeight() / 4);
     }
 
     private void updateEntities() {
@@ -409,8 +444,13 @@ public class FlattenedEngine {
             emitBullets = false;
             suspendPlayer(Entities.getFirstPlayer());
             currentTimeScale = 1.0f;
-            if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_N)) {
-                Level.setGameState(0);
+            //if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_SPACE)) {
+            if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_SPACE)) {
+                emitBullets = true;
+                Level.setGameState(1);
+                minPosX = 0;
+                maxPosX = 600;
+                //Level.setGameState(0);
             }
         }
         
