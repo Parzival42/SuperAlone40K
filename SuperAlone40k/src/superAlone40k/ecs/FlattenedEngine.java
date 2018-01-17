@@ -114,18 +114,21 @@ public class FlattenedEngine {
 
             if (playerX < 1000) {
                 playerY = (int) Entities.getFirstPlayer()[EntityIndex.POSITION_Y.getIndex()] - 130;
+
+                playerX = Math.min(playerX, 1000);
+
+                drawLeftCenteredString(graphics, "A & D",  playerX + 5, playerY - 50, brandonTiny, Renderer.PLAYER_COLOR, metricsBrandonTiny);
+                drawRightCenteredString(graphics, "MOVE", playerX - 5, playerY - 50, brandonTiny, Renderer.BULLET_COLOR, metricsBrandonTiny);
+
+                drawLeftCenteredString(graphics, "SPACE", playerX + 5, playerY, brandonTiny, Renderer.PLAYER_COLOR, metricsBrandonTiny);
+                drawRightCenteredString(graphics, "JUMP", playerX - 5, playerY, brandonTiny, Renderer.BULLET_COLOR, metricsBrandonTiny);
+
+                drawLeftCenteredString(graphics, "S", playerX + 5, playerY + 50, brandonTiny, Renderer.PLAYER_COLOR, metricsBrandonTiny);
+                drawRightCenteredString(graphics, "DUCK", playerX -5, playerY + 50, brandonTiny, Renderer.BULLET_COLOR, metricsBrandonTiny);
+
             }
 
-            playerX = Math.min(playerX, 1000);
 
-            drawLeftCenteredString(graphics, "A & D",  playerX + 5, playerY - 50, brandonTiny, Renderer.PLAYER_COLOR, metricsBrandonTiny);
-            drawRightCenteredString(graphics, "MOVE", playerX - 5, playerY - 50, brandonTiny, Renderer.BULLET_COLOR, metricsBrandonTiny);
-
-            drawLeftCenteredString(graphics, "SPACE", playerX + 5, playerY, brandonTiny, Renderer.PLAYER_COLOR, metricsBrandonTiny);
-            drawRightCenteredString(graphics, "JUMP", playerX - 5, playerY, brandonTiny, Renderer.BULLET_COLOR, metricsBrandonTiny);
-
-            drawLeftCenteredString(graphics, "S", playerX + 5, playerY + 50, brandonTiny, Renderer.PLAYER_COLOR, metricsBrandonTiny);
-            drawRightCenteredString(graphics, "CROUCH", playerX -5, playerY + 50, brandonTiny, Renderer.BULLET_COLOR, metricsBrandonTiny);
 
             drawCenteredString(graphics, highScore + "", (int) (Main.WIDTH / 2 - camera.getTranslateX()), Main.HEIGHT / 2 - 50, brandonBig, Renderer.SCORE_COLOR, metricsBrandonBig);
         }
