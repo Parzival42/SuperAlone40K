@@ -11,6 +11,7 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -125,12 +126,9 @@ public class FlattenedEngine {
 
                 drawLeftCenteredString(graphics, "S", playerX + 5, playerY + 50, brandonTiny, Renderer.PLAYER_COLOR, metricsBrandonTiny);
                 drawRightCenteredString(graphics, "DUCK", playerX -5, playerY + 50, brandonTiny, Renderer.BULLET_COLOR, metricsBrandonTiny);
-
+            } else {
+                drawCenteredString(graphics, highScore + "", (int) (Main.WIDTH / 2 - camera.getTranslateX()), Main.HEIGHT / 2 - 50, brandonBig, Renderer.SCORE_COLOR, metricsBrandonBig);
             }
-
-
-
-            drawCenteredString(graphics, highScore + "", (int) (Main.WIDTH / 2 - camera.getTranslateX()), Main.HEIGHT / 2 - 50, brandonBig, Renderer.SCORE_COLOR, metricsBrandonBig);
         }
 
 		if (Level.getGameState() == 2) {
@@ -153,6 +151,7 @@ public class FlattenedEngine {
                         .start();
             }
 
+            writeScore = Math.min(writeScore, highScore);
 
             drawRightCenteredString(graphics, "SCORE", Main.WIDTH / 2 + 180, Main.HEIGHT / 2 - 50, brandonSmall, Renderer.BULLET_COLOR, metricsBrandonSmall);
             drawLeftCenteredString(graphics, writeScore + "", Main.WIDTH / 2 + 200, scoreHeight, brandonSmall, Renderer.PLAYER_COLOR, metricsBrandonSmall);
@@ -472,7 +471,7 @@ public class FlattenedEngine {
             emitBullets = false;
             suspendPlayer(Entities.getFirstPlayer());
             currentTimeScale = 1.0f;
-            //if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_SPACE)) {
+            //if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_N)) {
             if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_SPACE)) {
                 emitBullets = true;
                 Level.setGameState(1);
@@ -640,8 +639,16 @@ public class FlattenedEngine {
     		}
     	}
 
-        graphics.setPaint(new GradientPaint((float)-camera.getTranslateX(), 0, Renderer.BACKGROUND_GRADIENT_DARK, (float)(Main.WIDTH -camera.getTranslateX()), 0, Renderer.BACKGROUND_GRADIENT_LIGHT));
-    	
+        RadialGradientPaint rgp = new RadialGradientPaint(
+                new Point2D.Float((float)(Main.WIDTH - camera.getTranslateX()) , Main.HEIGHT * 0.2f),
+                Main.WIDTH,
+                new float[] {0.0f, 1f},
+                new Color[] {Renderer.BACKGROUND_GRADIENT_LIGHT, Renderer.BACKGROUND_GRADIENT_DARK});
+
+        //graphics.setPaint(new GradientPaint((float)-camera.getTranslateX(), 0, Renderer.BACKGROUND_GRADIENT_DARK, (float)(Main.WIDTH -camera.getTranslateX()), 0, Renderer.BACKGROUND_GRADIENT_LIGHT));
+
+
+        graphics.setPaint(rgp);
 		path.closePath();
 
 		// TODO: clip image for background

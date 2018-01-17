@@ -45,14 +45,6 @@ public class Renderer {
     			(int) Entities.RAIN_PARTICLE_WIDTH,
     			PRE_CALCULATED_RAINDROP_HEIGHT, 
     			new GradientPaint(0, 0, Renderer.RAIN_GRADIENT_DARK, 0, PRE_CALCULATED_RAINDROP_HEIGHT, Renderer.RAIN_GRADIENT_LIGHT, true));
-    	
-    	final int radialWidth = (int) (Main.WIDTH * 2.5);
-    	final int radialHeight = (int) (Main.HEIGHT * 2.5);
-    	final RadialGradientPaint radialGradient = new RadialGradientPaint(
-    			new Point2D.Float(radialWidth / 2, radialHeight / 2),
-    			650f,
-    			new float[] {0.2f, 0.9f},
-    			new Color[] {new Color(37, 51, 67), new Color(46, 61, 83)});
 
     	background = createGradientImage(
 				Main.WIDTH,
