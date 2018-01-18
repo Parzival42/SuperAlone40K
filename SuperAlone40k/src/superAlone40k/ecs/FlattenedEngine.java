@@ -127,6 +127,10 @@ public class FlattenedEngine {
                 drawLeftCenteredString(graphics, "S", playerX + 5, playerY + 50, brandonTiny, Renderer.PLAYER_COLOR, metricsBrandonTiny);
                 drawRightCenteredString(graphics, "DUCK", playerX -5, playerY + 50, brandonTiny, Renderer.BULLET_COLOR, metricsBrandonTiny);
             } else {
+                if (highScore != oldHighscore) {
+                    oldHighscore = highScore;
+                    //Sound.playNoteFor(playerJumpChannel, 100, 1000);
+                }
                 drawCenteredString(graphics, highScore + "", (int) (Main.WIDTH / 2 - camera.getTranslateX()), Main.HEIGHT / 2 - 50, brandonBig, Renderer.SCORE_COLOR, metricsBrandonBig);
             }
         }
@@ -136,11 +140,12 @@ public class FlattenedEngine {
     	        first = false;
                 scoreHeight = Main.HEIGHT / 2 - 50;
                 TweenEngine.getInstance()
-                        .tween(0, highScore, highScore * 0.1f, TweenEngine.Type.SineEaseInOut)
+                        .tween(0, highScore, highScore * 0.1f, TweenEngine.Type.CubicEaseInOut)
                         .onTweenUpdated((value) -> {
                             writeScore = (int)value;
                             if (writeScore != oldWriteScore) {
                                 oldWriteScore = writeScore;
+                                Sound.playNoteFor(playerJumpChannel, 100, 1000);
                                 TweenEngine.getInstance()
                                         .tween(Main.HEIGHT / 2 - 40, Main.HEIGHT / 2 - 50, 0.1f, TweenEngine.Type.SineEaseInOut)
                                         .onTweenUpdated((value2) -> scoreHeight = (int)value2)
@@ -158,6 +163,8 @@ public class FlattenedEngine {
             drawCenteredString(graphics, "PRESS SPACE TO PLAY AGAIN", Main.WIDTH / 2, (int) (Main.HEIGHT * 0.9f), brandonTiny, Renderer.BULLETTRAIL_GRADIENT_DARK, metricsBrandonTiny);
         }
     }
+
+    int oldHighscore;
 
     int lerp(float point1, float point2, float alpha)
     {
