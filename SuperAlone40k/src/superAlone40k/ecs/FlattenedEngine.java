@@ -1075,8 +1075,8 @@ public class FlattenedEngine {
     private float minHeight =  Main.HEIGHT / 5.0f;
     private float maxHeight =  Main.HEIGHT * 0.85f;
 
-    private float initialRateOfFire = 1.75f;
-    private float currentRateOfFire = 1.0f/initialRateOfFire;
+    private float initialRateOfFire = 1.0f/1.75f;
+    private float currentRateOfFire = initialRateOfFire;
     private float spawnPosX = Main.WIDTH * 1.5f;
 
     private float elapsedTime = 0.0f;
