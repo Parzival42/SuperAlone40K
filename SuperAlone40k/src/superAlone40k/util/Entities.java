@@ -40,7 +40,7 @@ public class Entities {
                 .setGravitationInfluence(1.0f)
                 .setDrag(0.95f)
                 .setTriggerPosition(new Vector2(0, extent.y))
-                .setTriggerExtent(new Vector2(10,3))
+                .setTriggerExtent(new Vector2(19,3))
                 .setTriggerCollisionType(0.0f)
                 .setLifetime(1.0f)
                 .create();
