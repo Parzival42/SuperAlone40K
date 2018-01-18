@@ -67,6 +67,7 @@ public class FlattenedEngine {
     private MidiChannel playerJumpChannel = Sound.getChannelBy(Sound.PLAYER_JUMP);
     private MidiChannel playerCollisionChannel = Sound.getChannelBy(Sound.PLAYER_COLLIDE);
     private MidiChannel playerDeathChannel = Sound.getChannelBy(Sound.PLAYER_DEATH);
+    private MidiChannel playerScoreChannel = Sound.getChannelBy(Sound.PLAYER_SCORE);
 
     public FlattenedEngine() {
         systemViews = new ArrayList[systemMethods.length];
@@ -129,7 +130,7 @@ public class FlattenedEngine {
             } else {
                 if (highScore != oldHighscore) {
                     oldHighscore = highScore;
-                    //Sound.playNoteFor(playerJumpChannel, 100, 1000);
+                    Sound.playNoteFor(playerScoreChannel, 100, 1000);
                 }
                 drawCenteredString(graphics, highScore + "", (int) (Main.WIDTH / 2 - camera.getTranslateX()), Main.HEIGHT / 2 - 50, brandonBig, Renderer.SCORE_COLOR, metricsBrandonBig);
             }
@@ -145,7 +146,7 @@ public class FlattenedEngine {
                             writeScore = (int)value;
                             if (writeScore != oldWriteScore) {
                                 oldWriteScore = writeScore;
-                                Sound.playNoteFor(playerJumpChannel, 100, 1000);
+                                Sound.playNoteFor(playerScoreChannel, 100, 1000);
                                 TweenEngine.getInstance()
                                         .tween(Main.HEIGHT / 2 - 40, Main.HEIGHT / 2 - 50, 0.1f, TweenEngine.Type.SineEaseInOut)
                                         .onTweenUpdated((value2) -> scoreHeight = (int)value2)
@@ -646,16 +647,17 @@ public class FlattenedEngine {
     		}
     	}
 
-        RadialGradientPaint rgp = new RadialGradientPaint(
+        /*RadialGradientPaint rgp = new RadialGradientPaint(
                 new Point2D.Float((float)(Main.WIDTH - camera.getTranslateX()) , Main.HEIGHT * 0.2f),
                 Main.WIDTH,
                 new float[] {0.0f, 1f},
                 new Color[] {Renderer.BACKGROUND_GRADIENT_LIGHT, Renderer.BACKGROUND_GRADIENT_DARK});
 
-        //graphics.setPaint(new GradientPaint((float)-camera.getTranslateX(), 0, Renderer.BACKGROUND_GRADIENT_DARK, (float)(Main.WIDTH -camera.getTranslateX()), 0, Renderer.BACKGROUND_GRADIENT_LIGHT));
+        graphics.setPaint(rgp);*/
+
+        graphics.setPaint(new GradientPaint((float)-camera.getTranslateX(), 0, Renderer.BACKGROUND_GRADIENT_DARK, (float)(Main.WIDTH -camera.getTranslateX()), 0, Renderer.BACKGROUND_GRADIENT_LIGHT));
 
 
-        graphics.setPaint(rgp);
 		path.closePath();
 
 		// TODO: clip image for background
