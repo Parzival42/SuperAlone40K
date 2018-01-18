@@ -215,9 +215,9 @@ public class Level {
         float[] segmentPositions = getSegmentPositions(segmentDimensions);
 
         int step = random.nextFloat() > 0.5f ? 14 : 19;
-        Vector2 min = new Vector2(segmentPositions[0] + segmentDimensions[0]/2.0f,step*cellHeight);
-        Vector2 max = new Vector2(segmentPositions[segments-1] + segmentDimensions[segments-1]/2.0f,step*cellHeight);
-        engine.addEntity(Entities.createMovingPlatform(min, new Vector2(40.0f +random.nextFloat()*20.0f, 15), new Vector2(200+random.nextFloat()*50.0f,0), min, max));
+        Vector2 min = new Vector2(segmentPositions[0] + segmentDimensions[0]/4.0f,step*cellHeight);
+        Vector2 max = new Vector2(segmentPositions[segments-1] + segmentDimensions[segments-1]/4.0f*3.0f,step*cellHeight);
+        engine.addEntity(Entities.createMovingPlatform(min, new Vector2(60.0f +random.nextFloat()*20.0f, 10), new Vector2(200+random.nextFloat()*50.0f,0), min, max));
 
         lastSector = WATER_HOR_PLATFORM;
     }
@@ -230,7 +230,7 @@ public class Level {
         int index = segments == 2 ? 0 : 1;
         Vector2 min = new Vector2(segmentPositions[index] + segmentDimensions[index]/2.0f,12*cellHeight);
         Vector2 max = new Vector2(segmentPositions[index] + segmentDimensions[index]/2.0f,21*cellHeight);
-        engine.addEntity(Entities.createMovingPlatform(min, new Vector2(40.0f +random.nextFloat()*20.0f, 15), new Vector2(0,200+random.nextFloat()*50.0f), min, max));
+        engine.addEntity(Entities.createMovingPlatform(min, new Vector2(40.0f +random.nextFloat()*20.0f, 10), new Vector2(0,200+random.nextFloat()*50.0f), min, max));
 
         lastSector = WATER_VER_PLATFORM;
     }

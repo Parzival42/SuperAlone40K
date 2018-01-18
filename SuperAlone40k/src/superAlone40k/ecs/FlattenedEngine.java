@@ -481,7 +481,7 @@ public class FlattenedEngine {
             emitBullets = false;
             suspendPlayer(Entities.getFirstPlayer());
             currentTimeScale = 1.0f;
-            currentBulletSpeed = initialBulletSpeed;
+            resetDifficulty();
             //if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_N)) {
             if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_SPACE)) {
                 emitBullets = true;
@@ -1075,7 +1075,7 @@ public class FlattenedEngine {
     private float minHeight =  Main.HEIGHT / 5.0f;
     private float maxHeight =  Main.HEIGHT * 0.85f;
 
-    private float initialRateOfFire = 1.8f;
+    private float initialRateOfFire = 1.5f;
     private float currentRateOfFire = 1.0f/initialRateOfFire;
     private float spawnPosX = Main.WIDTH * 1.5f;
 
@@ -1085,10 +1085,10 @@ public class FlattenedEngine {
     private float initialBulletSpeed = -500.f;
     private float currentBulletSpeed = initialBulletSpeed;
 
-    private int initialWaveCount = 15;
+    private int initialWaveCount = 10;
     private int currentWaveCount = initialWaveCount;
 
-    private float increasePercentage = 0.02f;
+    private float increasePercentage = 0.05f;
     private boolean emitBullets = false;
 
 
@@ -1108,10 +1108,16 @@ public class FlattenedEngine {
         }
     }
 
+    private void resetDifficulty(){
+        currentWaveCount = initialWaveCount;
+        currentBulletSpeed = initialBulletSpeed;
+        currentRateOfFire = initialRateOfFire;
+    }
+
     private void increaseDifficulty() {
         currentWaveCount = initialWaveCount;
-		currentBulletSpeed = currentBulletSpeed * (1.0f + increasePercentage);
-        currentRateOfFire -= currentRateOfFire * increasePercentage;
+		currentBulletSpeed = currentBulletSpeed * (1.0f + increasePercentage/2.0f);
+        currentRateOfFire -= Math.max(currentRateOfFire * increasePercentage, 0.00001f);
     }
 
     private void spawnBullet() {
