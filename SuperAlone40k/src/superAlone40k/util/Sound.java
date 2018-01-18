@@ -31,6 +31,7 @@ public class Sound {
 	public static int PLAYER_JUMP = 1;
 	public static int PLAYER_COLLIDE = 2;
 	public static int PLAYER_DEATH = 3;
+    public static int PLAYER_SCORE = 4;
 	
 	// Max. of 16 channels is possible!
 	private static Map<Integer, MidiChannel> channelById = new HashMap<>();
