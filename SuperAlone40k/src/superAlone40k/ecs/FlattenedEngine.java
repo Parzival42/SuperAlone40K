@@ -1118,7 +1118,6 @@ public class FlattenedEngine {
         currentWaveCount = initialWaveCount;
 		currentBulletSpeed = currentBulletSpeed * (1.0f + increasePercentage/2.0f);
         currentRateOfFire -= Math.max(currentRateOfFire * increasePercentage, 0.00001f);
-        System.out.println(currentBulletSpeed + " : " + currentRateOfFire);
     }
 
     private void spawnBullet() {
