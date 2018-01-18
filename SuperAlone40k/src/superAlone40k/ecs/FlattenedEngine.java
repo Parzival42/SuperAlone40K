@@ -129,7 +129,7 @@ public class FlattenedEngine {
             } else {
                 if (highScore != oldHighscore) {
                     oldHighscore = highScore;
-                    //Sound.playNoteFor(playerJumpChannel, 100, 1000);
+                    Sound.playNoteFor(playerJumpChannel, 100, 1000);
                 }
                 drawCenteredString(graphics, highScore + "", (int) (Main.WIDTH / 2 - camera.getTranslateX()), Main.HEIGHT / 2 - 50, brandonBig, Renderer.SCORE_COLOR, metricsBrandonBig);
             }
@@ -478,6 +478,7 @@ public class FlattenedEngine {
             emitBullets = false;
             suspendPlayer(Entities.getFirstPlayer());
             currentTimeScale = 1.0f;
+            currentBulletSpeed = initialBulletSpeed;
             //if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_N)) {
             if(WindowWithFlattenedECS.isKeyPressed(KeyEvent.VK_SPACE)) {
                 emitBullets = true;
